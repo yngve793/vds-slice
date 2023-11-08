@@ -20,6 +20,7 @@ var well_known_custom_axis_order = make_connection("well_known/well_known_custom
 var invalid_axes_names = make_connection("invalid_data/invalid_axes_names.vds")
 var well_known = make_connection("well_known/well_known_default.vds")
 var samples10 = make_connection("10_samples/10_samples_default.vds")
+var samples10_2x = make_connection("10_samples/10_samples_default_2x.vds")
 var prestack = make_connection("prestack/prestack_default.vds")
 
 var fillValue = float32(-999.25)

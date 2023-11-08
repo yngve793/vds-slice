@@ -21,6 +21,7 @@ target_link_libraries(cppcoretests
 )
 
 configure_file(../../testdata/10_samples/10_samples_default.vds 10_samples_default.vds COPYONLY)
+configure_file(../../testdata/10_samples/10_samples_default_2x.vds 10_samples_default_2x.vds COPYONLY)
 
 configure_file(../../testdata/dimensions_data/dimensions_data_il_10_xl_20_s_30.vds . COPYONLY)
 configure_file(../../testdata/dimensions_data/dimensions_data_il_11_xl_20_s_30.vds . COPYONLY)
