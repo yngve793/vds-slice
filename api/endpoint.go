@@ -70,7 +70,7 @@ func (e *Endpoint) metadata(ctx *gin.Context, request MetadataRequest) {
 		return
 	}
 
-	handle, err := core.NewVDSHandle(conn)
+	handle, err := core.NewVDSHandle([]core.Connection{conn})
 	if abortOnError(ctx, err) {
 		return
 	}
@@ -89,9 +89,17 @@ func (e *Endpoint) makeDataRequest(
 	request DataRequest,
 ) {
 	prepareRequestLogging(ctx, request)
-	conn, err := e.MakeVdsConnection(request.credentials())
-	if abortOnError(ctx, err) {
-		return
+
+	vds_url, sas_key := request.credentials()
+	var conn []core.Connection
+
+	for i := 0; i < len(vds_url); i++ {
+		fmt.Println(vds_url[i])
+		conn_t, err := e.MakeVdsConnection(vds_url[i], sas_key[i])
+		conn = append(conn, conn_t)
+		if abortOnError(ctx, err) {
+			return
+		}
 	}
 
 	cacheKey, err := request.hash()
@@ -100,10 +108,12 @@ func (e *Endpoint) makeDataRequest(
 	}
 
 	cacheEntry, hit := e.Cache.Get(cacheKey)
-	if hit && conn.IsAuthorizedToRead() {
-		ctx.Set("cache-hit", true)
-		writeResponse(ctx, cacheEntry.Metadata(), cacheEntry.Data())
-		return
+	for i := 0; i < len(conn); i++ {
+		if hit && conn[i].IsAuthorizedToRead() {
+			ctx.Set("cache-hit", true)
+			writeResponse(ctx, cacheEntry.Metadata(), cacheEntry.Data())
+			return
+		}
 	}
 
 	handle, err := core.NewVDSHandle(conn)
@@ -313,6 +323,39 @@ func (request FenceRequest) execute(
 	}
 	data = [][]byte{res}
 
+	return data, metadata, nil
+}
+
+func (request Fence4dRequest) execute(
+	handle core.VDSHandle,
+) (data [][]byte, metadata []byte, err error) {
+
+	coordinateSystem, err := core.GetCoordinateSystem(
+		strings.ToLower(request.CoordinateSystem),
+	)
+	if err != nil {
+		return
+	}
+
+	interpolation, err := core.GetInterpolationMethod(request.Interpolation)
+	if err != nil {
+		return
+	}
+
+	metadata, err = handle.GetFenceMetadata(request.Coordinates)
+	if err != nil {
+		return
+	}
+	res, err := handle.GetFence(
+		coordinateSystem,
+		request.Coordinates,
+		interpolation,
+		request.FillValue,
+	)
+	if err != nil {
+		return
+	}
+	data = [][]byte{res}
 	return data, metadata, nil
 }
 
@@ -647,4 +690,25 @@ func (e *Endpoint) AttributesBetween4dSurfacesPost(ctx *gin.Context) {
 	}
 
 	e.AttributeBetween4dSurfaces(ctx, request)
+}
+
+// Fence4dPost godoc
+// @Summary  Returns traces along an arbitrary path in the difference between two cubes, such as a well-path
+// @description.markdown fence
+// @Tags     fence4d
+// @Param    body  body  Fence4dRequest  True  "Request Parameters"
+// @Accept   application/json
+// @Produce  multipart/mixed
+// @Success  200 {object} core.FenceMetadata "(Example below only for metadata part)"
+// @Failure  400 {object} ErrorResponse "Request is invalid"
+// @Failure  500 {object} ErrorResponse "openvds failed to process the request"
+// @Router   /fence  [post]
+func (e *Endpoint) Fence4dPost(ctx *gin.Context) {
+	var request Fence4dRequest
+	err := parsePostRequest(ctx, &request)
+	if abortOnError(ctx, err) {
+		return
+	}
+
+	e.makeDataRequest(ctx, request)
 }

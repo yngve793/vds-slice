@@ -402,24 +402,60 @@ func (v VDSHandle) Close() error {
 	return toError(cerr, v.ctx)
 }
 
-func NewVDSHandle(conn Connection) (VDSHandle, error) {
-	curl := C.CString(conn.Url())
-	defer C.free(unsafe.Pointer(curl))
+func NewVDSHandle(conn []Connection) (VDSHandle, error) {
 
-	ccred := C.CString(conn.ConnectionString())
-	defer C.free(unsafe.Pointer(ccred))
+	if len(conn) == 0 {
+		return VDSHandle{}, NewInvalidArgument("No connections provided")
+	} else if len(conn) == 1 {
+		var conn_p = conn[0]
+		curl := C.CString(conn_p.Url())
+		defer C.free(unsafe.Pointer(curl))
 
-	var cctx = C.context_new()
-	var dataSource *C.struct_DataSource
+		ccred := C.CString(conn_p.ConnectionString())
+		defer C.free(unsafe.Pointer(ccred))
 
-	cerr := C.ovds_datasource_new(cctx, curl, ccred, &dataSource)
+		var cctx = C.context_new()
+		var dataSource *C.struct_DataSource
 
-	if err := toError(cerr, cctx); err != nil {
-		defer C.context_free(cctx)
-		return VDSHandle{}, err
+		cerr := C.ovds_datasource_new(cctx, curl, ccred, &dataSource)
+
+		if err := toError(cerr, cctx); err != nil {
+			defer C.context_free(cctx)
+			return VDSHandle{}, err
+		}
+
+		return VDSHandle{dataSource: dataSource, ctx: cctx}, nil
+	} else if len(conn) == 2 {
+
+		var conn_A = conn[0]
+		curl_A := C.CString(conn_A.Url())
+		defer C.free(unsafe.Pointer(curl_A))
+
+		ccred_A := C.CString(conn_A.ConnectionString())
+		defer C.free(unsafe.Pointer(ccred_A))
+
+		var conn_B = conn[1]
+		curl_B := C.CString(conn_B.Url())
+		defer C.free(unsafe.Pointer(curl_B))
+
+		ccred_B := C.CString(conn_B.ConnectionString())
+		defer C.free(unsafe.Pointer(ccred_B))
+
+		var cctx = C.context_new()
+		var dataSource *C.struct_DataSource
+
+		SUBTRACT := 0
+		cerr := C.ovds_multi_datasource_new(cctx, curl_A, ccred_A, curl_B, ccred_B, C.enum_cube_function(SUBTRACT), &dataSource)
+
+		if err := toError(cerr, cctx); err != nil {
+			defer C.context_free(cctx)
+			return VDSHandle{}, err
+		}
+
+		return VDSHandle{dataSource: dataSource, ctx: cctx}, nil
 	}
 
-	return VDSHandle{dataSource: dataSource, ctx: cctx}, nil
+	return VDSHandle{}, NewInvalidArgument("Only one connection is supported")
 }
 
 func NewVDSMultiHandle(conn_A Connection, conn_B Connection, cube_function int) (VDSHandle, error) {

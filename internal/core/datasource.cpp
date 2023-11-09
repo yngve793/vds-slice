@@ -145,15 +145,13 @@ void OvdsMultiDataSource::read_traces(
     std::size_t const ntraces,
     interpolation_method const interpolation_method) noexcept(false) {
 
-    int const trace_length = this->get_metadata().sample().dimension();
-
-    std::vector<float> buffer_A(trace_length * ntraces);
-    std::vector<float> buffer_B(trace_length * ntraces);
+    std::vector<float> buffer_A((int)size/ sizeof(float));
+    std::vector<float> buffer_B((int)size/ sizeof(float));
 
     this->handle_A->read_traces(buffer_A.data(), size, coordinates, ntraces, interpolation_method);
-    this->handle_A->read_traces(buffer_B.data(), size, coordinates, ntraces, interpolation_method);;
+    this->handle_B->read_traces(buffer_B.data(), size, coordinates, ntraces, interpolation_method);;
 
-    this->func(buffer_A.data(), buffer_B.data(), (float *)buffer, trace_length * ntraces);
+    this->func(buffer_A.data(), buffer_B.data(), (float *)buffer, (int)size/ sizeof(float));
 }
 
 void OvdsMultiDataSource::read_samples(

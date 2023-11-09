@@ -34,14 +34,14 @@ type RequestedResource struct {
 	Sas string `json:"sas,omitempty" example:"sp=r&st=2022-09-12T09:44:17Z&se=2022-09-12T17:44:17Z&spr=https&sv=2021-06-08&sr=c&sig=..."`
 }
 
-func (r RequestedResource) credentials() (string, string) {
-	return r.Vds, r.Sas
+func (r RequestedResource) credentials() ([]string, []string) {
+	return []string{r.Vds}, []string{r.Sas}
 }
 
 type DataRequest interface {
 	toString() (string, error)
 	hash() (string, error)
-	credentials() (string, string)
+	credentials() ([]string, []string)
 	execute(handle core.VDSHandle) (data [][]byte, metadata []byte, err error)
 }
 
@@ -67,6 +67,61 @@ func (r *RequestedResource) NormalizeConnection() error {
 	url.RawQuery = ""
 	url.Host = url.Hostname()
 	r.Vds = url.String()
+	return nil
+}
+
+type RequestedMultiResource struct {
+	// The blob URL can be sent in either format:
+	// - https://account.blob.core.windows.net/container/blob
+	//    In the above case the user must provide a sas-token as a separate key.
+	//
+	// - https://account.blob.core.windows.net/container/blob?sp=r&st=2022-09-12T09:44:17Z&se=2022-09-12T17:44:17Z&spr=https&sv=2021-06-08&sr=c&sig=...
+	//	  Instead of passing the sas-token explicitly in the sas field, you can
+	//	  pass an sign url. If the sas-token is provided in both fields, the
+	//	  sas-token in the sas field is prioritized.
+	//
+	// Note that your whole query string will be passed further down to
+	// openvds. We expect query parameters to contain sas-token and sas-token
+	// only and give no guarantee that Openvds/Azure returns you if you provide
+	// any additional arguments.
+	//
+	// Warning: We do not expect storage accounts to have snapshots. If your
+	// storage account has any, please contact System Admin, as due to caching
+	// you might end up with incorrect data.
+	Vds_urls []string `json:"vds" binding:"required" example:"https://account.blob.core.windows.net/container/blob"`
+
+	// A valid sas-token with read access to the container specified in Vds
+	Sas_keys []string `json:"sas,omitempty" example:"sp=r&st=2022-09-12T09:44:17Z&se=2022-09-12T17:44:17Z&spr=https&sv=2021-06-08&sr=c&sig=..."`
+}
+
+type MultiDataRequest interface {
+	toString() (string, error)
+	hash() (string, error)
+	credentials() ([]string, []string)
+	execute(handle core.VDSHandle) (data [][]byte, metadata []byte, err error)
+}
+
+func (r RequestedMultiResource) credentials() ([]string, []string) {
+	return r.Vds_urls, r.Sas_keys
+}
+
+func (r *RequestedMultiResource) NormalizeConnection() error {
+
+	for i, url_req := range r.Vds_urls {
+		url_object, err := url.Parse(url_req)
+		if err != nil {
+			return core.NewInvalidArgument(err.Error())
+		}
+		if strings.TrimSpace(r.Sas_keys[i]) == "" {
+			if url_object.RawQuery == "" {
+				return core.NewInvalidArgument("No valid Sas token is found in the request")
+			}
+			r.Sas_keys[i] = url_object.RawQuery
+		}
+		url_object.RawQuery = ""
+		url_object.Host = url_object.Hostname()
+		r.Vds_urls[i] = url_object.String()
+	}
 	return nil
 }
 
@@ -146,6 +201,76 @@ func (f FenceRequest) toString() (string, error) {
 func (f FenceRequest) hash() (string, error) {
 	// Strip the sas token before computing hash
 	f.Sas = ""
+	return cache.Hash(f)
+}
+
+type Fence4dRequest struct {
+	RequestedMultiResource
+	// Coordinate system for the requested fence
+	// Supported options are:
+	// ilxl : inline, crossline pairs
+	// ij   : Coordinates are given as in 0-indexed system, where the first
+	//        line in each direction is 0 and the last is number-of-lines - 1.
+	// cdp  : Coordinates are given as cdpx/cdpy pairs. In the original SEGY
+	//        this would correspond to the cdpx and cdpy fields in the
+	//        trace-headers after applying the scaling factor.
+	CoordinateSystem string `json:"coordinateSystem" binding:"required" example:"cdp"`
+
+	// A list of (x, y) points in the coordinate system specified in
+	// coordinateSystem, for example [[2000.5, 100.5], [2050, 200], [10, 20]].
+	Coordinates [][]float32 `json:"coordinates" binding:"required"`
+
+	// Interpolation method
+	// Supported options are: nearest, linear, cubic, angular and triangular.
+	// Defaults to nearest.
+	// This field is passed on to OpenVDS, which does the actual interpolation.
+	// Note: For nearest interpolation result will snap to the nearest point
+	// as per "half up" rounding. This is different from openvds logic.
+	Interpolation string `json:"interpolation" example:"linear"`
+
+	// Providing a FillValue is optional and will be used for the sample points
+	// that lie outside the seismic cube.
+	// Note: In case the FillValue is not set, and any of the provided coordinates
+	// fall outside the seismic cube, the request will be rejected with an error.
+	FillValue *float32 `json:"fillValue"`
+} //@name Fence4dRequest
+
+func (f Fence4dRequest) toString() (string, error) {
+	coordinates := func() string {
+		var length = len(f.Coordinates)
+		const halfPrintLength = 5
+		const printLength = halfPrintLength * 2
+		if length > printLength {
+			return fmt.Sprintf("%v, ...[%d element(s) skipped]..., %v",
+				f.Coordinates[0:halfPrintLength],
+				length-printLength,
+				f.Coordinates[length-halfPrintLength:length])
+		} else {
+			return fmt.Sprintf("%v", f.Coordinates)
+		}
+	}()
+
+	var vds_all = ""
+	for _, vds := range f.Vds_urls {
+		vds_all += vds + ","
+	}
+
+	return fmt.Sprintf("{vds: %s, coordinate system: %s, coordinates: %s, interpolation (optional): %s}",
+		vds_all,
+		f.CoordinateSystem,
+		coordinates,
+		f.Interpolation,
+	), nil
+}
+
+/** Compute a hash of the request that uniquely identifies the requested fence
+ *
+ * The hash is computed based on all fields that contribute toward a unique response.
+ * I.e. every field except the sas token.
+ */
+func (f Fence4dRequest) hash() (string, error) {
+	// Strip the sas token before computing hash
+	f.Sas_keys = nil
 	return cache.Hash(f)
 }
 
