@@ -92,6 +92,9 @@ type RequestedMultiResource struct {
 
 	// A valid sas-token with read access to the container specified in Vds
 	Sas_keys []string `json:"sas,omitempty" example:"sp=r&st=2022-09-12T09:44:17Z&se=2022-09-12T17:44:17Z&spr=https&sv=2021-06-08&sr=c&sig=..."`
+
+	// The function to be applied to the cubes valid options are: addition, subtraction, multiplication, division
+	cube_function string `json:"cube_function,omitempty" example:"subtraction"`
 }
 
 type MultiDataRequest interface {
@@ -204,7 +207,7 @@ func (f FenceRequest) hash() (string, error) {
 	return cache.Hash(f)
 }
 
-type Fence4dRequest struct {
+type FenceMultiRequest struct {
 	RequestedMultiResource
 	// Coordinate system for the requested fence
 	// Supported options are:
@@ -233,9 +236,9 @@ type Fence4dRequest struct {
 	// Note: In case the FillValue is not set, and any of the provided coordinates
 	// fall outside the seismic cube, the request will be rejected with an error.
 	FillValue *float32 `json:"fillValue"`
-} //@name Fence4dRequest
+} //@name FenceMultiRequest
 
-func (f Fence4dRequest) toString() (string, error) {
+func (f FenceMultiRequest) toString() (string, error) {
 	coordinates := func() string {
 		var length = len(f.Coordinates)
 		const halfPrintLength = 5
@@ -268,7 +271,7 @@ func (f Fence4dRequest) toString() (string, error) {
  * The hash is computed based on all fields that contribute toward a unique response.
  * I.e. every field except the sas token.
  */
-func (f Fence4dRequest) hash() (string, error) {
+func (f FenceMultiRequest) hash() (string, error) {
 	// Strip the sas token before computing hash
 	f.Sas_keys = nil
 	return cache.Hash(f)
@@ -343,7 +346,7 @@ func (s SliceRequest) toString() (string, error) {
 
 // Query for slice endpoints
 // @Description Query payload for slice endpoint /slice.
-type Slice4dRequest struct {
+type SliceMultiRequest struct {
 	RequestedMultiResource
 
 	// Direction can be specified in two domains
@@ -385,20 +388,20 @@ type Slice4dRequest struct {
 	// Bounds can be set using both annotation and index. You are free to mix
 	// and match as you see fit.
 	Bounds []core.Bound `json:"bounds" binding:"dive"`
-} //@name Slice4dRequest
+} //@name SliceMultiRequest
 
 /** Compute a hash of the request that uniquely identifies the requested slice
  *
  * The hash is computed based on all fields that contribute toward a unique response.
  * I.e. every field except the sas token.
  */
-func (s Slice4dRequest) hash() (string, error) {
+func (s SliceMultiRequest) hash() (string, error) {
 	// Strip the sas token before computing hash
 	s.Sas_keys = nil
 	return cache.Hash(s)
 }
 
-func (s Slice4dRequest) toString() (string, error) {
+func (s SliceMultiRequest) toString() (string, error) {
 
 	var vds_all = ""
 	for _, vds := range s.Vds_urls {
@@ -410,8 +413,9 @@ func (s Slice4dRequest) toString() (string, error) {
 		bounds_all += fmt.Sprintf("[%s, %d, %d]", *bound.Direction, *bound.Lower, *bound.Upper) + ","
 	}
 
-	return fmt.Sprintf("{vds: %s, direction: %s, lineno: %d, bounds: %s}",
+	return fmt.Sprintf("{vds: %s, cube_function %s, direction: %s, lineno: %d, bounds: %s}",
 		vds_all,
+		s.cube_function,
 		s.Direction,
 		*s.Lineno,
 		bounds_all,

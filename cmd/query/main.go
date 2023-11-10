@@ -157,11 +157,13 @@ func setupApp(app *gin.Engine, endpoint *api.Endpoint, metric *metrics.Metrics) 
 
 	seismic.GET("slice", endpoint.SliceGet)
 	seismic.POST("slice", endpoint.SlicePost)
-	seismic.POST("slice4d", endpoint.Slice4dPost)
 
 	seismic.GET("fence", endpoint.FenceGet)
 	seismic.POST("fence", endpoint.FencePost)
-	seismic.POST("fence4d", endpoint.Fence4dPost)
+
+	multi_cube := seismic.Group("multi_cube")
+	multi_cube.POST("sliceMulti", endpoint.SliceMultiPost)
+	multi_cube.POST("fenceMulti", endpoint.FenceMultiPost)
 
 	attributes := seismic.Group("attributes")
 	attributesSurface := attributes.Group("surface")

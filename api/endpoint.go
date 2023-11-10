@@ -292,7 +292,7 @@ func (request SliceRequest) execute(
 	return data, metadata, nil
 }
 
-func (request Slice4dRequest) execute(
+func (request SliceMultiRequest) execute(
 	handle core.VDSHandle,
 ) (data [][]byte, metadata []byte, err error) {
 	axis, err := core.GetAxis(strings.ToLower(request.Direction))
@@ -352,7 +352,7 @@ func (request FenceRequest) execute(
 	return data, metadata, nil
 }
 
-func (request Fence4dRequest) execute(
+func (request FenceMultiRequest) execute(
 	handle core.VDSHandle,
 ) (data [][]byte, metadata []byte, err error) {
 
@@ -718,19 +718,19 @@ func (e *Endpoint) AttributesBetween4dSurfacesPost(ctx *gin.Context) {
 	e.AttributeBetween4dSurfaces(ctx, request)
 }
 
-// Fence4dPost godoc
+// FenceMultiPost godoc
 // @Summary  Returns traces along an arbitrary path in the difference between two cubes, such as a well-path
 // @description.markdown fence
-// @Tags     fence4d
-// @Param    body  body  Fence4dRequest  True  "Request Parameters"
+// @Tags     multi_cube
+// @Param    body  body  FenceMultiRequest  True  "Request Parameters"
 // @Accept   application/json
 // @Produce  multipart/mixed
 // @Success  200 {object} core.FenceMetadata "(Example below only for metadata part)"
 // @Failure  400 {object} ErrorResponse "Request is invalid"
 // @Failure  500 {object} ErrorResponse "openvds failed to process the request"
-// @Router   /fence  [post]
-func (e *Endpoint) Fence4dPost(ctx *gin.Context) {
-	var request Fence4dRequest
+// @Router   /multi_cube/fence  [post]
+func (e *Endpoint) FenceMultiPost(ctx *gin.Context) {
+	var request FenceMultiRequest
 	err := parsePostRequest(ctx, &request)
 	if abortOnError(ctx, err) {
 		return
@@ -739,19 +739,19 @@ func (e *Endpoint) Fence4dPost(ctx *gin.Context) {
 	e.makeDataRequest(ctx, request)
 }
 
-// Slice4dPost godoc
+// SliceMultiPost godoc
 // @Summary  Fetch a slice from a VDS in the difference between two cubes
 // @description.markdown slice
-// @Tags     slice4d
-// @Param    body  body  Slice4dRequest  True  "Query Parameters"
+// @Tags     multi_cube
+// @Param    body  body  SliceMultiRequest  True  "Query Parameters"
 // @Accept   application/json
 // @Produce  multipart/mixed
 // @Success  200 {object} core.SliceMetadata "(Example below only for metadata part)"
 // @Failure  400 {object} ErrorResponse "Request is invalid"
 // @Failure  500 {object} ErrorResponse "openvds failed to process the request"
-// @Router   /slice  [post]
-func (e *Endpoint) Slice4dPost(ctx *gin.Context) {
-	var request Slice4dRequest
+// @Router   /multi_cube/slice  [post]
+func (e *Endpoint) SliceMultiPost(ctx *gin.Context) {
+	var request SliceMultiRequest
 	err := parsePostRequest(ctx, &request)
 	if abortOnError(ctx, err) {
 		return
