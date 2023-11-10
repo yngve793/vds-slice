@@ -157,6 +157,7 @@ func setupApp(app *gin.Engine, endpoint *api.Endpoint, metric *metrics.Metrics) 
 
 	seismic.GET("slice", endpoint.SliceGet)
 	seismic.POST("slice", endpoint.SlicePost)
+	seismic.POST("slice4d", endpoint.Slice4dPost)
 
 	seismic.GET("fence", endpoint.FenceGet)
 	seismic.POST("fence", endpoint.FencePost)

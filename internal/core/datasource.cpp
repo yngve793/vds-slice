@@ -118,13 +118,14 @@ std::int64_t OvdsMultiDataSource::subcube_buffer_size(SubCube const &subcube) no
 void OvdsMultiDataSource::read_subcube(
     void *const buffer,
     std::int64_t size,
-    SubCube const &subcube) noexcept(false) {
-    std::vector<float> buffer_A(subcube.size());
-    std::vector<float> buffer_B(subcube.size());
+    SubCube const &subcube) noexcept(false) 
+{
+    std::vector<float> buffer_A((int)size/ sizeof(float));
+    std::vector<float> buffer_B((int)size/ sizeof(float));
     this->handle_A->read_subcube(buffer_A.data(), size, subcube);
     this->handle_B->read_subcube(buffer_B.data(), size, subcube);
 
-    this->func(buffer_A.data(), buffer_B.data(), (float *)buffer, size);
+    this->func(buffer_A.data(), buffer_B.data(), (float *)buffer, (int)size/ sizeof(float));
 }
 
 std::int64_t OvdsMultiDataSource::traces_buffer_size(
