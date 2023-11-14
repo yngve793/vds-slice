@@ -155,7 +155,7 @@ func (e *Endpoint) attributesAlong4dSurface(ctx *gin.Context, request AttributeA
 		return
 	}
 
-	handle, err := core.NewVDSMultiHandle(conn_A, conn_B, 0)
+	handle, err := core.NewVDSMultiHandle(conn_A, conn_B, "subtraction")
 	if abortOnError(ctx, err) {
 		return
 	}
@@ -220,7 +220,7 @@ func (e *Endpoint) AttributeBetween4dSurfaces(ctx *gin.Context, request Attribut
 		return
 	}
 
-	handle, err := core.NewVDSMultiHandle(conn_A, conn_B, 0)
+	handle, err := core.NewVDSMultiHandle(conn_A, conn_B, "SUBTRACT")
 	if abortOnError(ctx, err) {
 		return
 	}

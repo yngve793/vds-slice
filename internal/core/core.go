@@ -444,8 +444,15 @@ func NewVDSHandle(conn []Connection) (VDSHandle, error) {
 		var cctx = C.context_new()
 		var dataSource *C.struct_DataSource
 
-		SUBTRACT := 0
-		cerr := C.ovds_multi_datasource_new(cctx, curl_A, ccred_A, curl_B, ccred_B, C.enum_cube_function(SUBTRACT), &dataSource)
+		str := "Golang@%Programs#"
+		str = regexp.MustCompile(`[^A-Z]+`).ReplaceAllString(str, "")
+		fmt.Println(str)
+
+		cube_string := regexp.MustCompile(`[^A-Z]+`).ReplaceAllString(strings.ToUpper(cube_function), "SUBTRACT")
+		c_function := C.CString(cube_string)
+		defer C.free(unsafe.Pointer(c_function))
+
+		cerr := C.ovds_multi_datasource_new(cctx, curl_A, ccred_A, curl_B, ccred_B, c_function, &dataSource)
 
 		if err := toError(cerr, cctx); err != nil {
 			defer C.context_free(cctx)
@@ -458,7 +465,7 @@ func NewVDSHandle(conn []Connection) (VDSHandle, error) {
 	return VDSHandle{}, NewInvalidArgument("Only one connection is supported")
 }
 
-func NewVDSMultiHandle(conn_A Connection, conn_B Connection, cube_function int) (VDSHandle, error) {
+func NewVDSMultiHandle(conn_A Connection, conn_B Connection, cube_function string) (VDSHandle, error) {
 	curl_A := C.CString(conn_A.Url())
 	defer C.free(unsafe.Pointer(curl_A))
 
@@ -474,7 +481,10 @@ func NewVDSMultiHandle(conn_A Connection, conn_B Connection, cube_function int) 
 	var cctx = C.context_new()
 	var dataSource *C.struct_DataSource
 
-	cerr := C.ovds_multi_datasource_new(cctx, curl_A, ccred_A, curl_B, ccred_B, C.enum_cube_function(cube_function), &dataSource)
+	cube_string := regexp.MustCompile(`[^A-Z]+`).ReplaceAllString(strings.ToUpper(cube_function), "")
+	c_function := C.CString(cube_string)
+	defer C.free(unsafe.Pointer(c_function))
+	cerr := C.ovds_multi_datasource_new(cctx, curl_A, ccred_A, curl_B, ccred_B, c_function, &dataSource)
 
 	if err := toError(cerr, cctx); err != nil {
 		defer C.context_free(cctx)
