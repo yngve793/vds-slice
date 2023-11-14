@@ -69,10 +69,13 @@ DoubleDataSource::DoubleDataSource(
     const char* url_B, const char* credentials_B,
     void (*func)(float*, float*, float*, std::size_t)
 ) {
-    this->handle_A = make_datahandle(url_A, credentials_A);
-    this->handle_B = make_datahandle(url_B, credentials_B);
+    this->handle_A = make_single_datasource(url_A, credentials_A);
+    this->handle_B = make_single_datasource(url_B, credentials_B);
     this->func = func;
-    this->validate_metadata();
+    this->metadata = new DoubleMetadataHandle(
+        this->handle_A->get_metadata(),
+        this->handle_B->get_metadata()
+    );
 }
 
 DoubleDataSource::~DoubleDataSource() {
@@ -88,16 +91,15 @@ DoubleDataSource::~DoubleDataSource() {
 
 void DoubleDataSource::validate_metadata() const noexcept(false) {
 
-    MetadataHandle mdh_A = this->handle_A->get_metadata();
-    MetadataHandle mdh_B = this->handle_B->get_metadata();
+    // SingleMetadataHandle mdh_A = this->handle_A->get_metadata();
+    // SingleMetadataHandle mdh_B = this->handle_B->get_metadata();
 
-    mdh_A.iline().validate_compatible(mdh_B.iline());
-    mdh_A.xline().validate_compatible(mdh_B.xline());
-    mdh_A.sample().validate_compatible(mdh_B.sample());
+    // mdh_A.iline().validate_compatible(mdh_B.iline());
+    // mdh_A.xline().validate_compatible(mdh_B.xline());
+    // mdh_A.sample().validate_compatible(mdh_B.sample());
 }
 
 MetadataHandle const& DoubleDataSource::get_metadata() const noexcept(true) {
-    // Returns an arbitrary metadata handle
     return this->handle_A->get_metadata();
 }
 
@@ -147,7 +149,6 @@ void DoubleDataSource::read_traces(
 
     this->handle_A->read_traces(buffer_A.data(), size, coordinates, ntraces, interpolation_method);
     this->handle_B->read_traces(buffer_B.data(), size, coordinates, ntraces, interpolation_method);
-    ;
 
     this->func(buffer_A.data(), buffer_B.data(), (float*)buffer, (int)size / sizeof(float));
 }

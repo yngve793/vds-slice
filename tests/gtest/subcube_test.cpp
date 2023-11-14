@@ -53,7 +53,7 @@ protected:
 
 TEST_F(SubCubeTest, SizeBaseCase) {
     // Arrange
-    MetadataHandle metadata = datasource_A->get_metadata();
+    MetadataHandle const& metadata = datasource_A->get_metadata();
 
     SubCube subcube(metadata);
 
@@ -72,7 +72,7 @@ TEST_F(SubCubeTest, SizeBaseCase) {
 
 TEST_F(SubCubeTest, SizeAllNegative) {
     // Arrange
-    MetadataHandle metadata = datasource_A->get_metadata();
+    MetadataHandle const& metadata = datasource_A->get_metadata();
 
     SubCube subcube(metadata);
 
@@ -91,7 +91,7 @@ TEST_F(SubCubeTest, SizeAllNegative) {
 
 TEST_F(SubCubeTest, SizeAllDimensions) {
     // Arrange
-    MetadataHandle metadata = datasource_A->get_metadata();
+    MetadataHandle const& metadata = datasource_A->get_metadata();
 
     SubCube subcube(metadata);
 

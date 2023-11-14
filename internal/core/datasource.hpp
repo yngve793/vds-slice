@@ -124,8 +124,9 @@ public:
     std::int64_t traces_buffer_size(std::size_t const ntraces) noexcept(false);
 
 private:
-    DataHandle *handle_A;
-    DataHandle *handle_B;
+    DataSource *handle_A;
+    DataSource *handle_B;
+    MetadataHandle *metadata;
     void (*func)(float *, float *, float *, std::size_t);
 };
 
