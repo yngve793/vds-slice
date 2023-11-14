@@ -1,7 +1,7 @@
 #include "datasource.hpp"
 #include "datahandle.hpp"
 
-OvdsDataSource::OvdsDataSource(const char *url, const char *credentials) {
+OvdsDataSource::OvdsDataSource(const char* url, const char* credentials) {
     this->handle = make_datahandle(url, credentials);
 }
 
@@ -12,11 +12,11 @@ OvdsDataSource::~OvdsDataSource() {
     }
 }
 
-int OvdsDataSource::validate_metadata() const noexcept(false) {
-    return STATUS_DATASOURCE_OK;
-}
+// int OvdsDataSource::validate_metadata() const noexcept(false) {
+//     return STATUS_DATASOURCE_OK;
+// }
 
-MetadataHandle const &OvdsDataSource::get_metadata() const noexcept(true) {
+MetadataHandle const& OvdsDataSource::get_metadata() const noexcept(true) {
     return this->handle->get_metadata();
 }
 
@@ -25,31 +25,34 @@ std::int64_t OvdsDataSource::samples_buffer_size(std::size_t const nsamples) noe
 }
 
 void OvdsDataSource::read_samples(
-    void *const buffer,
+    void* const buffer,
     std::int64_t const size,
-    voxel const *samples,
+    voxel const* samples,
     std::size_t const nsamples,
-    enum interpolation_method const interpolation_method) noexcept(false) {
+    enum interpolation_method const interpolation_method
+) noexcept(false) {
     return this->handle->read_samples(buffer, size, samples, nsamples, interpolation_method);
 }
 
-std::int64_t OvdsDataSource::subcube_buffer_size(SubCube const &subcube) noexcept(false) {
+std::int64_t OvdsDataSource::subcube_buffer_size(SubCube const& subcube) noexcept(false) {
     return this->handle->subcube_buffer_size(subcube);
 }
 
 void OvdsDataSource::read_subcube(
-    void *const buffer,
+    void* const buffer,
     std::int64_t size,
-    SubCube const &subcube) noexcept(false) {
+    SubCube const& subcube
+) noexcept(false) {
     this->handle->read_subcube(buffer, size, subcube);
 }
 
 void OvdsDataSource::read_traces(
-    void *const buffer,
+    void* const buffer,
     std::int64_t const size,
-    voxel const *coordinates,
+    voxel const* coordinates,
     std::size_t const ntraces,
-    enum interpolation_method const interpolation_method) noexcept(false) {
+    enum interpolation_method const interpolation_method
+) noexcept(false) {
 
     this->handle->read_traces(buffer, size, coordinates, ntraces, interpolation_method);
 }
@@ -58,16 +61,18 @@ std::int64_t OvdsDataSource::traces_buffer_size(std::size_t const ntraces) noexc
     return this->handle->traces_buffer_size(ntraces);
 }
 
-OvdsDataSource *make_ovds_datasource(
-    const char *url,
-    const char *credentials) {
+OvdsDataSource* make_ovds_datasource(
+    const char* url,
+    const char* credentials
+) {
     return new OvdsDataSource(url, credentials);
 }
 
 OvdsMultiDataSource::OvdsMultiDataSource(
-    const char *url_A, const char *credentials_A,
-    const char *url_B, const char *credentials_B,
-    void (*func)(float *, float *, float *, std::size_t)) {
+    const char* url_A, const char* credentials_A,
+    const char* url_B, const char* credentials_B,
+    void (*func)(float*, float*, float*, std::size_t)
+) {
     this->handle_A = make_datahandle(url_A, credentials_A);
     this->handle_B = make_datahandle(url_B, credentials_B);
     this->func = func;
@@ -102,7 +107,7 @@ int OvdsMultiDataSource::validate_metadata() const noexcept(false) {
     return STATUS_DATASOURCE_OK;
 }
 
-MetadataHandle const &OvdsMultiDataSource::get_metadata() const noexcept(true) {
+MetadataHandle const& OvdsMultiDataSource::get_metadata() const noexcept(true) {
     // Returns an arbitrary metadata handle
     return this->handle_A->get_metadata();
 }
@@ -111,25 +116,26 @@ std::int64_t OvdsMultiDataSource::samples_buffer_size(std::size_t const nsamples
     return this->handle_A->samples_buffer_size(nsamples);
 }
 
-std::int64_t OvdsMultiDataSource::subcube_buffer_size(SubCube const &subcube) noexcept(false) {
+std::int64_t OvdsMultiDataSource::subcube_buffer_size(SubCube const& subcube) noexcept(false) {
     return this->handle_A->subcube_buffer_size(subcube);
 }
 
 void OvdsMultiDataSource::read_subcube(
-    void *const buffer,
+    void* const buffer,
     std::int64_t size,
-    SubCube const &subcube) noexcept(false) 
-{
-    std::vector<float> buffer_A((int)size/ sizeof(float));
-    std::vector<float> buffer_B((int)size/ sizeof(float));
+    SubCube const& subcube
+) noexcept(false) {
+    std::vector<float> buffer_A((int)size / sizeof(float));
+    std::vector<float> buffer_B((int)size / sizeof(float));
     this->handle_A->read_subcube(buffer_A.data(), size, subcube);
     this->handle_B->read_subcube(buffer_B.data(), size, subcube);
 
-    this->func(buffer_A.data(), buffer_B.data(), (float *)buffer, (int)size/ sizeof(float));
+    this->func(buffer_A.data(), buffer_B.data(), (float*)buffer, (int)size / sizeof(float));
 }
 
 std::int64_t OvdsMultiDataSource::traces_buffer_size(
-    std::size_t const ntraces) noexcept(false) {
+    std::size_t const ntraces
+) noexcept(false) {
     return this->handle_A->traces_buffer_size(ntraces);
 }
 
@@ -140,27 +146,30 @@ std::int64_t OvdsMultiDataSource::traces_buffer_size(
 /// @param ntraces
 /// @param interpolation_method
 void OvdsMultiDataSource::read_traces(
-    void *const buffer,
+    void* const buffer,
     std::int64_t const size,
-    voxel const *coordinates,
+    voxel const* coordinates,
     std::size_t const ntraces,
-    interpolation_method const interpolation_method) noexcept(false) {
+    interpolation_method const interpolation_method
+) noexcept(false) {
 
-    std::vector<float> buffer_A((int)size/ sizeof(float));
-    std::vector<float> buffer_B((int)size/ sizeof(float));
+    std::vector<float> buffer_A((int)size / sizeof(float));
+    std::vector<float> buffer_B((int)size / sizeof(float));
 
     this->handle_A->read_traces(buffer_A.data(), size, coordinates, ntraces, interpolation_method);
-    this->handle_B->read_traces(buffer_B.data(), size, coordinates, ntraces, interpolation_method);;
+    this->handle_B->read_traces(buffer_B.data(), size, coordinates, ntraces, interpolation_method);
+    ;
 
-    this->func(buffer_A.data(), buffer_B.data(), (float *)buffer, (int)size/ sizeof(float));
+    this->func(buffer_A.data(), buffer_B.data(), (float*)buffer, (int)size / sizeof(float));
 }
 
 void OvdsMultiDataSource::read_samples(
-    void *const buffer,
+    void* const buffer,
     std::int64_t const size,
-    voxel const *samples,
+    voxel const* samples,
     std::size_t const nsamples,
-    interpolation_method const interpolation_method) noexcept(false) {
+    interpolation_method const interpolation_method
+) noexcept(false) {
 
     std::vector<float> buffer_A(nsamples);
     std::vector<float> buffer_B(nsamples);
@@ -168,37 +177,38 @@ void OvdsMultiDataSource::read_samples(
     this->handle_A->read_samples(buffer_A.data(), size, samples, nsamples, interpolation_method);
     this->handle_B->read_samples(buffer_B.data(), size, samples, nsamples, interpolation_method);
 
-    this->func(buffer_A.data(), buffer_B.data(), (float *)buffer, nsamples);
+    this->func(buffer_A.data(), buffer_B.data(), (float*)buffer, nsamples);
 }
 
-OvdsMultiDataSource *make_ovds_multi_datasource(
-    const char *url_A,
-    const char *credentials_A,
-    const char *url_B,
-    const char *credentials_B,
-    void (*func)(float *, float *, float *, std::size_t)) noexcept(false) {
+OvdsMultiDataSource* make_ovds_multi_datasource(
+    const char* url_A,
+    const char* credentials_A,
+    const char* url_B,
+    const char* credentials_B,
+    void (*func)(float*, float*, float*, std::size_t)
+) noexcept(false) {
     return new OvdsMultiDataSource(url_A, credentials_A, url_B, credentials_B, func);
 }
 
-void subtraction(float *buffer_A, float *buffer_B, float *out_buffer, std::size_t nsamples) noexcept(false) {
+void subtraction(float* buffer_A, float* buffer_B, float* out_buffer, std::size_t nsamples) noexcept(false) {
     for (std::size_t i = 0; i < nsamples; i++) {
         out_buffer[i] = buffer_A[i] - buffer_B[i];
     }
 }
 
-void addition(float *buffer_A, float *buffer_B, float *out_buffer, std::size_t nsamples) noexcept(false) {
+void addition(float* buffer_A, float* buffer_B, float* out_buffer, std::size_t nsamples) noexcept(false) {
     for (std::size_t i = 0; i < nsamples; i++) {
         out_buffer[i] = buffer_A[i] + buffer_B[i];
     }
 }
 
-void multiplication(float *buffer_A, float *buffer_B, float *out_buffer, std::size_t nsamples) noexcept(false) {
+void multiplication(float* buffer_A, float* buffer_B, float* out_buffer, std::size_t nsamples) noexcept(false) {
     for (std::size_t i = 0; i < nsamples; i++) {
         out_buffer[i] = buffer_A[i] * buffer_B[i];
     }
 }
 
-void division(float *buffer_A, float *buffer_B, float *out_buffer, std::size_t nsamples) noexcept(false) {
+void division(float* buffer_A, float* buffer_B, float* out_buffer, std::size_t nsamples) noexcept(false) {
     for (std::size_t i = 0; i < nsamples; i++) {
         out_buffer[i] = buffer_A[i] / buffer_B[i];
     }

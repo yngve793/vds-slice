@@ -78,7 +78,7 @@ int ovds_multi_datasource_new(
     const char* credentials_A,
     const char* url_B,
     const char* credentials_B,
-    enum cube_function function,
+    const char* function,
     DataSource** ds_out
 );
 

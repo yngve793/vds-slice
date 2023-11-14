@@ -73,19 +73,20 @@ int ovds_multi_datasource_new(
     const char* credentials_A,
     const char* url_B,
     const char* credentials_B,
-    enum cube_function function,
+    const char* function,
     DataSource** datasource
 ){
     try {
         if (not datasource) throw detail::nullptr_error("Invalid out pointer");
 
         void (*cube_function)(float*, float*, float*, size_t);
-        switch (function) {
-            case SUBTRACT: {cube_function = &subtraction; break;}
-            case ADDITION: {cube_function = &addition; break;}
-            case MULTIPLICATION: {cube_function = &multiplication; break;}
-            case DIVISION: {cube_function = &division; break;}
-        }
+
+        if (function == nullptr) throw detail::nullptr_error("Invalid function");
+        else if (strcmp(function, "SUBTRACT") == 0) cube_function = &subtraction;
+        else if (strcmp(function, "ADDITION") == 0) cube_function = &addition;
+        else if (strcmp(function, "MULTIPLICATION") == 0) cube_function = &multiplication;
+        else if (strcmp(function, "DIVISION") == 0) cube_function = &division;
+        else throw detail::bad_request("Invalid function");
 
         *datasource = make_ovds_multi_datasource(url_A, credentials_A, url_B, credentials_B, cube_function);
         return STATUS_OK;

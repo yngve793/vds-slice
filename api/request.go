@@ -43,6 +43,7 @@ type DataRequest interface {
 	hash() (string, error)
 	credentials() ([]string, []string)
 	execute(handle core.VDSHandle) (data [][]byte, metadata []byte, err error)
+	cubeFunction() string
 }
 
 type Stringable interface {
@@ -207,6 +208,10 @@ func (f FenceRequest) hash() (string, error) {
 	return cache.Hash(f)
 }
 
+func (f FenceRequest) cubeFunction() string {
+	return ""
+}
+
 type FenceMultiRequest struct {
 	RequestedMultiResource
 	// Coordinate system for the requested fence
@@ -277,6 +282,10 @@ func (f FenceMultiRequest) hash() (string, error) {
 	return cache.Hash(f)
 }
 
+func (f FenceMultiRequest) cubeFunction() string {
+	return ""
+}
+
 // Query for slice endpoints
 // @Description Query payload for slice endpoint /slice.
 type SliceRequest struct {
@@ -332,6 +341,10 @@ func (s SliceRequest) hash() (string, error) {
 	// Strip the sas token before computing hash
 	s.Sas = ""
 	return cache.Hash(s)
+}
+
+func (s SliceRequest) cubeFunction() string {
+	return ""
 }
 
 func (s SliceRequest) toString() (string, error) {
@@ -399,6 +412,10 @@ func (s SliceMultiRequest) hash() (string, error) {
 	// Strip the sas token before computing hash
 	s.Sas_keys = nil
 	return cache.Hash(s)
+}
+
+func (s SliceMultiRequest) cubeFunction() string {
+	return ""
 }
 
 func (s SliceMultiRequest) toString() (string, error) {
@@ -497,6 +514,10 @@ func (h AttributeAlongSurfaceRequest) hash() (string, error) {
 	return cache.Hash(h)
 }
 
+func (s AttributeAlongSurfaceRequest) cubeFunction() string {
+	return ""
+}
+
 func (h AttributeAlongSurfaceRequest) toString() (string, error) {
 	msg := "{vds: %s, Horizon: (ncols: %d, nrows: %d), Rotation: %.2f, " +
 		"Origin: [%.2f, %.2f], Increment: [%.2f, %.2f], FillValue: %.2f, " +
@@ -557,6 +578,10 @@ func (h AttributeBetweenSurfacesRequest) hash() (string, error) {
 	// Strip the sas token before computing hash
 	h.Sas = ""
 	return cache.Hash(h)
+}
+
+func (s AttributeBetweenSurfacesRequest) cubeFunction() string {
+	return ""
 }
 
 func (h AttributeBetweenSurfacesRequest) toString() (string, error) {

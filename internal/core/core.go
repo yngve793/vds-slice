@@ -12,6 +12,7 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"regexp"
 	"strings"
 	"unsafe"
 )
@@ -402,7 +403,7 @@ func (v VDSHandle) Close() error {
 	return toError(cerr, v.ctx)
 }
 
-func NewVDSHandle(conn []Connection) (VDSHandle, error) {
+func NewVDSHandle(conn []Connection, cube_function string) (VDSHandle, error) {
 
 	if len(conn) == 0 {
 		return VDSHandle{}, NewInvalidArgument("No connections provided")

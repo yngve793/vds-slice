@@ -34,10 +34,10 @@ enum interpolation_method {
 };
 
 enum cube_function {
-    SUBTRACT,
-    ADDITION,
-    MULTIPLICATION,
-    DIVISION
+    SUBTRACT = 0,
+    ADDITION = 1,
+    MULTIPLICATION = 2,
+    DIVISION = 3
 };
 
 enum attribute {

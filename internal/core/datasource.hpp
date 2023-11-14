@@ -14,7 +14,7 @@ public:
 
     virtual MetadataHandle const &get_metadata() const noexcept(true) = 0;
 
-    virtual int validate_metadata() const noexcept(false) = 0;
+    // virtual int validate_metadata() const noexcept(false) = 0;
 
     virtual std::int64_t samples_buffer_size(std::size_t const nsamples) noexcept(false) = 0;
 
@@ -49,7 +49,7 @@ public:
 
     ~OvdsDataSource();
 
-    int validate_metadata() const noexcept(false);
+    // int validate_metadata() const noexcept(false);
 
     MetadataHandle const &get_metadata() const noexcept(true);
 
