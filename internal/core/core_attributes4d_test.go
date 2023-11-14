@@ -1,7 +1,6 @@
 package core
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -227,12 +226,8 @@ func TestCubeFunctionsForAttributeBetween4D(t *testing.T) {
 	for _, testcase := range testcases {
 
 		targetAttributes := make([]string, 0, len(testcase.expected))
-		// targetAttributesNames := make([]string, 0, len(testcase.expected))
 		for attr := range testcase.expected {
-			fmt.Sprintf("BlobEndpoint=%s", attr)
-			// fmt.Sprintf("%s\n", attr)
 			targetAttributes = append(targetAttributes, attr)
-			//targetAttributesNames = append(targetAttributesNames, attr+" "+testcase.function_name)
 		}
 
 		interpolationMethod, _ := GetInterpolationMethod("nearest")
