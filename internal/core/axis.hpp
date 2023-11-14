@@ -28,7 +28,7 @@ public:
     bool inrange(float coordinate) const noexcept(true);
     float to_sample_position(float coordinate) noexcept(false);
 
-    bool operator!=(Axis const & other) const noexcept(false);
+    void validate_compatible(Axis const& other) noexcept(false);
 
 private:
     int const m_dimension;

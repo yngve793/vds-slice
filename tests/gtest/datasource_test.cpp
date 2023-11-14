@@ -45,9 +45,9 @@ protected:
         delete datasource_B;
     }
 
-    OvdsMultiDataSource *datasource;
-    OvdsDataSource *datasource_A;
-    OvdsDataSource *datasource_B;
+    DoubleDataSource *datasource;
+    SingleDataSource *datasource_A;
+    SingleDataSource *datasource_B;
     SurfaceBoundedSubVolume *subvolume_A;
     SurfaceBoundedSubVolume *subvolume_B;
     static constexpr int nrows = 10;
@@ -73,7 +73,7 @@ protected:
 TEST_F(DataSourceTest, ILineMismatch) {
     const std::string EXPECTED_MSG = "Axis: Inline: Mismatch in number of samples: 10 != 11";
     try {
-        OvdsMultiDataSource *datasource = make_ovds_multi_datasource(
+        DoubleDataSource *datasource = make_ovds_multi_datasource(
             DEFAULT_DATA.c_str(),
             CREDENTIALS.c_str(),
             DEFAULT_DATA_IL.c_str(),
@@ -90,7 +90,7 @@ TEST_F(DataSourceTest, ILineMismatch) {
 TEST_F(DataSourceTest, XLineMismatch) {
     const std::string EXPECTED_MSG = "Axis: Crossline: Mismatch in number of samples: 20 != 21";
     try {
-        OvdsMultiDataSource *datasource = make_ovds_multi_datasource(
+        DoubleDataSource *datasource = make_ovds_multi_datasource(
             DEFAULT_DATA.c_str(),
             CREDENTIALS.c_str(),
             DEFAULT_DATA_XL.c_str(),
@@ -107,7 +107,7 @@ TEST_F(DataSourceTest, XLineMismatch) {
 TEST_F(DataSourceTest, SamplesMismatch) {
     const std::string EXPECTED_MSG = "Axis: Sample: Mismatch in number of samples: 30 != 31";
     try {
-        OvdsMultiDataSource *datasource = make_ovds_multi_datasource(
+        DoubleDataSource *datasource = make_ovds_multi_datasource(
             DEFAULT_DATA.c_str(),
             CREDENTIALS.c_str(),
             DEFAULT_DATA_S.c_str(),
@@ -124,7 +124,7 @@ TEST_F(DataSourceTest, SamplesMismatch) {
 TEST_F(DataSourceTest, OffsetMismatch) {
     const std::string EXPECTED_MSG = "Axis: Inline: Mismatch in min value: 22.000000 != 25.000000";
     try {
-        OvdsMultiDataSource *datasource = make_ovds_multi_datasource(
+        DoubleDataSource *datasource = make_ovds_multi_datasource(
             DEFAULT_DATA.c_str(),
             CREDENTIALS.c_str(),
             DEFAULT_DATA_OS.c_str(),
@@ -142,7 +142,7 @@ TEST_F(DataSourceTest, StepSizeMismatch) {
     // Changing the stepsize causes the max value to change. Max value is checked before stepsize.
     const std::string EXPECTED_MSG = "Axis: Inline: Mismatch in max value: 40.000000 != 139.000000";
     try {
-        OvdsMultiDataSource *datasource = make_ovds_multi_datasource(
+        DoubleDataSource *datasource = make_ovds_multi_datasource(
             DEFAULT_DATA.c_str(),
             CREDENTIALS.c_str(),
             DEFAULT_DATA_SS.c_str(),
@@ -158,7 +158,7 @@ TEST_F(DataSourceTest, StepSizeMismatch) {
 
 TEST_F(DataSourceTest, Addition) {
 
-    OvdsMultiDataSource *datasource = make_ovds_multi_datasource(
+    DoubleDataSource *datasource = make_ovds_multi_datasource(
         DEFAULT_DATA.c_str(),
         CREDENTIALS.c_str(),
         DEFAULT_DATA_2X.c_str(),
@@ -192,7 +192,7 @@ TEST_F(DataSourceTest, Addition) {
 
 TEST_F(DataSourceTest, Multiplication) {
 
-    OvdsMultiDataSource *datasource = make_ovds_multi_datasource(
+    DoubleDataSource *datasource = make_ovds_multi_datasource(
         DEFAULT_DATA.c_str(),
         CREDENTIALS.c_str(),
         DEFAULT_DATA_2X.c_str(),
@@ -226,7 +226,7 @@ TEST_F(DataSourceTest, Multiplication) {
 
 TEST_F(DataSourceTest, Division) {
 
-    OvdsMultiDataSource *datasource = make_ovds_multi_datasource(
+    DoubleDataSource *datasource = make_ovds_multi_datasource(
         DEFAULT_DATA.c_str(),
         CREDENTIALS.c_str(),
         DEFAULT_DATA_2X.c_str(),
@@ -260,7 +260,7 @@ TEST_F(DataSourceTest, Division) {
 
 TEST_F(DataSourceTest, Subtract) {
 
-    OvdsMultiDataSource *datasource = make_ovds_multi_datasource(
+    DoubleDataSource *datasource = make_ovds_multi_datasource(
         DEFAULT_DATA.c_str(),
         CREDENTIALS.c_str(),
         DEFAULT_DATA_2X.c_str(),
@@ -294,7 +294,7 @@ TEST_F(DataSourceTest, Subtract) {
 
 TEST_F(DataSourceTest, SubtractReverse) {
 
-    OvdsMultiDataSource *datasource = make_ovds_multi_datasource(
+    DoubleDataSource *datasource = make_ovds_multi_datasource(
         DEFAULT_DATA_2X.c_str(),
         CREDENTIALS.c_str(),
         DEFAULT_DATA.c_str(),

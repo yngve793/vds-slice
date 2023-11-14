@@ -14,8 +14,6 @@ public:
 
     virtual MetadataHandle const &get_metadata() const noexcept(true) = 0;
 
-    // virtual int validate_metadata() const noexcept(false) = 0;
-
     virtual std::int64_t samples_buffer_size(std::size_t const nsamples) noexcept(false) = 0;
 
     virtual void read_samples(
@@ -42,14 +40,12 @@ public:
         enum interpolation_method const interpolation_method) noexcept(false) = 0;
 };
 
-class OvdsDataSource : public DataSource {
+class SingleDataSource : public DataSource {
 
 public:
-    OvdsDataSource(const char *url, const char *credentials);
+    SingleDataSource(const char *url, const char *credentials);
 
-    ~OvdsDataSource();
-
-    // int validate_metadata() const noexcept(false);
+    ~SingleDataSource();
 
     MetadataHandle const &get_metadata() const noexcept(true);
 
@@ -82,23 +78,23 @@ private:
     DataHandle *handle;
 };
 
-OvdsDataSource *make_ovds_datasource(
+SingleDataSource *make_ovds_datasource(
     const char *url,
     const char *credentials) noexcept(false);
 
-class OvdsMultiDataSource : public DataSource {
+class DoubleDataSource : public DataSource {
 
 public:
-    OvdsMultiDataSource(
+    DoubleDataSource(
         const char *url_A,
         const char *credentials_A,
         const char *url_B,
         const char *credentials_B,
         void (*func)(float *, float *, float *, std::size_t));
 
-    ~OvdsMultiDataSource();
+    ~DoubleDataSource();
 
-    int validate_metadata() const noexcept(false);
+    void validate_metadata() const noexcept(false);
 
     MetadataHandle const &get_metadata() const noexcept(true);
 
@@ -133,7 +129,7 @@ private:
     void (*func)(float *, float *, float *, std::size_t);
 };
 
-OvdsMultiDataSource *make_ovds_multi_datasource(
+DoubleDataSource *make_ovds_multi_datasource(
     const char *url_A,
     const char *credentials_A,
     const char *url_B,
@@ -163,12 +159,5 @@ void division(
     float *buffer_B,
     float *out_buffer,
     std::size_t nsamples) noexcept(false);
-
-enum metadata_status_code {
-    STATUS_DATASOURCE_OK = 0x0,
-    STATUS_DATASOURCE_ILINE_MISMATCH = 0x31,
-    STATUS_DATASOURCE_XLINE_MISMATCH = 0x32,
-    STATUS_DATASOURCE_SAMPLE_MISMATCH = 0x33
-};
 
 #endif /* VDS_SLICE_DATA_SOURCE_HPP */

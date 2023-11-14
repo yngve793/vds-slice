@@ -1,30 +1,26 @@
 #include "datasource.hpp"
 #include "datahandle.hpp"
 
-OvdsDataSource::OvdsDataSource(const char* url, const char* credentials) {
+SingleDataSource::SingleDataSource(const char* url, const char* credentials) {
     this->handle = make_datahandle(url, credentials);
 }
 
-OvdsDataSource::~OvdsDataSource() {
+SingleDataSource::~SingleDataSource() {
     if (this->handle != NULL) {
         delete (this->handle);
         this->handle = NULL;
     }
 }
 
-// int OvdsDataSource::validate_metadata() const noexcept(false) {
-//     return STATUS_DATASOURCE_OK;
-// }
-
-MetadataHandle const& OvdsDataSource::get_metadata() const noexcept(true) {
+MetadataHandle const& SingleDataSource::get_metadata() const noexcept(true) {
     return this->handle->get_metadata();
 }
 
-std::int64_t OvdsDataSource::samples_buffer_size(std::size_t const nsamples) noexcept(false) {
+std::int64_t SingleDataSource::samples_buffer_size(std::size_t const nsamples) noexcept(false) {
     return this->handle->samples_buffer_size(nsamples);
 }
 
-void OvdsDataSource::read_samples(
+void SingleDataSource::read_samples(
     void* const buffer,
     std::int64_t const size,
     voxel const* samples,
@@ -34,11 +30,11 @@ void OvdsDataSource::read_samples(
     return this->handle->read_samples(buffer, size, samples, nsamples, interpolation_method);
 }
 
-std::int64_t OvdsDataSource::subcube_buffer_size(SubCube const& subcube) noexcept(false) {
+std::int64_t SingleDataSource::subcube_buffer_size(SubCube const& subcube) noexcept(false) {
     return this->handle->subcube_buffer_size(subcube);
 }
 
-void OvdsDataSource::read_subcube(
+void SingleDataSource::read_subcube(
     void* const buffer,
     std::int64_t size,
     SubCube const& subcube
@@ -46,7 +42,7 @@ void OvdsDataSource::read_subcube(
     this->handle->read_subcube(buffer, size, subcube);
 }
 
-void OvdsDataSource::read_traces(
+void SingleDataSource::read_traces(
     void* const buffer,
     std::int64_t const size,
     voxel const* coordinates,
@@ -57,18 +53,18 @@ void OvdsDataSource::read_traces(
     this->handle->read_traces(buffer, size, coordinates, ntraces, interpolation_method);
 }
 
-std::int64_t OvdsDataSource::traces_buffer_size(std::size_t const ntraces) noexcept(false) {
+std::int64_t SingleDataSource::traces_buffer_size(std::size_t const ntraces) noexcept(false) {
     return this->handle->traces_buffer_size(ntraces);
 }
 
-OvdsDataSource* make_ovds_datasource(
+SingleDataSource* make_ovds_datasource(
     const char* url,
     const char* credentials
 ) {
-    return new OvdsDataSource(url, credentials);
+    return new SingleDataSource(url, credentials);
 }
 
-OvdsMultiDataSource::OvdsMultiDataSource(
+DoubleDataSource::DoubleDataSource(
     const char* url_A, const char* credentials_A,
     const char* url_B, const char* credentials_B,
     void (*func)(float*, float*, float*, std::size_t)
@@ -79,7 +75,7 @@ OvdsMultiDataSource::OvdsMultiDataSource(
     this->validate_metadata();
 }
 
-OvdsMultiDataSource::~OvdsMultiDataSource() {
+DoubleDataSource::~DoubleDataSource() {
     if (this->handle_A != NULL) {
         delete (this->handle_A);
         this->handle_A = NULL;
@@ -90,37 +86,30 @@ OvdsMultiDataSource::~OvdsMultiDataSource() {
     }
 }
 
-int OvdsMultiDataSource::validate_metadata() const noexcept(false) {
+void DoubleDataSource::validate_metadata() const noexcept(false) {
 
-    MetadataHandle metadata_handle_A = this->handle_A->get_metadata();
-    MetadataHandle metadata_handle_B = this->handle_B->get_metadata();
+    MetadataHandle mdh_A = this->handle_A->get_metadata();
+    MetadataHandle mdh_B = this->handle_B->get_metadata();
 
-    if (metadata_handle_A.iline() != metadata_handle_B.iline())
-        return STATUS_DATASOURCE_ILINE_MISMATCH;
-
-    if (metadata_handle_A.xline() != metadata_handle_B.xline())
-        return STATUS_DATASOURCE_XLINE_MISMATCH;
-
-    if (metadata_handle_A.sample() != metadata_handle_B.sample())
-        return STATUS_DATASOURCE_SAMPLE_MISMATCH;
-
-    return STATUS_DATASOURCE_OK;
+    mdh_A.iline().validate_compatible(mdh_B.iline());
+    mdh_A.xline().validate_compatible(mdh_B.xline());
+    mdh_A.sample().validate_compatible(mdh_B.sample());
 }
 
-MetadataHandle const& OvdsMultiDataSource::get_metadata() const noexcept(true) {
+MetadataHandle const& DoubleDataSource::get_metadata() const noexcept(true) {
     // Returns an arbitrary metadata handle
     return this->handle_A->get_metadata();
 }
 
-std::int64_t OvdsMultiDataSource::samples_buffer_size(std::size_t const nsamples) noexcept(false) {
+std::int64_t DoubleDataSource::samples_buffer_size(std::size_t const nsamples) noexcept(false) {
     return this->handle_A->samples_buffer_size(nsamples);
 }
 
-std::int64_t OvdsMultiDataSource::subcube_buffer_size(SubCube const& subcube) noexcept(false) {
+std::int64_t DoubleDataSource::subcube_buffer_size(SubCube const& subcube) noexcept(false) {
     return this->handle_A->subcube_buffer_size(subcube);
 }
 
-void OvdsMultiDataSource::read_subcube(
+void DoubleDataSource::read_subcube(
     void* const buffer,
     std::int64_t size,
     SubCube const& subcube
@@ -133,7 +122,7 @@ void OvdsMultiDataSource::read_subcube(
     this->func(buffer_A.data(), buffer_B.data(), (float*)buffer, (int)size / sizeof(float));
 }
 
-std::int64_t OvdsMultiDataSource::traces_buffer_size(
+std::int64_t DoubleDataSource::traces_buffer_size(
     std::size_t const ntraces
 ) noexcept(false) {
     return this->handle_A->traces_buffer_size(ntraces);
@@ -145,7 +134,7 @@ std::int64_t OvdsMultiDataSource::traces_buffer_size(
 /// @param coordinates
 /// @param ntraces
 /// @param interpolation_method
-void OvdsMultiDataSource::read_traces(
+void DoubleDataSource::read_traces(
     void* const buffer,
     std::int64_t const size,
     voxel const* coordinates,
@@ -163,7 +152,7 @@ void OvdsMultiDataSource::read_traces(
     this->func(buffer_A.data(), buffer_B.data(), (float*)buffer, (int)size / sizeof(float));
 }
 
-void OvdsMultiDataSource::read_samples(
+void DoubleDataSource::read_samples(
     void* const buffer,
     std::int64_t const size,
     voxel const* samples,
@@ -180,14 +169,14 @@ void OvdsMultiDataSource::read_samples(
     this->func(buffer_A.data(), buffer_B.data(), (float*)buffer, nsamples);
 }
 
-OvdsMultiDataSource* make_ovds_multi_datasource(
+DoubleDataSource* make_ovds_multi_datasource(
     const char* url_A,
     const char* credentials_A,
     const char* url_B,
     const char* credentials_B,
     void (*func)(float*, float*, float*, std::size_t)
 ) noexcept(false) {
-    return new OvdsMultiDataSource(url_A, credentials_A, url_B, credentials_B, func);
+    return new DoubleDataSource(url_A, credentials_A, url_B, credentials_B, func);
 }
 
 void subtraction(float* buffer_A, float* buffer_B, float* out_buffer, std::size_t nsamples) noexcept(false) {

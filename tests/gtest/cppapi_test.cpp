@@ -52,7 +52,7 @@ class SubvolumeTest : public ::testing::Test
         delete datasource;
     }
 
-    OvdsDataSource *datasource;
+    SingleDataSource *datasource;
 
     static constexpr float fill = -999.25;
     std::map<float, std::vector<float>> points;
@@ -275,7 +275,7 @@ class SurfaceAlignmentTest : public ::testing::Test
         delete datasource;
     }
 
-    OvdsDataSource *datasource;
+    SingleDataSource *datasource;
 
     static constexpr float fill = -999.25;
 };

@@ -29,7 +29,7 @@ protected:
         delete datasource_A;
     }
 
-    OvdsDataSource *datasource_A;
+    SingleDataSource *datasource_A;
     SurfaceBoundedSubVolume *subvolume_A;
     static constexpr int nrows = 3;
     static constexpr int ncols = 2;
