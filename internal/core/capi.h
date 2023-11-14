@@ -41,29 +41,8 @@ const char* errmsg(Context* ctx);
 
 void response_delete(struct response*);
 
-// struct DataHandle;
-// typedef struct DataHandle DataHandle;
-
 struct DataSource;
 typedef struct DataSource DataSource;
-
-
-// /** Create a new (VDS) DataHandle instance */
-// int datahandle_new(
-//     Context* ctx,
-//     const char* url,
-//     const char* credentials,
-//     DataHandle** f,
-//     DataSource** ds_out
-// );
-
-/** Free up the handle
- *
- * Closes the attached OpenVDS handle and frees the handle instance
- * itself.
- */
-// int datahandle_free(Context* ctx, DataHandle* f);
-
 
 int ovds_datasource_new(
     Context* ctx,
