@@ -44,14 +44,14 @@ void response_delete(struct response*);
 struct DataSource;
 typedef struct DataSource DataSource;
 
-int ovds_datasource_new(
+int single_datasource_new(
     Context* ctx,
     const char* url,
     const char* credentials,
     DataSource** ds_out
 );
 
-int ovds_multi_datasource_new(
+int double_datasource_new(
     Context* ctx,
     const char* url_A,
     const char* credentials_A,

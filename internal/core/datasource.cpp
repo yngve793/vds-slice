@@ -57,7 +57,7 @@ std::int64_t SingleDataSource::traces_buffer_size(std::size_t const ntraces) noe
     return this->handle->traces_buffer_size(ntraces);
 }
 
-SingleDataSource* make_ovds_datasource(
+SingleDataSource* make_single_datasource(
     const char* url,
     const char* credentials
 ) {
@@ -169,7 +169,7 @@ void DoubleDataSource::read_samples(
     this->func(buffer_A.data(), buffer_B.data(), (float*)buffer, nsamples);
 }
 
-DoubleDataSource* make_ovds_multi_datasource(
+DoubleDataSource* make_double_datasource(
     const char* url_A,
     const char* credentials_A,
     const char* url_B,

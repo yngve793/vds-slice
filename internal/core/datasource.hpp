@@ -78,7 +78,7 @@ private:
     DataHandle *handle;
 };
 
-SingleDataSource *make_ovds_datasource(
+SingleDataSource *make_single_datasource(
     const char *url,
     const char *credentials) noexcept(false);
 
@@ -129,7 +129,7 @@ private:
     void (*func)(float *, float *, float *, std::size_t);
 };
 
-DoubleDataSource *make_ovds_multi_datasource(
+DoubleDataSource *make_double_datasource(
     const char *url_A,
     const char *credentials_A,
     const char *url_B,

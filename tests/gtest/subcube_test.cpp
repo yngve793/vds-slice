@@ -14,7 +14,7 @@ Grid samples_10_grid = Grid(2, 0, 7.2111, 3.6056, 33.69);
 class SubCubeTest : public ::testing::Test {
 protected:
     void SetUp() override {
-        datasource_A = make_ovds_datasource(
+        datasource_A = make_single_datasource(
             SAMPLES_10.c_str(),
             CREDENTIALS.c_str());
 

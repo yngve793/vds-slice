@@ -51,7 +51,7 @@ int handle_exception(Context* ctx, std::exception_ptr eptr) {
     return STATUS_OK;
 }
 
-int ovds_datasource_new(
+int single_datasource_new(
     Context* ctx,
     const char* url,
     const char* credentials,
@@ -60,14 +60,14 @@ int ovds_datasource_new(
     try {
         if (not ds_out) throw detail::nullptr_error("Invalid out pointer");
 
-        *ds_out = make_ovds_datasource(url, credentials);
+        *ds_out = make_single_datasource(url, credentials);
         return STATUS_OK;
     } catch (...) {
         return handle_exception(ctx, std::current_exception());
     }
 }
 
-int ovds_multi_datasource_new(
+int double_datasource_new(
     Context* ctx,
     const char* url_A,
     const char* credentials_A,
@@ -88,7 +88,7 @@ int ovds_multi_datasource_new(
         else if (strcmp(function, "DIVISION") == 0) cube_function = &division;
         else throw detail::bad_request("Invalid function");
 
-        *datasource = make_ovds_multi_datasource(url_A, credentials_A, url_B, credentials_B, cube_function);
+        *datasource = make_double_datasource(url_A, credentials_A, url_B, credentials_B, cube_function);
         return STATUS_OK;
     } catch (...) {
         return handle_exception(ctx, std::current_exception());

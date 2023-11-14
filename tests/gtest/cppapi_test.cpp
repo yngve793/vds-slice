@@ -44,7 +44,7 @@ class SubvolumeTest : public ::testing::Test
   protected:
     void SetUp() override
     {
-        datasource = make_ovds_datasource(SAMPLES_10.c_str(), CREDENTIALS.c_str());
+        datasource = make_single_datasource(SAMPLES_10.c_str(), CREDENTIALS.c_str());
     }
 
     void TearDown() override
@@ -267,7 +267,7 @@ class SurfaceAlignmentTest : public ::testing::Test
   protected:
     void SetUp() override
     {
-        datasource = make_ovds_datasource(SAMPLES_10.c_str(), CREDENTIALS.c_str());
+        datasource = make_single_datasource(SAMPLES_10.c_str(), CREDENTIALS.c_str());
     }
 
     void TearDown() override
