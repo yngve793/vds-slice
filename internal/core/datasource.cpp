@@ -89,16 +89,6 @@ DoubleDataSource::~DoubleDataSource() {
     }
 }
 
-void DoubleDataSource::validate_metadata() const noexcept(false) {
-
-    // SingleMetadataHandle mdh_A = this->handle_A->get_metadata();
-    // SingleMetadataHandle mdh_B = this->handle_B->get_metadata();
-
-    // mdh_A.iline().validate_compatible(mdh_B.iline());
-    // mdh_A.xline().validate_compatible(mdh_B.xline());
-    // mdh_A.sample().validate_compatible(mdh_B.sample());
-}
-
 MetadataHandle const& DoubleDataSource::get_metadata() const noexcept(true) {
     return this->handle_A->get_metadata();
 }
@@ -130,12 +120,6 @@ std::int64_t DoubleDataSource::traces_buffer_size(
     return this->handle_A->traces_buffer_size(ntraces);
 }
 
-/// @brief Returns apply the function to trace from source A and B
-/// @param buffer to float matrix of trace_length x ntraces
-/// @param size Number of bytes in buffer
-/// @param coordinates
-/// @param ntraces
-/// @param interpolation_method
 void DoubleDataSource::read_traces(
     void* const buffer,
     std::int64_t const size,

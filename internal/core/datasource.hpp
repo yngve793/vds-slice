@@ -94,8 +94,6 @@ public:
 
     ~DoubleDataSource();
 
-    void validate_metadata() const noexcept(false);
-
     MetadataHandle const &get_metadata() const noexcept(true);
 
     std::int64_t samples_buffer_size(std::size_t const nsamples) noexcept(false);
