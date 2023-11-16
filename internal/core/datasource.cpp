@@ -67,7 +67,7 @@ SingleDataSource* make_single_datasource(
 DoubleDataSource::DoubleDataSource(
     const char* url_A, const char* credentials_A,
     const char* url_B, const char* credentials_B,
-    void (*func)(float*, float*, std::size_t)
+    void (*func)(float*, float*, std::size_t) noexcept(true)
 ) {
     this->handle_A = make_single_datasource(url_A, credentials_A);
     this->handle_B = make_single_datasource(url_B, credentials_B);
@@ -156,30 +156,30 @@ DoubleDataSource* make_double_datasource(
     const char* credentials_A,
     const char* url_B,
     const char* credentials_B,
-    void (*func)(float*, float*, std::size_t)
+    void (*func)(float*, float*, std::size_t) noexcept(true)
 ) noexcept(false) {
     return new DoubleDataSource(url_A, credentials_A, url_B, credentials_B, func);
 }
 
-void inplace_subtraction(float* buffer_A, float* buffer_B, std::size_t nsamples) noexcept(false) {
+void inplace_subtraction(float* buffer_A, float* buffer_B, std::size_t nsamples) noexcept(true) {
     for (std::size_t i = 0; i < nsamples; i++) {
         buffer_A[i] -= buffer_B[i];
     }
 }
 
-void inplace_addition(float* buffer_A, float* buffer_B, std::size_t nsamples) noexcept(false) {
+void inplace_addition(float* buffer_A, float* buffer_B, std::size_t nsamples) noexcept(true) {
     for (std::size_t i = 0; i < nsamples; i++) {
         buffer_A[i] += buffer_B[i];
     }
 }
 
-void inplace_multiplication(float* buffer_A, float* buffer_B, std::size_t nsamples) noexcept(false) {
+void inplace_multiplication(float* buffer_A, float* buffer_B, std::size_t nsamples) noexcept(true) {
     for (std::size_t i = 0; i < nsamples; i++) {
         buffer_A[i] *= buffer_B[i];
     }
 }
 
-void inplace_division(float* buffer_A, float* buffer_B, std::size_t nsamples) noexcept(false) {
+void inplace_division(float* buffer_A, float* buffer_B, std::size_t nsamples) noexcept(true) {
     for (std::size_t i = 0; i < nsamples; i++) {
         buffer_A[i] /= buffer_B[i];
     }
