@@ -20,12 +20,12 @@ def create_dim_data(path,
 
     # We use scaling constant of -10, meaning that values will be divided by 10
     # note that lines are not perpendicular
-    il_step_x = int(1.1 * 10)
+    il_step_x = int(2.0 * 10)
     il_step_y = int(0 * 10)
     xl_step_x = int(0 * 10)
-    xl_step_y = int(3.3 * 10)
-    ori_x = int(1 * 10)
-    ori_y = int(3 * 10)
+    xl_step_y = int(3.0 * 10)
+    ori_x = int(22)
+    ori_y = int(33)
 
     with segyio.create(path, spec) as f:
         data = -5
@@ -44,6 +44,7 @@ def create_dim_data(path,
                         (xl - spec.xlines[0]) * xl_step_y +
                         ori_y,
                     segyio.su.scalco: -10,
+                    segyio.su.delrt: 4,
                 }
                 data = data + 0.00001
                 f.trace[tr] = np.linspace(start=data, stop=data+2, num=len(spec.samples), dtype=np.single)

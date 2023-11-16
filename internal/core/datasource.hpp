@@ -90,7 +90,7 @@ public:
         const char *credentials_A,
         const char *url_B,
         const char *credentials_B,
-        void (*func)(float *, float *, float *, std::size_t));
+        void (*func)(float *, float *, std::size_t));
 
     ~DoubleDataSource();
 
@@ -125,7 +125,7 @@ private:
     DataSource *handle_A;
     DataSource *handle_B;
     MetadataHandle *metadata;
-    void (*func)(float *, float *, float *, std::size_t);
+    void (*func)(float *, float *, std::size_t);
 };
 
 DoubleDataSource *make_double_datasource(
@@ -133,30 +133,26 @@ DoubleDataSource *make_double_datasource(
     const char *credentials_A,
     const char *url_B,
     const char *credentials_B,
-    void (*func)(float *, float *, float *, std::size_t)) noexcept(false);
+    void (*func)(float *, float *, std::size_t)) noexcept(false);
 
-void subtraction(
+void inplace_subtraction(
     float *buffer_A,
     float *buffer_B,
-    float *out_buffer,
     std::size_t nsamples) noexcept(false);
 
-void addition(
+void inplace_addition(
     float *buffer_A,
     float *buffer_B,
-    float *out_buffer,
     std::size_t nsamples) noexcept(false);
 
-void multiplication(
+void inplace_multiplication(
     float *buffer_A,
     float *buffer_B,
-    float *out_buffer,
     std::size_t nsamples) noexcept(false);
 
-void division(
+void inplace_division(
     float *buffer_A,
     float *buffer_B,
-    float *out_buffer,
     std::size_t nsamples) noexcept(false);
 
 #endif /* VDS_SLICE_DATA_SOURCE_HPP */

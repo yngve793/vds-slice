@@ -28,6 +28,12 @@ protected:
             DEFAULT_DATA_2X.c_str(),
             CREDENTIALS.c_str());
 
+        for (int i = 0; i < size; ++i) {
+            top_surface_data[i] = 19.0;
+            primary_surface_data[i] = 20.0;
+            bottom_surface_data[i] = 29.0;
+        };
+
         subvolume_A = make_subvolume(
             datasource_A->get_metadata(), primary_surface, top_surface, bottom_surface);
 
@@ -54,9 +60,9 @@ protected:
     static constexpr int ncols = 20;
     static constexpr std::size_t size = nrows * ncols;
 
-    std::array<float, size> top_surface_data = {16, 16, 16, 16, 16, 16};
-    std::array<float, nrows *ncols> primary_surface_data = {20, 20, 20, 20, 20, 20};
-    std::array<float, size> bottom_surface_data = {24, 24, 24, 24, 24, 24};
+    std::array<float, size> top_surface_data;
+    std::array<float, nrows *ncols> primary_surface_data;
+    std::array<float, size> bottom_surface_data;
 
     static constexpr float fill = -999.25;
 
@@ -78,7 +84,7 @@ TEST_F(DataSourceTest, ILineMismatch) {
             CREDENTIALS.c_str(),
             DEFAULT_DATA_IL.c_str(),
             CREDENTIALS.c_str(),
-            &subtraction);
+            &inplace_subtraction);
         delete datasource;
     } catch (std::runtime_error const &err) {
         EXPECT_EQ(err.what(), std::string(EXPECTED_MSG));
@@ -95,7 +101,7 @@ TEST_F(DataSourceTest, XLineMismatch) {
             CREDENTIALS.c_str(),
             DEFAULT_DATA_XL.c_str(),
             CREDENTIALS.c_str(),
-            &subtraction);
+            &inplace_subtraction);
         delete datasource;
     } catch (std::runtime_error const &err) {
         EXPECT_EQ(err.what(), std::string(EXPECTED_MSG));
@@ -112,7 +118,7 @@ TEST_F(DataSourceTest, SamplesMismatch) {
             CREDENTIALS.c_str(),
             DEFAULT_DATA_S.c_str(),
             CREDENTIALS.c_str(),
-            &subtraction);
+            &inplace_subtraction);
         delete datasource;
     } catch (std::runtime_error const &err) {
         EXPECT_EQ(err.what(), std::string(EXPECTED_MSG));
@@ -129,7 +135,7 @@ TEST_F(DataSourceTest, OffsetMismatch) {
             CREDENTIALS.c_str(),
             DEFAULT_DATA_OS.c_str(),
             CREDENTIALS.c_str(),
-            &subtraction);
+            &inplace_subtraction);
         delete datasource;
     } catch (std::runtime_error const &err) {
         EXPECT_EQ(err.what(), std::string(EXPECTED_MSG));
@@ -147,7 +153,7 @@ TEST_F(DataSourceTest, StepSizeMismatch) {
             CREDENTIALS.c_str(),
             DEFAULT_DATA_SS.c_str(),
             CREDENTIALS.c_str(),
-            &subtraction);
+            &inplace_subtraction);
         delete datasource;
     } catch (std::runtime_error const &err) {
         EXPECT_EQ(err.what(), std::string(EXPECTED_MSG));
@@ -163,13 +169,14 @@ TEST_F(DataSourceTest, Addition) {
         CREDENTIALS.c_str(),
         DEFAULT_DATA_2X.c_str(),
         CREDENTIALS.c_str(),
-        &addition);
+        &inplace_addition);
 
     SurfaceBoundedSubVolume *subvolume = make_subvolume(
         datasource->get_metadata(), primary_surface, top_surface, bottom_surface);
 
     cppapi::fetch_subvolume(*datasource, *subvolume, NEAREST, 0, size);
-
+    int compared_values = 0;
+    int compared_expected = 0;
     for (int i = 0; i < size; ++i) {
         RawSegment rs = subvolume->vertical_segment(i);
         RawSegment rs_A = subvolume_A->vertical_segment(i);
@@ -177,12 +184,13 @@ TEST_F(DataSourceTest, Addition) {
 
         std::vector<float>::const_iterator it;
         std::size_t offset = 0;
+        compared_expected += rs.size();
         for (it = rs.begin(); it != rs.end(); it++) {
             offset = it - rs.begin();
             float target_value = *(rs.begin() + offset);
             float value_A = *(rs_A.begin() + offset);
             float value_B = *(rs_B.begin() + offset);
-
+            compared_values++;
             EXPECT_EQ(target_value, value_A + value_B) << "Expected value: " << value_A + value_B << " Actual value: " << target_value;
         }
     }
@@ -197,13 +205,15 @@ TEST_F(DataSourceTest, Multiplication) {
         CREDENTIALS.c_str(),
         DEFAULT_DATA_2X.c_str(),
         CREDENTIALS.c_str(),
-        &multiplication);
+        &inplace_multiplication);
 
     SurfaceBoundedSubVolume *subvolume = make_subvolume(
         datasource->get_metadata(), primary_surface, top_surface, bottom_surface);
 
     cppapi::fetch_subvolume(*datasource, *subvolume, NEAREST, 0, size);
 
+    int compared_values = 0;
+    int compared_expected = 0;
     for (int i = 0; i < size; ++i) {
         RawSegment rs = subvolume->vertical_segment(i);
         RawSegment rs_A = subvolume_A->vertical_segment(i);
@@ -211,15 +221,18 @@ TEST_F(DataSourceTest, Multiplication) {
 
         std::vector<float>::const_iterator it;
         std::size_t offset = 0;
+        compared_expected += rs.size();
         for (it = rs.begin(); it != rs.end(); it++) {
             offset = it - rs.begin();
             float target_value = *(rs.begin() + offset);
             float value_A = *(rs_A.begin() + offset);
             float value_B = *(rs_B.begin() + offset);
-
+            compared_values++;            
             EXPECT_EQ(target_value, value_A * value_B) << "Expected value: " << value_A * value_B << " Actual value: " << target_value;
         }
     }
+    EXPECT_EQ(compared_values, compared_expected) << "Compared values: " << compared_values << " Expected values: " << compared_expected;
+    EXPECT_GE(compared_values, size) << "Compared values: " << compared_values << " Expected at least one value per trace ";
     delete subvolume;
     delete datasource;
 }
@@ -231,13 +244,14 @@ TEST_F(DataSourceTest, Division) {
         CREDENTIALS.c_str(),
         DEFAULT_DATA_2X.c_str(),
         CREDENTIALS.c_str(),
-        &division);
+        &inplace_division);
 
     SurfaceBoundedSubVolume *subvolume = make_subvolume(
         datasource->get_metadata(), primary_surface, top_surface, bottom_surface);
 
     cppapi::fetch_subvolume(*datasource, *subvolume, NEAREST, 0, size);
-
+    int compared_values = 0;
+    int compared_expected = 0;
     for (int i = 0; i < size; ++i) {
         RawSegment rs = subvolume->vertical_segment(i);
         RawSegment rs_A = subvolume_A->vertical_segment(i);
@@ -245,15 +259,18 @@ TEST_F(DataSourceTest, Division) {
 
         std::vector<float>::const_iterator it;
         std::size_t offset = 0;
+        compared_expected += rs.size();
         for (it = rs.begin(); it != rs.end(); it++) {
             offset = it - rs.begin();
             float target_value = *(rs.begin() + offset);
             float value_A = *(rs_A.begin() + offset);
             float value_B = *(rs_B.begin() + offset);
-
+            compared_values++;
             EXPECT_EQ(target_value, value_A / value_B) << "Expected value: " << value_A / value_B << " Actual value: " << target_value;
         }
     }
+    EXPECT_EQ(compared_values, compared_expected) << "Compared values: " << compared_values << " Expected values: " << compared_expected;
+    EXPECT_GE(compared_values, size) << "Compared values: " << compared_values << " Expected at least one value per trace ";
     delete subvolume;
     delete datasource;
 }
@@ -265,13 +282,14 @@ TEST_F(DataSourceTest, Subtract) {
         CREDENTIALS.c_str(),
         DEFAULT_DATA_2X.c_str(),
         CREDENTIALS.c_str(),
-        &subtraction);
+        &inplace_subtraction);
 
     SurfaceBoundedSubVolume *subvolume = make_subvolume(
         datasource->get_metadata(), primary_surface, top_surface, bottom_surface);
 
     cppapi::fetch_subvolume(*datasource, *subvolume, NEAREST, 0, size);
-
+    int compared_values = 0;
+    int compared_expected = 0;
     for (int i = 0; i < size; ++i) {
         RawSegment rs = subvolume->vertical_segment(i);
         RawSegment rs_A = subvolume_A->vertical_segment(i);
@@ -279,15 +297,18 @@ TEST_F(DataSourceTest, Subtract) {
 
         std::vector<float>::const_iterator it;
         std::size_t offset = 0;
+        compared_expected += rs.size();
         for (it = rs.begin(); it != rs.end(); it++) {
             offset = it - rs.begin();
             float target_value = *(rs.begin() + offset);
             float value_A = *(rs_A.begin() + offset);
             float value_B = *(rs_B.begin() + offset);
-
+            compared_values++;
             EXPECT_EQ(target_value, value_A - value_B) << "Expected value: " << value_A - value_B << " Actual value: " << target_value;
         }
     }
+    EXPECT_EQ(compared_values, compared_expected) << "Compared values: " << compared_values << " Expected values: " << compared_expected;
+    EXPECT_GE(compared_values, size) << "Compared values: " << compared_values << " Expected at least one value per trace ";
     delete subvolume;
     delete datasource;
 }
@@ -299,13 +320,14 @@ TEST_F(DataSourceTest, SubtractReverse) {
         CREDENTIALS.c_str(),
         DEFAULT_DATA.c_str(),
         CREDENTIALS.c_str(),
-        &subtraction);
+        &inplace_subtraction);
 
     SurfaceBoundedSubVolume *subvolume = make_subvolume(
         datasource->get_metadata(), primary_surface, top_surface, bottom_surface);
 
     cppapi::fetch_subvolume(*datasource, *subvolume, NEAREST, 0, size);
-
+    int compared_values = 0;
+    int compared_expected = 0;
     for (int i = 0; i < size; ++i) {
         RawSegment rs = subvolume->vertical_segment(i);
 
@@ -315,15 +337,18 @@ TEST_F(DataSourceTest, SubtractReverse) {
 
         std::vector<float>::const_iterator it;
         std::size_t offset = 0;
+        compared_expected += rs.size();
         for (it = rs.begin(); it != rs.end(); it++) {
             offset = it - rs.begin();
             float target_value = *(rs.begin() + offset);
             float value_A = *(rs_A.begin() + offset);
             float value_B = *(rs_B.begin() + offset);
-
+            compared_values++;
             EXPECT_EQ(target_value, value_A - value_B) << "Expected value: " << value_A - value_B << " Actual value: " << target_value << " A=" << value_A << " B=" << value_B;
         }
     }
+    EXPECT_EQ(compared_values, compared_expected) << "Compared values: " << compared_values << " Expected values: " << compared_expected;
+    EXPECT_GE(compared_values, size) << "Compared values: " << compared_values << " Expected at least one value per trace ";
     delete subvolume;
     delete datasource;
 }

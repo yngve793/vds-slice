@@ -67,7 +67,7 @@ SingleDataSource* make_single_datasource(
 DoubleDataSource::DoubleDataSource(
     const char* url_A, const char* credentials_A,
     const char* url_B, const char* credentials_B,
-    void (*func)(float*, float*, float*, std::size_t)
+    void (*func)(float*, float*, std::size_t)
 ) {
     this->handle_A = make_single_datasource(url_A, credentials_A);
     this->handle_B = make_single_datasource(url_B, credentials_B);
@@ -106,12 +106,11 @@ void DoubleDataSource::read_subcube(
     std::int64_t size,
     SubCube const& subcube
 ) noexcept(false) {
-    std::vector<float> buffer_A((int)size / sizeof(float));
     std::vector<float> buffer_B((int)size / sizeof(float));
-    this->handle_A->read_subcube(buffer_A.data(), size, subcube);
+    this->handle_A->read_subcube((float*)buffer, size, subcube);
     this->handle_B->read_subcube(buffer_B.data(), size, subcube);
 
-    this->func(buffer_A.data(), buffer_B.data(), (float*)buffer, (int)size / sizeof(float));
+    this->func((float*)buffer, buffer_B.data(), (int)size / sizeof(float));
 }
 
 std::int64_t DoubleDataSource::traces_buffer_size(
@@ -128,13 +127,12 @@ void DoubleDataSource::read_traces(
     interpolation_method const interpolation_method
 ) noexcept(false) {
 
-    std::vector<float> buffer_A((int)size / sizeof(float));
     std::vector<float> buffer_B((int)size / sizeof(float));
 
-    this->handle_A->read_traces(buffer_A.data(), size, coordinates, ntraces, interpolation_method);
+    this->handle_A->read_traces((float*)buffer, size, coordinates, ntraces, interpolation_method);
     this->handle_B->read_traces(buffer_B.data(), size, coordinates, ntraces, interpolation_method);
 
-    this->func(buffer_A.data(), buffer_B.data(), (float*)buffer, (int)size / sizeof(float));
+    this->func((float*)buffer, buffer_B.data(), (int)size / sizeof(float));
 }
 
 void DoubleDataSource::read_samples(
@@ -145,13 +143,12 @@ void DoubleDataSource::read_samples(
     interpolation_method const interpolation_method
 ) noexcept(false) {
 
-    std::vector<float> buffer_A(nsamples);
     std::vector<float> buffer_B(nsamples);
 
-    this->handle_A->read_samples(buffer_A.data(), size, samples, nsamples, interpolation_method);
+    this->handle_A->read_samples((float*)buffer, size, samples, nsamples, interpolation_method);
     this->handle_B->read_samples(buffer_B.data(), size, samples, nsamples, interpolation_method);
 
-    this->func(buffer_A.data(), buffer_B.data(), (float*)buffer, nsamples);
+    this->func((float*)buffer, buffer_B.data(), nsamples);
 }
 
 DoubleDataSource* make_double_datasource(
@@ -159,31 +156,31 @@ DoubleDataSource* make_double_datasource(
     const char* credentials_A,
     const char* url_B,
     const char* credentials_B,
-    void (*func)(float*, float*, float*, std::size_t)
+    void (*func)(float*, float*, std::size_t)
 ) noexcept(false) {
     return new DoubleDataSource(url_A, credentials_A, url_B, credentials_B, func);
 }
 
-void subtraction(float* buffer_A, float* buffer_B, float* out_buffer, std::size_t nsamples) noexcept(false) {
+void inplace_subtraction(float* buffer_A, float* buffer_B, std::size_t nsamples) noexcept(false) {
     for (std::size_t i = 0; i < nsamples; i++) {
-        out_buffer[i] = buffer_A[i] - buffer_B[i];
+        buffer_A[i] -= buffer_B[i];
     }
 }
 
-void addition(float* buffer_A, float* buffer_B, float* out_buffer, std::size_t nsamples) noexcept(false) {
+void inplace_addition(float* buffer_A, float* buffer_B, std::size_t nsamples) noexcept(false) {
     for (std::size_t i = 0; i < nsamples; i++) {
-        out_buffer[i] = buffer_A[i] + buffer_B[i];
+        buffer_A[i] += buffer_B[i];
     }
 }
 
-void multiplication(float* buffer_A, float* buffer_B, float* out_buffer, std::size_t nsamples) noexcept(false) {
+void inplace_multiplication(float* buffer_A, float* buffer_B, std::size_t nsamples) noexcept(false) {
     for (std::size_t i = 0; i < nsamples; i++) {
-        out_buffer[i] = buffer_A[i] * buffer_B[i];
+        buffer_A[i] *= buffer_B[i];
     }
 }
 
-void division(float* buffer_A, float* buffer_B, float* out_buffer, std::size_t nsamples) noexcept(false) {
+void inplace_division(float* buffer_A, float* buffer_B, std::size_t nsamples) noexcept(false) {
     for (std::size_t i = 0; i < nsamples; i++) {
-        out_buffer[i] = buffer_A[i] / buffer_B[i];
+        buffer_A[i] /= buffer_B[i];
     }
 }
