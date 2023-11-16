@@ -79,16 +79,16 @@ int double_datasource_new(
     try {
         if (not datasource) throw detail::nullptr_error("Invalid out pointer");
 
-        void (*cube_function)(float*, float*, float*, size_t);
+        void (*binary_operator)(float*, const float*, size_t) noexcept(true);
 
         if (function == nullptr) throw detail::nullptr_error("Invalid function");
-        else if (strcmp(function, "SUBTRACT") == 0) cube_function = &subtraction;
-        else if (strcmp(function, "ADDITION") == 0) cube_function = &addition;
-        else if (strcmp(function, "MULTIPLICATION") == 0) cube_function = &multiplication;
-        else if (strcmp(function, "DIVISION") == 0) cube_function = &division;
+        else if (strcmp(function, "SUBTRACT") == 0) binary_operator = &inplace_subtraction;
+        else if (strcmp(function, "ADDITION") == 0) binary_operator = &inplace_addition;
+        else if (strcmp(function, "MULTIPLICATION") == 0) binary_operator = &inplace_multiplication;
+        else if (strcmp(function, "DIVISION") == 0) binary_operator = &inplace_division;
         else throw detail::bad_request("Invalid function");
 
-        *datasource = make_double_datasource(url_A, credentials_A, url_B, credentials_B, cube_function);
+        *datasource = make_double_datasource(url_A, credentials_A, url_B, credentials_B, binary_operator);
         return STATUS_OK;
     } catch (...) {
         return handle_exception(ctx, std::current_exception());

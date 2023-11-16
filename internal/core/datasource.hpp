@@ -65,14 +65,14 @@ public:
         std::int64_t size,
         SubCube const &subcube) noexcept(false);
 
+    std::int64_t traces_buffer_size(std::size_t const ntraces) noexcept(false);
+
     void read_traces(
         void *const buffer,
         std::int64_t const size,
         voxel const *coordinates,
         std::size_t const ntraces,
         enum interpolation_method const interpolation_method) noexcept(false);
-
-    std::int64_t traces_buffer_size(std::size_t const ntraces) noexcept(false);
 
 private:
     DataHandle *handle;
@@ -90,7 +90,7 @@ public:
         const char *credentials_A,
         const char *url_B,
         const char *credentials_B,
-        void (*func)(float *, float *, std::size_t) noexcept(true));
+        void (*binary_operator)(float *, const float *, std::size_t) noexcept(true));
 
     ~DoubleDataSource();
 
@@ -112,6 +112,8 @@ public:
         std::int64_t size,
         SubCube const &subcube) noexcept(false);
 
+    std::int64_t traces_buffer_size(std::size_t const ntraces) noexcept(false);
+
     void read_traces(
         void *const buffer,
         std::int64_t const size,
@@ -119,13 +121,11 @@ public:
         std::size_t const ntraces,
         enum interpolation_method const interpolation_method) noexcept(false);
 
-    std::int64_t traces_buffer_size(std::size_t const ntraces) noexcept(false);
-
 private:
     DataSource *handle_A;
     DataSource *handle_B;
     MetadataHandle *metadata;
-    void (*func)(float *, float *, std::size_t) noexcept(true);
+    void (*binary_operator)(float *, const float *, std::size_t) noexcept(true);
 };
 
 DoubleDataSource *make_double_datasource(
@@ -133,26 +133,26 @@ DoubleDataSource *make_double_datasource(
     const char *credentials_A,
     const char *url_B,
     const char *credentials_B,
-    void (*func)(float *, float *, std::size_t) noexcept(true));
+    void (*binary_operator)(float *, const float *, std::size_t) noexcept(true));
 
 void inplace_subtraction(
     float *buffer_A,
-    float *buffer_B,
+    const float *buffer_B,
     std::size_t nsamples) noexcept(true);
 
 void inplace_addition(
     float *buffer_A,
-    float *buffer_B,
+    const float *buffer_B,
     std::size_t nsamples) noexcept(true);
 
 void inplace_multiplication(
     float *buffer_A,
-    float *buffer_B,
+    const float *buffer_B,
     std::size_t nsamples) noexcept(true);
 
 void inplace_division(
     float *buffer_A,
-    float *buffer_B,
+    const float *buffer_B,
     std::size_t nsamples) noexcept(true);
 
 #endif /* VDS_SLICE_DATA_SOURCE_HPP */

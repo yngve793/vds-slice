@@ -95,7 +95,7 @@ type RequestedMultiResource struct {
 	Sas_keys []string `json:"sas,omitempty" example:"sp=r&st=2022-09-12T09:44:17Z&se=2022-09-12T17:44:17Z&spr=https&sv=2021-06-08&sr=c&sig=..."`
 
 	// The function to be applied to the cubes valid options are: addition, subtraction, multiplication, division
-	cube_function string `json:"cube_function,omitempty" example:"subtraction"`
+	binary_operator string `json:"binary_operator,omitempty" example:"subtraction"`
 }
 
 type MultiDataRequest interface {
@@ -430,9 +430,9 @@ func (s SliceMultiRequest) toString() (string, error) {
 		bounds_all += fmt.Sprintf("[%s, %d, %d]", *bound.Direction, *bound.Lower, *bound.Upper) + ","
 	}
 
-	return fmt.Sprintf("{vds: %s, cube_function %s, direction: %s, lineno: %d, bounds: %s}",
+	return fmt.Sprintf("{vds: %s, binary_operator %s, direction: %s, lineno: %d, bounds: %s}",
 		vds_all,
-		s.cube_function,
+		s.binary_operator,
 		s.Direction,
 		*s.Lineno,
 		bounds_all,

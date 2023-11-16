@@ -403,7 +403,7 @@ func (v VDSHandle) Close() error {
 	return toError(cerr, v.ctx)
 }
 
-func NewVDSHandle(conn []Connection, cube_function string) (VDSHandle, error) {
+func NewVDSHandle(conn []Connection, binary_operator string) (VDSHandle, error) {
 
 	if len(conn) == 0 {
 		return VDSHandle{}, NewInvalidArgument("No connections provided")
@@ -449,7 +449,7 @@ func NewVDSHandle(conn []Connection, cube_function string) (VDSHandle, error) {
 		str = regexp.MustCompile(`[^A-Z]+`).ReplaceAllString(str, "")
 		fmt.Println(str)
 
-		cube_string := regexp.MustCompile(`[^A-Z]+`).ReplaceAllString(strings.ToUpper(cube_function), "SUBTRACT")
+		cube_string := regexp.MustCompile(`[^A-Z]+`).ReplaceAllString(strings.ToUpper(binary_operator), "SUBTRACT")
 		c_function := C.CString(cube_string)
 		defer C.free(unsafe.Pointer(c_function))
 
@@ -466,7 +466,7 @@ func NewVDSHandle(conn []Connection, cube_function string) (VDSHandle, error) {
 	return VDSHandle{}, NewInvalidArgument("Only one connection is supported")
 }
 
-func NewVDSMultiHandle(conn_A Connection, conn_B Connection, cube_function string) (VDSHandle, error) {
+func NewVDSMultiHandle(conn_A Connection, conn_B Connection, binary_operator string) (VDSHandle, error) {
 	curl_A := C.CString(conn_A.Url())
 	defer C.free(unsafe.Pointer(curl_A))
 
@@ -482,7 +482,7 @@ func NewVDSMultiHandle(conn_A Connection, conn_B Connection, cube_function strin
 	var cctx = C.context_new()
 	var dataSource *C.struct_DataSource
 
-	cube_string := regexp.MustCompile(`[^A-Z]+`).ReplaceAllString(strings.ToUpper(cube_function), "")
+	cube_string := regexp.MustCompile(`[^A-Z]+`).ReplaceAllString(strings.ToUpper(binary_operator), "")
 	c_function := C.CString(cube_string)
 	defer C.free(unsafe.Pointer(c_function))
 	cerr := C.double_datasource_new(cctx, curl_A, ccred_A, curl_B, ccred_B, c_function, &dataSource)

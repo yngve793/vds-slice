@@ -33,7 +33,7 @@ enum interpolation_method {
     TRIANGULAR
 };
 
-enum cube_function {
+enum binary_operator {
     SUBTRACT = 0,
     ADDITION = 1,
     MULTIPLICATION = 2,
