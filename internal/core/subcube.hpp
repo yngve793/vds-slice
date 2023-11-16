@@ -25,8 +25,6 @@ struct SubCube {
         MetadataHandle const& metadata,
         std::vector< Bound > const& bounds
     ) noexcept (false);
-
-    std::size_t size() const noexcept(true);
 };
 
 #endif /* VDS_SLICE_SUBCUBE_HPP */
