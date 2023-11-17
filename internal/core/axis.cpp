@@ -1,6 +1,7 @@
 #include "axis.hpp"
 
 #include <stdexcept>
+#include "exceptions.hpp"
 
 #include <OpenVDS/IJKCoordinateTransformer.h>
 #include <OpenVDS/KnownMetadata.h>
@@ -53,7 +54,7 @@ float Axis::to_sample_position(float coordinate) noexcept(false) {
 void Axis::validate_compatible(Axis const& other) noexcept(false) {
 
     if (this->nsamples() != other.nsamples()) {
-        throw std::runtime_error(
+        throw detail::bad_request(
             "Axis: " + this->name() +
             ": Mismatch in number of samples: " +
             std::to_string(this->nsamples()) +
@@ -61,7 +62,7 @@ void Axis::validate_compatible(Axis const& other) noexcept(false) {
     }
 
     if (this->min() != other.min()) {
-        throw std::runtime_error(
+        throw detail::bad_request(
             "Axis: " + this->name() +
             ": Mismatch in min value: " +
             std::to_string(this->min()) +
@@ -69,7 +70,7 @@ void Axis::validate_compatible(Axis const& other) noexcept(false) {
     }
 
     if (this->max() != other.max()) {
-        throw std::runtime_error(
+        throw detail::bad_request(
             "Axis: " + this->name() +
             ": Mismatch in max value: " +
             std::to_string(this->max()) +
@@ -79,7 +80,7 @@ void Axis::validate_compatible(Axis const& other) noexcept(false) {
     // Stepsize is a data integrity check.
     // If min,max and nsamples are equal stepsize is equal for consistent data.
     if (this->stepsize() != other.stepsize()) {
-        throw std::runtime_error(
+        throw detail::bad_request(
             "Axis: " + this->name() +
             ": Mismatch in stepsize: " +
             std::to_string(this->stepsize()) +
@@ -87,7 +88,7 @@ void Axis::validate_compatible(Axis const& other) noexcept(false) {
     }
 
     if (this->unit() != other.unit()) {
-        throw std::runtime_error(
+        throw detail::bad_request(
             "Axis: " + this->name() +
             ": Mismatch in unit: " +
             this->unit() +
@@ -97,7 +98,7 @@ void Axis::validate_compatible(Axis const& other) noexcept(false) {
     // Ignore order of dimensions
 
     if (this->name() != other.name()) {
-        throw std::runtime_error(
+        throw detail::bad_request(
             "Axis: " + this->name() +
             ": Mismatch in name: " +
             this->name() +
