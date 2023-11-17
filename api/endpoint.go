@@ -70,7 +70,7 @@ func (e *Endpoint) metadata(ctx *gin.Context, request MetadataRequest) {
 		return
 	}
 
-	handle, err := core.NewVDSHandle([]core.Connection{conn}, "")
+	handle, err := core.NewDSHandle([]core.Connection{conn}, "")
 	if abortOnError(ctx, err) {
 		return
 	}
@@ -116,7 +116,7 @@ func (e *Endpoint) makeDataRequest(
 		}
 	}
 
-	handle, err := core.NewVDSHandle(conn, request.cubeFunction())
+	handle, err := core.NewDSHandle(conn, request.cubeFunction())
 	if abortOnError(ctx, err) {
 		return
 	}
@@ -155,7 +155,7 @@ func (e *Endpoint) attributesAlong4dSurface(ctx *gin.Context, request AttributeA
 		return
 	}
 
-	handle, err := core.NewVDSMultiHandle(conn_A, conn_B, "subtraction")
+	handle, err := core.NewDSMultiHandle(conn_A, conn_B, "subtraction")
 	if abortOnError(ctx, err) {
 		return
 	}
@@ -220,7 +220,7 @@ func (e *Endpoint) AttributeBetween4dSurfaces(ctx *gin.Context, request Attribut
 		return
 	}
 
-	handle, err := core.NewVDSMultiHandle(conn_A, conn_B, "SUBTRACT")
+	handle, err := core.NewDSMultiHandle(conn_A, conn_B, "SUBTRACT")
 	if abortOnError(ctx, err) {
 		return
 	}
@@ -267,7 +267,7 @@ func (e *Endpoint) AttributeBetween4dSurfaces(ctx *gin.Context, request Attribut
 }
 
 func (request SliceRequest) execute(
-	handle core.VDSHandle,
+	handle core.DSHandle,
 ) (data [][]byte, metadata []byte, err error) {
 	axis, err := core.GetAxis(strings.ToLower(request.Direction))
 	if err != nil {
@@ -293,7 +293,7 @@ func (request SliceRequest) execute(
 }
 
 func (request SliceMultiRequest) execute(
-	handle core.VDSHandle,
+	handle core.DSHandle,
 ) (data [][]byte, metadata []byte, err error) {
 	axis, err := core.GetAxis(strings.ToLower(request.Direction))
 	if err != nil {
@@ -319,7 +319,7 @@ func (request SliceMultiRequest) execute(
 }
 
 func (request FenceRequest) execute(
-	handle core.VDSHandle,
+	handle core.DSHandle,
 ) (data [][]byte, metadata []byte, err error) {
 	coordinateSystem, err := core.GetCoordinateSystem(
 		strings.ToLower(request.CoordinateSystem),
@@ -353,7 +353,7 @@ func (request FenceRequest) execute(
 }
 
 func (request FenceMultiRequest) execute(
-	handle core.VDSHandle,
+	handle core.DSHandle,
 ) (data [][]byte, metadata []byte, err error) {
 
 	coordinateSystem, err := core.GetCoordinateSystem(
@@ -419,7 +419,7 @@ func validateVerticalWindow(above float32, below float32, stepSize float32) erro
 }
 
 func (request AttributeAlongSurfaceRequest) execute(
-	handle core.VDSHandle,
+	handle core.DSHandle,
 ) (data [][]byte, metadata []byte, err error) {
 	err = validateVerticalWindow(request.Above, request.Below, request.Stepsize)
 	if err != nil {
@@ -452,7 +452,7 @@ func (request AttributeAlongSurfaceRequest) execute(
 }
 
 func (request AttributeBetweenSurfacesRequest) execute(
-	handle core.VDSHandle,
+	handle core.DSHandle,
 ) (data [][]byte, metadata []byte, err error) {
 	interpolation, err := core.GetInterpolationMethod(request.Interpolation)
 	if err != nil {
@@ -480,7 +480,7 @@ func (request AttributeBetweenSurfacesRequest) execute(
 
 func parseGetRequest(ctx *gin.Context, v Normalizable) error {
 	query, status := ctx.GetQuery("query")
-	if (!status){
+	if !status {
 		return core.NewInvalidArgument(
 			"GET request to specified endpoint requires a 'query' parameter",
 		)

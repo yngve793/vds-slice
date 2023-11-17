@@ -379,34 +379,34 @@ func (surface *RegularSurface) toCRegularSurface(cdata []C.float) (cRegularSurfa
 	return cRegularSurface{cSurface: cSurface, cData: cdata}, nil
 }
 
-type VDSHandle struct {
+type DSHandle struct {
 	dataSource *C.struct_DataSource
 	ctx        *C.struct_Context
 }
 
-func (v VDSHandle) DataSource() *C.struct_DataSource {
+func (v DSHandle) DataSource() *C.struct_DataSource {
 	return v.dataSource
 }
 
-func (v VDSHandle) context() *C.struct_Context {
+func (v DSHandle) context() *C.struct_Context {
 	return v.ctx
 }
 
-func (v VDSHandle) Error(status C.int) error {
+func (v DSHandle) Error(status C.int) error {
 	return toError(status, v.context())
 }
 
-func (v VDSHandle) Close() error {
+func (v DSHandle) Close() error {
 	defer C.context_free(v.ctx)
 
 	cerr := C.datasource_free(v.ctx, v.dataSource)
 	return toError(cerr, v.ctx)
 }
 
-func NewVDSHandle(conn []Connection, binary_operator string) (VDSHandle, error) {
+func NewDSHandle(conn []Connection, binary_operator string) (DSHandle, error) {
 
 	if len(conn) == 0 {
-		return VDSHandle{}, NewInvalidArgument("No connections provided")
+		return DSHandle{}, NewInvalidArgument("No connections provided")
 	} else if len(conn) == 1 {
 		var conn_p = conn[0]
 		curl := C.CString(conn_p.Url())
@@ -422,10 +422,10 @@ func NewVDSHandle(conn []Connection, binary_operator string) (VDSHandle, error) 
 
 		if err := toError(cerr, cctx); err != nil {
 			defer C.context_free(cctx)
-			return VDSHandle{}, err
+			return DSHandle{}, err
 		}
 
-		return VDSHandle{dataSource: dataSource, ctx: cctx}, nil
+		return DSHandle{dataSource: dataSource, ctx: cctx}, nil
 	} else if len(conn) == 2 {
 
 		var conn_A = conn[0]
@@ -457,16 +457,16 @@ func NewVDSHandle(conn []Connection, binary_operator string) (VDSHandle, error) 
 
 		if err := toError(cerr, cctx); err != nil {
 			defer C.context_free(cctx)
-			return VDSHandle{}, err
+			return DSHandle{}, err
 		}
 
-		return VDSHandle{dataSource: dataSource, ctx: cctx}, nil
+		return DSHandle{dataSource: dataSource, ctx: cctx}, nil
 	}
 
-	return VDSHandle{}, NewInvalidArgument("Only one connection is supported")
+	return DSHandle{}, NewInvalidArgument("Only one connection is supported")
 }
 
-func NewVDSMultiHandle(conn_A Connection, conn_B Connection, binary_operator string) (VDSHandle, error) {
+func NewDSMultiHandle(conn_A Connection, conn_B Connection, binary_operator string) (DSHandle, error) {
 	curl_A := C.CString(conn_A.Url())
 	defer C.free(unsafe.Pointer(curl_A))
 
@@ -489,13 +489,13 @@ func NewVDSMultiHandle(conn_A Connection, conn_B Connection, binary_operator str
 
 	if err := toError(cerr, cctx); err != nil {
 		defer C.context_free(cctx)
-		return VDSHandle{}, err
+		return DSHandle{}, err
 	}
 
-	return VDSHandle{dataSource: dataSource, ctx: cctx}, nil
+	return DSHandle{dataSource: dataSource, ctx: cctx}, nil
 }
 
-func (v VDSHandle) GetMetadata() ([]byte, error) {
+func (v DSHandle) GetMetadata() ([]byte, error) {
 	var result C.struct_response
 	cerr := C.metadata(v.context(), v.DataSource(), &result)
 
@@ -535,7 +535,7 @@ func newCSliceBounds(bounds []Bound) ([]C.struct_Bound, error) {
 	return cBounds, nil
 }
 
-func (v VDSHandle) GetSlice(lineno, direction int, bounds []Bound) ([]byte, error) {
+func (v DSHandle) GetSlice(lineno, direction int, bounds []Bound) ([]byte, error) {
 	var result C.struct_response
 
 	cBounds, err := newCSliceBounds(bounds)
@@ -567,7 +567,7 @@ func (v VDSHandle) GetSlice(lineno, direction int, bounds []Bound) ([]byte, erro
 	return buf, nil
 }
 
-func (v VDSHandle) GetSliceMetadata(
+func (v DSHandle) GetSliceMetadata(
 	lineno int,
 	direction int,
 	bounds []Bound,
@@ -604,14 +604,14 @@ func (v VDSHandle) GetSliceMetadata(
 	return buf, nil
 }
 
-func (v VDSHandle) GetFence(
+func (v DSHandle) GetFence(
 	coordinateSystem int,
 	coordinates [][]float32,
 	interpolation int,
 	fillValue *float32,
 ) ([]byte, error) {
 	coordinate_len := 2
-	c_coordinates := make([]C.float, len(coordinates)*coordinate_len)
+	ccoordinates := make([]C.float, len(coordinates)*coordinate_len)
 	for i := range coordinates {
 
 		if len(coordinates[i]) != coordinate_len {
@@ -624,7 +624,7 @@ func (v VDSHandle) GetFence(
 		}
 
 		for j := range coordinates[i] {
-			c_coordinates[i*coordinate_len+j] = C.float(coordinates[i][j])
+			ccoordinates[i*coordinate_len+j] = C.float(coordinates[i][j])
 		}
 	}
 
@@ -633,7 +633,7 @@ func (v VDSHandle) GetFence(
 		v.context(),
 		v.DataSource(),
 		C.enum_coordinate_system(coordinateSystem),
-		&c_coordinates[0],
+		&ccoordinates[0],
 		C.size_t(len(coordinates)),
 		C.enum_interpolation_method(interpolation),
 		(*C.float)(fillValue),
@@ -650,7 +650,7 @@ func (v VDSHandle) GetFence(
 	return buf, nil
 }
 
-func (v VDSHandle) GetFenceMetadata(coordinates [][]float32) ([]byte, error) {
+func (v DSHandle) GetFenceMetadata(coordinates [][]float32) ([]byte, error) {
 	var result C.struct_response
 	cerr := C.fence_metadata(
 		v.context(),
@@ -683,7 +683,7 @@ func max(a, b int) int {
 	return b
 }
 
-func (v VDSHandle) GetAttributeMetadata(data [][]float32) ([]byte, error) {
+func (v DSHandle) GetAttributeMetadata(data [][]float32) ([]byte, error) {
 	var result C.struct_response
 	cerr := C.attribute_metadata(
 		v.context(),
@@ -703,7 +703,7 @@ func (v VDSHandle) GetAttributeMetadata(data [][]float32) ([]byte, error) {
 	return buf, nil
 }
 
-func (v VDSHandle) GetAttributesAlongSurface(
+func (v DSHandle) GetAttributesAlongSurface(
 	referenceSurface RegularSurface,
 	above float32,
 	below float32,
@@ -772,7 +772,7 @@ func (v VDSHandle) GetAttributesAlongSurface(
 	)
 }
 
-func (v VDSHandle) GetAttributesBetweenSurfaces(
+func (v DSHandle) GetAttributesBetweenSurfaces(
 	primarySurface RegularSurface,
 	secondarySurface RegularSurface,
 	stepsize float32,
@@ -852,7 +852,7 @@ func (v VDSHandle) GetAttributesBetweenSurfaces(
 	)
 }
 
-func (v VDSHandle) getAttributes(
+func (v DSHandle) getAttributes(
 	cReferenceSurface cRegularSurface,
 	cTopSurface cRegularSurface,
 	cBottomSurface cRegularSurface,
@@ -899,7 +899,7 @@ func (v VDSHandle) getAttributes(
 	)
 }
 
-func (v VDSHandle) normalizeAttributes(
+func (v DSHandle) normalizeAttributes(
 	attributes []string,
 ) ([]int, error) {
 	var targetAttributes []int
@@ -913,7 +913,7 @@ func (v VDSHandle) normalizeAttributes(
 	return targetAttributes, nil
 }
 
-func (v VDSHandle) fetchSubvolume(
+func (v DSHandle) fetchSubvolume(
 	cSubVolume *C.struct_SurfaceBoundedSubVolume,
 	nrows int,
 	ncols int,
@@ -980,7 +980,7 @@ func (v VDSHandle) fetchSubvolume(
 	return nil
 }
 
-func (v VDSHandle) calculateAttributes(
+func (v DSHandle) calculateAttributes(
 	cSubVolume *C.struct_SurfaceBoundedSubVolume,
 	hsize int,
 	targetAttributes []int,

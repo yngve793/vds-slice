@@ -10,7 +10,6 @@
 
 #include "attribute.hpp"
 #include "axis.hpp"
-#include "datahandle.hpp"
 #include "datasource.hpp"
 #include "direction.hpp"
 #include "exceptions.hpp"

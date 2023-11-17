@@ -34,7 +34,7 @@ enum interpolation_method {
 };
 
 enum binary_operator {
-    SUBTRACT = 0,
+    SUBTRACTION = 0,
     ADDITION = 1,
     MULTIPLICATION = 2,
     DIVISION = 3

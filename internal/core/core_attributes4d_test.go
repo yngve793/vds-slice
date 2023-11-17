@@ -89,7 +89,7 @@ func TestCubeFunctionsForAttributeAlong4D(t *testing.T) {
 
 		interpolationMethod, _ := GetInterpolationMethod("nearest")
 
-		handle, _ := NewVDSMultiHandle(samples10_2x, samples10[0], testcase.function_name)
+		handle, _ := NewDSMultiHandle(samples10_2x, samples10[0], testcase.function_name)
 
 		defer handle.Close()
 		buf, err := handle.GetAttributesAlongSurface(
@@ -232,7 +232,7 @@ func TestCubeFunctionsForAttributeBetween4D(t *testing.T) {
 
 		interpolationMethod, _ := GetInterpolationMethod("nearest")
 
-		handle, _ := NewVDSMultiHandle(samples10_2x, samples10[0], testcase.function_name)
+		handle, _ := NewDSMultiHandle(samples10_2x, samples10[0], testcase.function_name)
 
 		defer handle.Close()
 		buf, err := handle.GetAttributesBetweenSurfaces(

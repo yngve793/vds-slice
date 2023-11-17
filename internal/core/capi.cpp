@@ -205,7 +205,7 @@ int slice(
     response* out
 ) {
     try {
-        if (not out)    throw detail::nullptr_error("Invalid out pointer");
+        if (not out)        throw detail::nullptr_error("Invalid out pointer");
         if (not datasource) throw detail::nullptr_error("Invalid datasource");
 
         Direction const direction(ax);
@@ -233,7 +233,7 @@ int slice_metadata(
     response* out
 ) {
     try {
-        if (not out)    throw detail::nullptr_error("Invalid out pointer");
+        if (not out)        throw detail::nullptr_error("Invalid out pointer");
         if (not datasource) throw detail::nullptr_error("Invalid datasource");
 
         Direction const direction(ax);
@@ -262,7 +262,7 @@ int fence(
     response* out
 ) {
     try {
-        if (not out)    throw detail::nullptr_error("Invalid out pointer");
+        if (not out)        throw detail::nullptr_error("Invalid out pointer");
         if (not datasource) throw detail::nullptr_error("Invalid datasource");
 
         cppapi::fence(
@@ -287,7 +287,7 @@ int fence_metadata(
     response* out
 ) {
     try {
-        if (not out)    throw detail::nullptr_error("Invalid out pointer");
+        if (not out)        throw detail::nullptr_error("Invalid out pointer");
         if (not datasource) throw detail::nullptr_error("Invalid datasource");
 
         cppapi::fence_metadata(*datasource, npoints, out);
@@ -303,7 +303,7 @@ int metadata(
     response* out
 ) {
     try {
-        if (not out)    throw detail::nullptr_error("Invalid out pointer");
+        if (not out)        throw detail::nullptr_error("Invalid out pointer");
         if (not datasource) throw detail::nullptr_error("Invalid datasource");
 
         cppapi::metadata(*datasource, out);
@@ -322,8 +322,8 @@ int fetch_subvolume(
     size_t to
 ) {
     try {
-        if (not datasource)    throw detail::nullptr_error("Invalid datasource");
-        if (not subvolume) throw detail::nullptr_error("Invalid subvolume");
+        if (not datasource) throw detail::nullptr_error("Invalid datasource");
+        if (not subvolume)  throw detail::nullptr_error("Invalid subvolume");
 
         cppapi::fetch_subvolume(
             *datasource,
@@ -346,7 +346,7 @@ int attribute_metadata(
     response* out
 ) {
     try {
-        if (not out)    throw detail::nullptr_error("Invalid out pointer");
+        if (not out)        throw detail::nullptr_error("Invalid out pointer");
         if (not datasource) throw detail::nullptr_error("Invalid datasource");
 
         cppapi::attributes_metadata(*datasource, nrows, ncols, out);
@@ -369,7 +369,7 @@ int attribute(
 ) {
     try {
         if (not out)           throw detail::nullptr_error("Invalid out pointer");
-        if (not datasource)        throw detail::nullptr_error("Invalid datasource");
+        if (not datasource)    throw detail::nullptr_error("Invalid datasource");
         if (not src_subvolume) throw detail::nullptr_error("Invalid subvolume");
 
         if (from >= to)  throw std::runtime_error("No data to iterate over");
