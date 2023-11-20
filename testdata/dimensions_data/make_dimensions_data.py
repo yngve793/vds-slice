@@ -16,8 +16,6 @@ def create_dim_data(path,
     spec.xlines = range (xlines_offset, xlines_offset+ (xlines_number*xlines_step), xlines_step)
     spec.samples = range (samples_offset, samples_offset+ (samples_number*samples_step), samples_step)
 
-    print(f"Creating file with dimensions {ilines_number}:{xlines_number}:{samples_number}")
-
     # We use scaling constant of -10, meaning that values will be divided by 10
     # note that lines are not perpendicular
     il_step_x = int(2.0 * 10)
