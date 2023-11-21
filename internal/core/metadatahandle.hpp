@@ -53,4 +53,30 @@ private:
     int get_dimension(std::vector<std::string> const& names) const;
 };
 
+class DoubleMetadataHandle : public MetadataHandle {
+public:
+    DoubleMetadataHandle(
+        MetadataHandle const& handle_A,
+        MetadataHandle const& handle_B
+    );
+
+    Axis iline() const noexcept(true);
+    Axis xline() const noexcept(true);
+    Axis sample() const noexcept(true);
+    Axis get_axis(Direction const direction) const noexcept(false);
+
+    BoundingBox bounding_box() const noexcept(false);
+    std::string crs() const noexcept(false);
+    std::string input_filename() const noexcept(false);
+    std::string import_time_stamp() const noexcept(false);
+
+    OpenVDS::IJKCoordinateTransformer coordinate_transformer() const noexcept(true);
+    OpenVDS::VolumeDataLayout const* const get_layout() const noexcept(false);
+
+private:
+    MetadataHandle const* m_handle_A;
+    MetadataHandle const* m_handle_B;
+
+    void validate_metadata() const noexcept(false);
+};
 #endif /* VDS_SLICE_METADATAHANDLE_HPP */

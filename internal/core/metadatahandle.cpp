@@ -97,3 +97,86 @@ int SingleMetadataHandle::get_dimension(std::vector<std::string> const& names) c
     );
 }
 
+DoubleMetadataHandle::DoubleMetadataHandle(
+    MetadataHandle const& handle_A,
+    MetadataHandle const& handle_B
+)
+    : m_handle_A(&handle_A),
+      m_handle_B(&handle_B) {
+    this->validate_metadata();
+}
+
+Axis DoubleMetadataHandle::iline() const noexcept(true) {
+    // Axis iline in handle A and B are identical by validate_metadata()
+    return this->m_handle_A->iline();
+}
+
+Axis DoubleMetadataHandle::xline() const noexcept(true) {
+    // Axis xline in handle A and B are identical by validate_metadata()
+    return this->m_handle_A->xline();
+}
+
+Axis DoubleMetadataHandle::sample() const noexcept(true) {
+    // Axis sample in handle A and B are identical by validate_metadata()
+    return this->m_handle_A->sample();
+}
+
+Axis DoubleMetadataHandle::get_axis(
+    Direction const direction
+) const noexcept(false) {
+    if (direction.is_iline())
+        return this->iline();
+    else if (direction.is_xline())
+        return this->xline();
+    else if (direction.is_sample())
+        return this->sample();
+
+    throw std::runtime_error("Unhandled axis");
+}
+
+BoundingBox DoubleMetadataHandle::bounding_box() const noexcept(false) {
+    throw std::runtime_error("Not implemented");
+    return this->m_handle_A->bounding_box();
+}
+
+std::string DoubleMetadataHandle::crs() const noexcept(false) {
+    throw std::runtime_error("Not implemented");
+    return this->m_handle_A->crs();
+}
+
+std::string DoubleMetadataHandle::input_filename() const noexcept(false) {
+    throw std::runtime_error("Not implemented");
+    return this->m_handle_A->input_filename();
+}
+
+std::string DoubleMetadataHandle::import_time_stamp() const noexcept(false) {
+    throw std::runtime_error("Not implemented");
+    return this->m_handle_A->import_time_stamp();
+}
+
+OpenVDS::IJKCoordinateTransformer DoubleMetadataHandle::coordinate_transformer() const noexcept(true) {
+    return OpenVDS::IJKCoordinateTransformer();
+}
+
+OpenVDS::VolumeDataLayout const* const DoubleMetadataHandle::get_layout() const noexcept(false) {
+    throw std::runtime_error("Not implemented");
+    return this->m_handle_A->get_layout();
+}
+
+void DoubleMetadataHandle::validate_metadata() const noexcept(false) {
+    if (this->m_handle_A->get_layout()->GetDimensionality() != 3) {
+        throw std::runtime_error(
+            "Unsupported VDS, expected 3 dimensions, got " +
+            std::to_string(this->m_handle_A->get_layout()->GetDimensionality())
+        );
+    }
+    if (this->m_handle_B->get_layout()->GetDimensionality() != 3) {
+        throw std::runtime_error(
+            "Unsupported VDS, expected 3 dimensions, got " +
+            std::to_string(this->m_handle_B->get_layout()->GetDimensionality())
+        );
+    }
+    this->m_handle_A->iline().validate_compatible(this->m_handle_B->iline());
+    this->m_handle_A->xline().validate_compatible(this->m_handle_B->xline());
+    this->m_handle_A->sample().validate_compatible(this->m_handle_B->sample());
+}
