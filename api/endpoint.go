@@ -123,7 +123,7 @@ func (e *Endpoint) makeDataRequest(
 }
 
 func (request SliceRequest) execute(
-	handle core.VDSHandle,
+	handle core.DSHandle,
 ) (data [][]byte, metadata []byte, err error) {
 	axis, err := core.GetAxis(strings.ToLower(request.Direction))
 	if err != nil {
@@ -149,7 +149,7 @@ func (request SliceRequest) execute(
 }
 
 func (request FenceRequest) execute(
-	handle core.VDSHandle,
+	handle core.DSHandle,
 ) (data [][]byte, metadata []byte, err error) {
 	coordinateSystem, err := core.GetCoordinateSystem(
 		strings.ToLower(request.CoordinateSystem),
@@ -216,7 +216,7 @@ func validateVerticalWindow(above float32, below float32, stepSize float32) erro
 }
 
 func (request AttributeAlongSurfaceRequest) execute(
-	handle core.VDSHandle,
+	handle core.DSHandle,
 ) (data [][]byte, metadata []byte, err error) {
 	err = validateVerticalWindow(request.Above, request.Below, request.Stepsize)
 	if err != nil {
@@ -249,7 +249,7 @@ func (request AttributeAlongSurfaceRequest) execute(
 }
 
 func (request AttributeBetweenSurfacesRequest) execute(
-	handle core.VDSHandle,
+	handle core.DSHandle,
 ) (data [][]byte, metadata []byte, err error) {
 	interpolation, err := core.GetInterpolationMethod(request.Interpolation)
 	if err != nil {
