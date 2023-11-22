@@ -402,7 +402,7 @@ func (v DSHandle) Close() error {
 	return toError(cerr, v.ctx)
 }
 
-func NewVDSHandle(conn []Connection, binary_operator string) (DSHandle, error) {
+func NewDSHandle(conn []Connection, binary_operator string) (DSHandle, error) {
 
 	if len(conn) == 0 {
 		return DSHandle{}, NewInvalidArgument("No connections provided")

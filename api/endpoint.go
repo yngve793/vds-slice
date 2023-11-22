@@ -70,7 +70,7 @@ func (e *Endpoint) metadata(ctx *gin.Context, request MetadataRequest) {
 		return
 	}
 
-	handle, err := core.NewVDSHandle([]core.Connection{conn}, "")
+	handle, err := core.NewDSHandle([]core.Connection{conn}, "")
 	if abortOnError(ctx, err) {
 		return
 	}
@@ -116,7 +116,7 @@ func (e *Endpoint) makeDataRequest(
 		}
 	}
 
-	handle, err := core.NewVDSHandle(conn, request.cubeFunction())
+	handle, err := core.NewDSHandle(conn, request.cubeFunction())
 	if abortOnError(ctx, err) {
 		return
 	}
