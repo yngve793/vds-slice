@@ -161,11 +161,17 @@ func setupApp(app *gin.Engine, endpoint *api.Endpoint, metric *metrics.Metrics) 
 	seismic.GET("fence", endpoint.FenceGet)
 	seismic.POST("fence", endpoint.FencePost)
 
+	multi_cube := seismic.Group("multi_cube")
+	multi_cube.POST("sliceMulti", endpoint.SliceMultiPost)
+	multi_cube.POST("fenceMulti", endpoint.FenceMultiPost)
+
 	attributes := seismic.Group("attributes")
 	attributesSurface := attributes.Group("surface")
 
 	attributesSurface.POST("along", endpoint.AttributesAlongSurfacePost)
 	attributesSurface.POST("between", endpoint.AttributesBetweenSurfacesPost)
+	attributesSurface.POST("along4d", endpoint.AttributesAlong4dSurfacePost)
+	attributesSurface.POST("between4d", endpoint.AttributesBetween4dSurfacesPost)
 
 	app.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	app.LoadHTMLFiles("docs/index.html")
