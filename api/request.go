@@ -34,59 +34,58 @@ type RequestedResource struct {
 	Sas string `json:"sas,omitempty" example:"sp=r&st=2022-09-12T09:44:17Z&se=2022-09-12T17:44:17Z&spr=https&sv=2021-06-08&sr=c&sig=..."`
 }
 
-func (r RequestedResource) credentials() ([]string, []string) {
-	return []string{r.Vds}, []string{r.Sas}
+func (f RequestedResource) toString() string {
+	return fmt.Sprintf("vds: %s", f.Vds)
 }
 
-type DataRequest interface {
-	toString() (string, error)
-	hash() (string, error)
-	credentials() ([]string, []string)
-	execute(handle core.DSHandle) (data [][]byte, metadata []byte, err error)
-	cubeFunction() string
+func (f RequestedResource) cubeFunction() string {
+	return ""
 }
 
-type Stringable interface {
-	toString() (string, error)
-}
-type Normalizable interface {
-	NormalizeConnection() error
+type RequestedMultiResource struct {
+	// The blob URL can be sent in either format:
+	// - https://account.blob.core.windows.net/container/blob
+	//    In the above case the user must provide a sas-token as a separate key.
+	//
+	// - https://account.blob.core.windows.net/container/blob?sp=r&st=2022-09-12T09:44:17Z&se=2022-09-12T17:44:17Z&spr=https&sv=2021-06-08&sr=c&sig=...
+	//	  Instead of passing the sas-token explicitly in the sas field, you can
+	//	  pass an sign url. If the sas-token is provided in both fields, the
+	//	  sas-token in the sas field is prioritized.
+	//
+	// Note that your whole query string will be passed further down to
+	// openvds. We expect query parameters to contain sas-token and sas-token
+	// only and give no guarantee that Openvds/Azure returns you if you provide
+	// any additional arguments.
+	//
+	// Warning: We do not expect storage accounts to have snapshots. If your
+	// storage account has any, please contact System Admin, as due to caching
+	// you might end up with incorrect data.
+	Vds_urls []string `json:"vds_urls" binding:"required" example:"https://account.blob.core.windows.net/container/blob"`
+
+	// A valid sas-token with read access to the container specified in Vds
+	Sas_keys []string `json:"sas_keys,omitempty" example:"sp=r&st=2022-09-12T09:44:17Z&se=2022-09-12T17:44:17Z&spr=https&sv=2021-06-08&sr=c&sig=..."`
+
+	// The function to be applied to the cubes valid options are: addition, subtraction, multiplication, division
+	Binary_operator string `json:"binary_operator,omitempty" example:"subtraction"`
 }
 
-func (r *RequestedResource) NormalizeConnection() error {
-	url, err := url.Parse(r.Vds)
-	if err != nil {
-		return core.NewInvalidArgument(err.Error())
-	}
-	if strings.TrimSpace(r.Sas) == "" {
-		if url.RawQuery == "" {
-			return core.NewInvalidArgument("No valid Sas token is found in the request")
+func (f RequestedMultiResource) toString() string {
+	var vds_all = "["
+	for _, vds := range f.Vds_urls {
+		if len(vds_all) > 1 {
+			vds_all += ", "
 		}
-		r.Sas = url.RawQuery
+		vds_all += vds
 	}
-
-	url.RawQuery = ""
-	url.Host = url.Hostname()
-	r.Vds = url.String()
-	return nil
+	vds_all += "]"
+	return fmt.Sprintf("vds: %s, binary_operator: %s", vds_all, f.Binary_operator)
 }
 
-type MetadataRequest struct {
-	RequestedResource
-} //@name MetadataRequest
-
-func (m MetadataRequest) toString() (string, error) {
-	m.Sas = ""
-	out, err := json.Marshal(m)
-	if err != nil {
-		return "", err
-	}
-	str := string(out)
-	return str, nil
+func (s RequestedMultiResource) cubeFunction() string {
+	return s.Binary_operator
 }
 
-type FenceRequest struct {
-	RequestedResource
+type GenericFenceRequest struct {
 	// Coordinate system for the requested fence
 	// Supported options are:
 	// ilxl : inline, crossline pairs
@@ -116,7 +115,7 @@ type FenceRequest struct {
 	FillValue *float32 `json:"fillValue"`
 } //@name FenceRequest
 
-func (f FenceRequest) toString() (string, error) {
+func (f GenericFenceRequest) toString() string {
 	coordinates := func() string {
 		var length = len(f.Coordinates)
 		const halfPrintLength = 5
@@ -131,34 +130,14 @@ func (f FenceRequest) toString() (string, error) {
 		}
 	}()
 
-	return fmt.Sprintf("{vds: %s, coordinate system: %s, coordinates: %s, interpolation (optional): %s}",
-		f.Vds,
+	return fmt.Sprintf("{coordinate system: %s, coordinates: %s, interpolation (optional): %s}",
 		f.CoordinateSystem,
 		coordinates,
 		f.Interpolation,
-	), nil
+	)
 }
 
-/** Compute a hash of the request that uniquely identifies the requested fence
- *
- * The hash is computed based on all fields that contribute toward a unique response.
- * I.e. every field except the sas token.
- */
-func (f FenceRequest) hash() (string, error) {
-	// Strip the sas token before computing hash
-	f.Sas = ""
-	return cache.Hash(f)
-}
-
-func (f FenceRequest) cubeFunction() string {
-	return ""
-}
-
-// Query for slice endpoints
-// @Description Query payload for slice endpoint /slice.
-type SliceRequest struct {
-	RequestedResource
-
+type GenericSliceRequest struct {
 	// Direction can be specified in two domains
 	// - Annotation. Valid options: Inline, Crossline and Depth/Time/Sample
 	// - Index. Valid options: i, j and k.
@@ -198,37 +177,30 @@ type SliceRequest struct {
 	// Bounds can be set using both annotation and index. You are free to mix
 	// and match as you see fit.
 	Bounds []core.Bound `json:"bounds" binding:"dive"`
-} //@name SliceRequest
-
-/** Compute a hash of the request that uniquely identifies the requested slice
- *
- * The hash is computed based on all fields that contribute toward a unique response.
- * I.e. every field except the sas token.
- */
-func (s SliceRequest) hash() (string, error) {
-	// Strip the sas token before computing hash
-	s.Sas = ""
-	return cache.Hash(s)
 }
 
-func (s SliceRequest) cubeFunction() string {
-	return ""
-}
+func (f GenericSliceRequest) toString() string {
 
-func (s SliceRequest) toString() (string, error) {
-	s.Sas = ""
-	out, err := json.Marshal(s)
-	if err != nil {
-		return "", err
-	}
-	str := string(out)
-	return str, nil
+	bounds := func() string {
+		var bounds_all = ""
+		for _, bound := range f.Bounds {
+			if len(bounds_all) > 1 {
+				bounds_all += ", "
+			}
+			bounds_all += fmt.Sprintf("[%s, %d, %d]", *bound.Direction, *bound.Lower, *bound.Upper)
+		}
+		return bounds_all
+	}()
+
+	return fmt.Sprintf("direction: %s, lineno: %d, bounds: %s",
+		f.Direction,
+		*f.Lineno,
+		bounds)
 }
 
 // Query for Attribute endpoints
 // @Description Query payload for attribute endpoint.
 type AttributeRequest struct {
-	RequestedResource
 
 	// Horizontal interpolation method
 	// Supported options are: nearest, linear, cubic, angular and triangular.
@@ -262,9 +234,14 @@ type AttributeRequest struct {
 	Attributes []string `json:"attributes" binding:"required" swaggertype:"array,string" example:"min,max"`
 } //@name AttributeRequest
 
-// Query for Attribute along the surface endpoints
-// @Description Query payload for attribute "along" endpoint.
-type AttributeAlongSurfaceRequest struct {
+func (f AttributeRequest) toString() string {
+	return fmt.Sprintf("interpolation: %s, stepsize: %f, attributes: %v",
+		f.Interpolation,
+		f.Stepsize,
+		f.Attributes)
+}
+
+type AttributeAlongRequest struct {
 	AttributeRequest
 
 	// Surface along which data must be retrieved
@@ -286,50 +263,30 @@ type AttributeAlongSurfaceRequest struct {
 	//
 	// Defaults to zero
 	Below float32 `json:"below" example:"20.0"`
-} //@name AttributeAlongSurfaceRequest
-
-/** Compute a hash of the request that uniquely identifies the requested attributes
- *
- * The hash is computed based on all fields that contribute toward a unique response.
- * I.e. every field except the sas token.
- */
-func (h AttributeAlongSurfaceRequest) hash() (string, error) {
-	// Strip the sas token before computing hash
-	h.Sas = ""
-	return cache.Hash(h)
 }
 
-func (s AttributeAlongSurfaceRequest) cubeFunction() string {
-	return ""
+func RegularSurfaceToString(s core.RegularSurface) string {
+	return fmt.Sprintf("values: (ncols: %d, nrows: %d), rotation: %.2f, origin: [%.2f, %.2f], increment: [%.2f, %.2f], fillvalue: %.2f",
+		len(s.Values[0]),
+		len(s.Values),
+		*s.Rotation,
+		*s.Xori,
+		*s.Yori,
+		s.Xinc,
+		s.Yinc,
+		*s.FillValue)
 }
 
-func (h AttributeAlongSurfaceRequest) toString() (string, error) {
-	msg := "{vds: %s, Horizon: (ncols: %d, nrows: %d), Rotation: %.2f, " +
-		"Origin: [%.2f, %.2f], Increment: [%.2f, %.2f], FillValue: %.2f, " +
-		"interpolation: %s, Above: %.2f, Below: %.2f, Stepsize: %.2f, " +
-		"Attributes: %v}"
-	return fmt.Sprintf(
-		msg,
-		h.Vds,
-		len(h.Surface.Values[0]),
-		len(h.Surface.Values),
-		*h.Surface.Rotation,
-		*h.Surface.Xori,
-		*h.Surface.Yori,
-		h.Surface.Xinc,
-		h.Surface.Yinc,
-		*h.Surface.FillValue,
-		h.Interpolation,
-		h.Above,
-		h.Below,
-		h.Stepsize,
-		h.Attributes,
-	), nil
+func (f AttributeAlongRequest) toString() string {
+
+	return fmt.Sprintf("%s, surface: %s, above: %f, below: %f",
+		f.AttributeRequest.toString(),
+		RegularSurfaceToString(f.Surface),
+		f.Above,
+		f.Below)
 }
 
-// Query for Attribute between surfaces endpoints
-// @Description Query payload for attribute "between" endpoint.
-type AttributeBetweenSurfacesRequest struct {
+type AttributeBetweenRequest struct {
 	AttributeRequest
 
 	// One of the two surfaces between which data will be retrieved. This value
@@ -352,51 +309,202 @@ type AttributeBetweenSurfacesRequest struct {
 	// intersect, exception will be thrown. If any of the values of the surface
 	// is outside of data boundaries, exception will be raised.
 	SecondarySurface core.RegularSurface `json:"secondarySurface" binding:"required"`
-} //@name AttributeBetweenSurfacesRequest
+}
 
-/** Compute a hash of the request that uniquely identifies the requested attributes
- *
- * The hash is computed based on all fields that contribute toward a unique response.
- * I.e. every field except the sas token.
- */
-func (h AttributeBetweenSurfacesRequest) hash() (string, error) {
-	// Strip the sas token before computing hash
+func (f AttributeBetweenRequest) toString() string {
+
+	return fmt.Sprintf("%s, primarySurface: %s, secondarySurface: %s",
+		f.AttributeRequest.toString(),
+		RegularSurfaceToString(f.PrimarySurface),
+		RegularSurfaceToString(f.SecondarySurface))
+}
+
+// Query for Attribute along the surface endpoints
+// @Description Query payload for attribute "along" endpoint.
+
+type FenceRequest struct {
+	RequestedResource
+	GenericFenceRequest
+} //@name FenceRequest
+
+func (h FenceRequest) hash() (string, error) {
 	h.Sas = ""
 	return cache.Hash(h)
 }
 
-func (s AttributeBetweenSurfacesRequest) cubeFunction() string {
-	return ""
+func (f FenceRequest) toString() (string, error) {
+	return fmt.Sprintf("{%s, %s}", f.RequestedResource.toString(), f.GenericFenceRequest.toString()), nil
+}
+
+type FenceMultiRequest struct {
+	RequestedMultiResource
+	GenericFenceRequest
+} //@name FenceMultiRequest
+
+func (f FenceMultiRequest) hash() (string, error) {
+	f.Sas_keys = nil
+	return cache.Hash(f)
+}
+
+func (f FenceMultiRequest) toString() (string, error) {
+	return fmt.Sprintf("{%s, %s}", f.RequestedMultiResource.toString(), f.GenericFenceRequest.toString()), nil
+}
+
+type SliceRequest struct {
+	RequestedResource
+	GenericSliceRequest
+} //@name SliceRequest
+
+func (s SliceRequest) hash() (string, error) {
+	s.Sas = ""
+	return cache.Hash(s)
+}
+
+func (s SliceRequest) toString() (string, error) {
+	return fmt.Sprintf("{%s, %s}", s.RequestedResource.toString(), s.GenericSliceRequest.toString()), nil
+}
+
+type SliceMultiRequest struct {
+	RequestedMultiResource
+	GenericSliceRequest
+} //@name SliceMultiRequest
+
+func (s SliceMultiRequest) hash() (string, error) {
+	s.Sas_keys = nil
+	return cache.Hash(s)
+}
+
+func (s SliceMultiRequest) toString() (string, error) {
+	return fmt.Sprintf("{%s, %s}", s.RequestedMultiResource.toString(), s.GenericSliceRequest.toString()), nil
+}
+
+type AttributeAlongSurfaceRequest struct {
+	RequestedResource
+	AttributeAlongRequest
+} //@name AttributeAlongSurfaceRequest
+
+func (h AttributeAlongSurfaceRequest) hash() (string, error) {
+	h.Sas = ""
+	return cache.Hash(h)
+}
+
+func (h AttributeAlongSurfaceRequest) toString() (string, error) {
+	return fmt.Sprintf("{%s, %s}", h.RequestedResource.toString(), h.AttributeAlongRequest.toString()), nil
+}
+
+type AttributeBetweenSurfacesRequest struct {
+	RequestedResource
+	AttributeBetweenRequest
+} //@name AttributeBetweenSurfacesRequest
+
+func (h AttributeBetweenSurfacesRequest) hash() (string, error) {
+	h.Sas = ""
+	return cache.Hash(h)
 }
 
 func (h AttributeBetweenSurfacesRequest) toString() (string, error) {
-	msg := "{vds: %s, " +
-		"Primary surface: Values: (ncols: %d, nrows: %d), Rotation: %.2f, " +
-		"Origin: [%.2f, %.2f], Increment: [%.2f, %.2f], FillValue: %.2f. " +
-		"Secondary surface: Values: (ncols: %d, nrows: %d), Rotation: %.2f, " +
-		"Origin: [%.2f, %.2f], Increment: [%.2f, %.2f], FillValue: %.2f. " +
-		"Interpolation: %s, Stepsize: %.2f, Attributes: %v}"
-	return fmt.Sprintf(
-		msg,
-		h.Vds,
-		len(h.PrimarySurface.Values[0]),
-		len(h.PrimarySurface.Values),
-		*h.PrimarySurface.Rotation,
-		*h.PrimarySurface.Xori,
-		*h.PrimarySurface.Yori,
-		h.PrimarySurface.Xinc,
-		h.PrimarySurface.Yinc,
-		*h.PrimarySurface.FillValue,
-		len(h.SecondarySurface.Values[0]),
-		len(h.SecondarySurface.Values),
-		*h.SecondarySurface.Rotation,
-		*h.SecondarySurface.Xori,
-		*h.SecondarySurface.Yori,
-		h.SecondarySurface.Xinc,
-		h.SecondarySurface.Yinc,
-		*h.SecondarySurface.FillValue,
-		h.Interpolation,
-		h.Stepsize,
-		h.Attributes,
-	), nil
+	return fmt.Sprintf("{%s, %s}", h.RequestedResource.toString(), h.AttributeBetweenRequest.toString()), nil
+}
+
+type TwoCubesAttributeAlongSurfaceRequest struct {
+	RequestedMultiResource
+	AttributeAlongRequest
+} //@name TwoCubesAttributeAlongSurfaceRequest
+
+func (h TwoCubesAttributeAlongSurfaceRequest) hash() (string, error) {
+	h.Sas_keys = nil
+	return cache.Hash(h)
+}
+
+func (h TwoCubesAttributeAlongSurfaceRequest) toString() (string, error) {
+	return fmt.Sprintf("{%s, %s}", h.RequestedMultiResource.toString(), h.AttributeAlongRequest.toString()), nil
+}
+
+type TwoCubesAttributeBetweenSurfacesRequest struct {
+	RequestedMultiResource
+	AttributeBetweenRequest
+} //@name TwoCubesAttributeBetweenSurfacesRequest
+
+func (h TwoCubesAttributeBetweenSurfacesRequest) hash() (string, error) {
+	h.Sas_keys = nil
+	return cache.Hash(h)
+}
+
+func (h TwoCubesAttributeBetweenSurfacesRequest) toString() (string, error) {
+	return fmt.Sprintf("{%s, %s}", h.RequestedMultiResource.toString(), h.AttributeBetweenRequest.toString()), nil
+}
+
+func (r RequestedResource) credentials() ([]string, []string) {
+	return []string{r.Vds}, []string{r.Sas}
+}
+
+type DataRequest interface {
+	toString() (string, error)
+	hash() (string, error)
+	credentials() ([]string, []string)
+	execute(handle core.DSHandle) (data [][]byte, metadata []byte, err error)
+	cubeFunction() string
+}
+
+type Stringable interface {
+	toString() (string, error)
+}
+type Normalizable interface {
+	NormalizeConnection() error
+}
+
+func (r *RequestedResource) NormalizeConnection() error {
+	url, err := url.Parse(r.Vds)
+	if err != nil {
+		return core.NewInvalidArgument(err.Error())
+	}
+	if strings.TrimSpace(r.Sas) == "" {
+		if url.RawQuery == "" {
+			return core.NewInvalidArgument("No valid Sas token is found in the request")
+		}
+		r.Sas = url.RawQuery
+	}
+
+	url.RawQuery = ""
+	url.Host = url.Hostname()
+	r.Vds = url.String()
+	return nil
+}
+
+func (r RequestedMultiResource) credentials() ([]string, []string) {
+	return r.Vds_urls, r.Sas_keys
+}
+
+func (r *RequestedMultiResource) NormalizeConnection() error {
+
+	for i, url_req := range r.Vds_urls {
+		url_object, err := url.Parse(url_req)
+		if err != nil {
+			return core.NewInvalidArgument(err.Error())
+		}
+		if strings.TrimSpace(r.Sas_keys[i]) == "" {
+			if url_object.RawQuery == "" {
+				return core.NewInvalidArgument("No valid Sas token is found in the request")
+			}
+			r.Sas_keys[i] = url_object.RawQuery
+		}
+		url_object.RawQuery = ""
+		url_object.Host = url_object.Hostname()
+		r.Vds_urls[i] = url_object.String()
+	}
+	return nil
+}
+
+type MetadataRequest struct {
+	RequestedResource
+} //@name MetadataRequest
+
+func (m MetadataRequest) toString() (string, error) {
+	m.Sas = ""
+	out, err := json.Marshal(m)
+	if err != nil {
+		return "", err
+	}
+	str := string(out)
+	return str, nil
 }

@@ -15,7 +15,7 @@ const (
 	DIVISION       = 3
 )
 
-func TestCubeFunctionsForAttributeAlong4D(t *testing.T) {
+func TestCubeFunctionsForAttributeAlong(t *testing.T) {
 	testcases := []struct {
 		function_name string
 		function      int
@@ -108,7 +108,7 @@ func TestCubeFunctionsForAttributeAlong4D(t *testing.T) {
 	}
 }
 
-func TestCubeFunctionsForAttributeBetween4D(t *testing.T) {
+func TestCubeFunctionsForAttributeBetween(t *testing.T) {
 
 	testcases := []struct {
 		function_name string
