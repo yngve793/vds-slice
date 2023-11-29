@@ -18,28 +18,110 @@ func TestFence(t *testing.T) {
 		116, 117, 118, 119, // il: 5, xl: 10, samples: all
 	}
 
+	expected_2x := []float32{
+		108 * 2, 109 * 2, 110 * 2, 111 * 2, // il: 3, xl: 10, samples: all
+		112 * 2, 113 * 2, 114 * 2, 115 * 2, // il: 3, xl: 11, samples: all
+		100 * 2, 101 * 2, 102 * 2, 103 * 2, // il: 1, xl: 10, samples: all
+		108 * 2, 109 * 2, 110 * 2, 111 * 2, // il: 3, xl: 10, samples: all
+		116 * 2, 117 * 2, 118 * 2, 119 * 2, // il: 5, xl: 10, samples: all
+	}
+
+	expected_0 := []float32{
+		0, 0, 0, 0, // il: 3, xl: 10, samples: all
+		0, 0, 0, 0, // il: 3, xl: 11, samples: all
+		0, 0, 0, 0, // il: 1, xl: 10, samples: all
+		0, 0, 0, 0, // il: 3, xl: 10, samples: all
+		0, 0, 0, 0, // il: 5, xl: 10, samples: all
+	}
+
 	testcases := []struct {
+		name              string
 		coordinate_system int
 		coordinates       [][]float32
+		vds               []Connection
+		binary_operator   string
+		expected          []float32
 	}{
 		{
+			name:              "Coordinate_1",
 			coordinate_system: CoordinateSystemIndex,
 			coordinates:       [][]float32{{1, 0}, {1, 1}, {0, 0}, {1, 0}, {2, 0}},
+			vds:               well_known,
+			binary_operator:   "",
+			expected:          expected,
 		},
 		{
+			name:              "Coordinate_2",
 			coordinate_system: CoordinateSystemAnnotation,
 			coordinates:       [][]float32{{3, 10}, {3, 11}, {1, 10}, {3, 10}, {5, 10}},
+			vds:               well_known,
+			binary_operator:   "",
+			expected:          expected,
 		},
 		{
+			name:              "Coordinate_3",
 			coordinate_system: CoordinateSystemCdp,
 			coordinates:       [][]float32{{8, 4}, {6, 7}, {2, 0}, {8, 4}, {14, 8}},
+			vds:               well_known,
+			binary_operator:   "",
+			expected:          expected,
+		},
+
+		{
+			name:              "Coordinate_add_1",
+			coordinate_system: CoordinateSystemIndex,
+			coordinates:       [][]float32{{1, 0}, {1, 1}, {0, 0}, {1, 0}, {2, 0}},
+			vds:               well_known_2x,
+			binary_operator:   "addition",
+			expected:          expected_2x,
+		},
+		{
+			name:              "Coordinate_add_2",
+			coordinate_system: CoordinateSystemAnnotation,
+			coordinates:       [][]float32{{3, 10}, {3, 11}, {1, 10}, {3, 10}, {5, 10}},
+			vds:               well_known_2x,
+			binary_operator:   "addition",
+			expected:          expected_2x,
+		},
+		{
+			name:              "Coordinate_add_3",
+			coordinate_system: CoordinateSystemCdp,
+			coordinates:       [][]float32{{8, 4}, {6, 7}, {2, 0}, {8, 4}, {14, 8}},
+			vds:               well_known_2x,
+			binary_operator:   "addition",
+			expected:          expected_2x,
+		},
+
+		{
+			name:              "Coordinate_sub_1",
+			coordinate_system: CoordinateSystemIndex,
+			coordinates:       [][]float32{{1, 0}, {1, 1}, {0, 0}, {1, 0}, {2, 0}},
+			vds:               well_known_2x,
+			binary_operator:   "subtraction",
+			expected:          expected_0,
+		},
+		{
+			name:              "Coordinate_sub_2",
+			coordinate_system: CoordinateSystemAnnotation,
+			coordinates:       [][]float32{{3, 10}, {3, 11}, {1, 10}, {3, 10}, {5, 10}},
+			vds:               well_known_2x,
+			binary_operator:   "subtraction",
+			expected:          expected_0,
+		},
+		{
+			name:              "Coordinate_sub_3",
+			coordinate_system: CoordinateSystemCdp,
+			coordinates:       [][]float32{{8, 4}, {6, 7}, {2, 0}, {8, 4}, {14, 8}},
+			vds:               well_known_2x,
+			binary_operator:   "subtraction",
+			expected:          expected_0,
 		},
 	}
 	var fillValue float32 = -999.25
 	interpolationMethod, _ := GetInterpolationMethod("nearest")
 
 	for _, testcase := range testcases {
-		handle, _ := NewDSHandle(well_known, "")
+		handle, _ := NewDSHandle(testcase.vds, testcase.binary_operator)
 		defer handle.Close()
 		buf, err := handle.GetFence(
 			testcase.coordinate_system,
@@ -57,7 +139,7 @@ func TestFence(t *testing.T) {
 			"[coordinate_system: %v] Err: %v", testcase.coordinate_system, err,
 		)
 
-		require.Equalf(t, expected, *fence, "Incorrect fence")
+		require.Equalf(t, testcase.expected, *fence, "[case: %v]", testcase.name)
 	}
 }
 

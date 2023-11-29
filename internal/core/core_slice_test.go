@@ -15,10 +15,32 @@ func TestSliceData(t *testing.T) {
 		112, 113, 114, 115, // il: 3, xl: 11, samples: all
 	}
 
+	il_2x := []float32{
+		108 * 2, 109 * 2, 110 * 2, 111 * 2, // il: 3, xl: 10, samples: all
+		112 * 2, 113 * 2, 114 * 2, 115 * 2, // il: 3, xl: 11, samples: all
+	}
+
+	il_0 := []float32{
+		0, 0, 0, 0, // il: 3, xl: 10, samples: all
+		0, 0, 0, 0, // il: 3, xl: 11, samples: all
+	}
+
 	xl := []float32{
 		100, 101, 102, 103, // il: 1, xl: 10, samples: all
 		108, 109, 110, 111, // il: 3, xl: 10, samples: all
 		116, 117, 118, 119, // il: 5, xl: 10, samples: all
+	}
+
+	xl_2x := []float32{
+		100 * 2, 101 * 2, 102 * 2, 103 * 2, // il: 1, xl: 10, samples: all
+		108 * 2, 109 * 2, 110 * 2, 111 * 2, // il: 3, xl: 10, samples: all
+		116 * 2, 117 * 2, 118 * 2, 119 * 2, // il: 5, xl: 10, samples: all
+	}
+
+	xl_0 := []float32{
+		0, 0, 0, 0, // il: 1, xl: 10, samples: all
+		0, 0, 0, 0, // il: 3, xl: 10, samples: all
+		0, 0, 0, 0, // il: 5, xl: 10, samples: all
 	}
 
 	time := []float32{
@@ -27,22 +49,50 @@ func TestSliceData(t *testing.T) {
 		117, 121, // il: 5, xl: all, samples: 1
 	}
 
+	time_2x := []float32{
+		101 * 2, 105 * 2, // il: 1, xl: all, samples: 1
+		109 * 2, 113 * 2, // il: 3, xl: all, samples: 1
+		117 * 2, 121 * 2, // il: 5, xl: all, samples: 1
+	}
+
+	time_0 := []float32{
+		0, 0, // il: 1, xl: all, samples: 1
+		0, 0, // il: 3, xl: all, samples: 1
+		0, 0, // il: 5, xl: all, samples: 1
+	}
+
 	testcases := []struct {
-		name      string
-		lineno    int
-		direction int
-		expected  []float32
+		name            string
+		lineno          int
+		direction       int
+		vds             []Connection
+		binary_operator string
+		expected        []float32
 	}{
-		{name: "inline", lineno: 3, direction: AxisInline, expected: il},
-		{name: "i", lineno: 1, direction: AxisI, expected: il},
-		{name: "crossline", lineno: 10, direction: AxisCrossline, expected: xl},
-		{name: "j", lineno: 0, direction: AxisJ, expected: xl},
-		{name: "time", lineno: 8, direction: AxisTime, expected: time},
-		{name: "j", lineno: 1, direction: AxisK, expected: time},
+		{name: "inline", lineno: 3, direction: AxisInline, vds: well_known, binary_operator: "", expected: il},
+		{name: "i", lineno: 1, direction: AxisI, vds: well_known, binary_operator: "", expected: il},
+		{name: "crossline", lineno: 10, direction: AxisCrossline, vds: well_known, binary_operator: "", expected: xl},
+		{name: "j", lineno: 0, direction: AxisJ, vds: well_known, binary_operator: "", expected: xl},
+		{name: "time", lineno: 8, direction: AxisTime, vds: well_known, binary_operator: "", expected: time},
+		{name: "j", lineno: 1, direction: AxisK, vds: well_known, binary_operator: "", expected: time},
+
+		{name: "inline_add", lineno: 3, direction: AxisInline, vds: well_known_2x, binary_operator: "addition", expected: il_2x},
+		{name: "i_add", lineno: 1, direction: AxisI, vds: well_known_2x, binary_operator: "addition", expected: il_2x},
+		{name: "crossline_add", lineno: 10, direction: AxisCrossline, vds: well_known_2x, binary_operator: "addition", expected: xl_2x},
+		{name: "j_add", lineno: 0, direction: AxisJ, vds: well_known_2x, binary_operator: "addition", expected: xl_2x},
+		{name: "time_add", lineno: 8, direction: AxisTime, vds: well_known_2x, binary_operator: "addition", expected: time_2x},
+		{name: "j_add", lineno: 1, direction: AxisK, vds: well_known_2x, binary_operator: "addition", expected: time_2x},
+
+		{name: "inline_sub", lineno: 3, direction: AxisInline, vds: well_known_2x, binary_operator: "subtraction", expected: il_0},
+		{name: "i_sub", lineno: 1, direction: AxisI, vds: well_known_2x, binary_operator: "subtraction", expected: il_0},
+		{name: "crossline_sub", lineno: 10, direction: AxisCrossline, vds: well_known_2x, binary_operator: "subtraction", expected: xl_0},
+		{name: "j_sub", lineno: 0, direction: AxisJ, vds: well_known_2x, binary_operator: "subtraction", expected: xl_0},
+		{name: "time_sub", lineno: 8, direction: AxisTime, vds: well_known_2x, binary_operator: "subtraction", expected: time_0},
+		{name: "j_sub", lineno: 1, direction: AxisK, vds: well_known_2x, binary_operator: "subtraction", expected: time_0},
 	}
 
 	for _, testcase := range testcases {
-		handle, _ := NewDSHandle(well_known, "")
+		handle, _ := NewDSHandle(testcase.vds, testcase.binary_operator)
 		defer handle.Close()
 		buf, err := handle.GetSlice(
 			testcase.lineno,
@@ -293,7 +343,7 @@ func TestSliceBounds(t *testing.T) {
 			expectedGeo:   [][]float64{{2, 0}, {8, 4}},
 		},
 		{
-			name:      "Horizonal bounds for full axis range is the same as no bound",
+			name:      "Horizontal bounds for full axis range is the same as no bound",
 			direction: "time",
 			lineno:    12,
 			bounds: []Bound{

@@ -82,7 +82,7 @@ int double_datasource_new(
         void (*binary_operator)(float*, const float*, size_t) noexcept(true);
 
         if (function == nullptr) throw detail::nullptr_error("Invalid function");
-        else if (strcmp(function, "SUBTRACT") == 0) binary_operator = &inplace_subtraction;
+        else if (strcmp(function, "SUBTRACTION") == 0) binary_operator = &inplace_subtraction;
         else if (strcmp(function, "ADDITION") == 0) binary_operator = &inplace_addition;
         else if (strcmp(function, "MULTIPLICATION") == 0) binary_operator = &inplace_multiplication;
         else if (strcmp(function, "DIVISION") == 0) binary_operator = &inplace_division;

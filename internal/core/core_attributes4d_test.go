@@ -9,7 +9,7 @@ import (
 // CGO not supported in tests yet.
 // Hardcoding the cube function values
 const (
-	SUBTRACT       = 0
+	SUBTRACTION    = 0
 	ADDITION       = 1
 	MULTIPLICATION = 2
 	DIVISION       = 3
@@ -22,8 +22,8 @@ func TestCubeFunctionsForAttributeAlong(t *testing.T) {
 		expected      []float32
 	}{
 		{
-			function_name: "SUBTRACT",
-			function:      SUBTRACT,
+			function_name: "SUBTRACTION",
+			function:      SUBTRACTION,
 			expected: []float32{
 				fillValue, fillValue, fillValue, fillValue, fillValue, fillValue, fillValue,
 				fillValue, fillValue, -12.5, fillValue, 4.5, fillValue, 1.5,
@@ -116,8 +116,8 @@ func TestCubeFunctionsForAttributeBetween(t *testing.T) {
 		expected      map[string][]float32
 	}{
 		{
-			function_name: "SUBTRACT",
-			function:      SUBTRACT,
+			function_name: "SUBTRACTION",
+			function:      SUBTRACTION,
 			expected: map[string][]float32{
 				"min":       {-1.5, -0.5, -8.5, 5.5, fillValue, -24.5, fillValue, fillValue},
 				"min_at":    {16, 24, 20, 18, fillValue, 28, fillValue, fillValue},

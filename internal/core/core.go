@@ -445,7 +445,7 @@ func NewDSHandle(conn []Connection, binary_operator string) (DSHandle, error) {
 		var cctx = C.context_new()
 		var dataSource *C.struct_DataSource
 
-		cube_string := regexp.MustCompile(`[^A-Z]+`).ReplaceAllString(strings.ToUpper(binary_operator), "SUBTRACT")
+		cube_string := regexp.MustCompile(`[^A-Z]+`).ReplaceAllString(strings.ToUpper(binary_operator), "SUBTRACTION")
 		c_function := C.CString(cube_string)
 		defer C.free(unsafe.Pointer(c_function))
 
