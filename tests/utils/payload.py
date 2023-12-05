@@ -38,9 +38,11 @@ class PayLoad:
             json_payload = json.dumps(_payload)
             encoded_payload = urllib.parse.quote(json_payload)
             data = requests.get(
-                f'{self.endpoint}/{_path}?query={encoded_payload}')
+                f'{self.endpoint}/{_path}?query={encoded_payload}',
+                timeout=10)
         elif _method == "post":
-            data = requests.post(f'{self.endpoint}/{_path}', json=_payload)
+            data = requests.post(f'{self.endpoint}/{_path}', json=_payload,
+                                 timeout=10)
         else:
             raise ValueError(f'Unknown method {_method}')
         return data

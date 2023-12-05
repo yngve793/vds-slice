@@ -3,19 +3,6 @@ from azure.storage import blob
 from azure.storage import filedatalake
 from azure.core import exceptions
 
-
-
-# def blob_sas_permissions(*args, **kwargs):
-
-#     # print("Inside inner function")
-#     # print("Decorated the function")
-#     # return None
-
-#     return blob.BlobSasPermissions()
-
-
-# blob_sas_permissions = blob.BlobSasPermissions
-
 class Cloud:
 
     def __init__(self,

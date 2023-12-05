@@ -3,8 +3,6 @@ import os
 import json
 import re
 import pytest
-# import urllib.parse
-# import requests
 import numpy as np
 from utils.cloud import Cloud as a_cloud
 from utils import cloud as zz_cloud
@@ -27,52 +25,9 @@ payload = pl(STORAGE_ACCOUNT_NAME,
              ENDPOINT,
              CONTAINER)
 
-cloud = a_cloud(STORAGE_ACCOUNT_NAME, 
-                CONTAINER, 
+cloud = a_cloud(STORAGE_ACCOUNT_NAME,
+                CONTAINER,
                 STORAGE_ACCOUNT_KEY)
-
-
-@pytest.mark.parametrize("method", [
-    ("get"),
-    ("post")
-])
-def test_slice(method):
-    meta, slice = request_slice(method, 5, 'inline')
-
-    expected = np.array([[116, 117, 118, 119],
-                         [120, 121, 122, 123]])
-    assert np.array_equal(slice, expected)
-
-    expected_meta = json.loads("""
-    {
-        "x": {"annotation": "Sample", "max": 16.0, "min": 4.0, "samples" : 4, "stepsize": 4.0, "unit": "ms"},
-        "y": {"annotation": "Crossline", "max": 11.0, "min": 10.0, "samples" : 2, "stepsize": 1.0, "unit": "unitless"},
-        "shape": [ 2, 4],
-        "format": "<f4",
-        "geospatial": [[14.0, 8.0], [12.0, 11.0]]
-    }
-    """)
-    assert meta == expected_meta
-
-
-@pytest.mark.parametrize("method", [
-    ("get"),
-    ("post")
-])
-def test_fence(method):
-    meta, fence = request_fence(method, [[3, 10], [1, 11]], 'ilxl')
-
-    expected = np.array([[108, 109, 110, 111],
-                         [104, 105, 106, 107]])
-    assert np.array_equal(fence, expected)
-
-    expected_meta = json.loads("""
-    {
-        "shape": [ 2, 4],
-        "format": "<f4"
-    }
-    """)
-    assert meta == expected_meta
 
 
 @pytest.mark.parametrize("method", [
@@ -107,6 +62,49 @@ def test_metadata(method):
     expected_metadata["importTimeStamp"] = "dummy"
     metadata["importTimeStamp"] = "dummy"
     assert expected_metadata == metadata
+
+
+@pytest.mark.parametrize("method", [
+    ("get"),
+    ("post")
+])
+def test_fence(method):
+    meta, fence = request_fence(method, [[3, 10], [1, 11]], 'ilxl')
+
+    expected = np.array([[108, 109, 110, 111],
+                         [104, 105, 106, 107]])
+    assert np.array_equal(fence, expected)
+
+    expected_meta = json.loads("""
+    {
+        "shape": [ 2, 4],
+        "format": "<f4"
+    }
+    """)
+    assert meta == expected_meta
+
+
+@pytest.mark.parametrize("method", [
+    ("get"),
+    ("post")
+])
+def test_slice(method):
+    meta, _slice = request_slice(method, 5, 'inline')
+
+    expected = np.array([[116, 117, 118, 119],
+                         [120, 121, 122, 123]])
+    assert np.array_equal(_slice, expected)
+
+    expected_meta = json.loads("""
+    {
+        "x": {"annotation": "Sample", "max": 16.0, "min": 4.0, "samples" : 4, "stepsize": 4.0, "unit": "ms"},
+        "y": {"annotation": "Crossline", "max": 11.0, "min": 10.0, "samples" : 2, "stepsize": 1.0, "unit": "unitless"},
+        "shape": [ 2, 4],
+        "format": "<f4",
+        "geospatial": [[14.0, 8.0], [12.0, 11.0]]
+    }
+    """)
+    assert meta == expected_meta
 
 
 def test_attributes_along_surface():
@@ -155,74 +153,51 @@ def test_attributes_between_surfaces():
     assert meta == expected_meta
 
 
-# def send_request(path, method, _payload):
-#     if method == "get":
-#         json_payload = json.dumps(_payload)
-#         encoded_payload = urllib.parse.quote(json_payload)
-#         data = requests.get(f'{ENDPOINT}/{path}?query={encoded_payload}')
-#     elif method == "post":
-#         data = requests.post(f'{ENDPOINT}/{path}', json=_payload)
-#     else:
-#         raise ValueError(f'Unknown method {method}')
-#     return data
+def request_metadata(method):
+    sas = cloud.generate_container_signature()
+
+    _payload = payload.metadata(VDS_URL, sas)
+    _request_data = payload.send_request("metadata", method, _payload)
+    _request_data.raise_for_status()
+
+    return _request_data.json()
+
+
+def proccess_data_request(_request_data):
+    _request_data.raise_for_status()
+
+    _multipart_data = decoder.MultipartDecoder.from_response(_request_data)
+    assert len(_multipart_data.parts) == 2
+    _metadata = json.loads(_multipart_data.parts[0].content)
+    _data = _multipart_data.parts[1].content
+
+    _data = np.ndarray(_metadata['shape'], _metadata['format'], _data)
+    return _metadata, _data
 
 
 def request_slice(method, lineno, direction):
     sas = cloud.generate_container_signature()
 
     _payload = payload.slice(VDS_URL, direction, lineno, sas)
-    rdata = payload.send_request("slice", method, _payload)
-    rdata.raise_for_status()
-
-    multipart_data = decoder.MultipartDecoder.from_response(rdata)
-    assert len(multipart_data.parts) == 2
-    metadata = json.loads(multipart_data.parts[0].content)
-    data = multipart_data.parts[1].content
-
-    data = np.ndarray(metadata['shape'], metadata['format'], data)
-    return metadata, data
+    _request_data = payload.send_request("slice", method, _payload)
+    return proccess_data_request(_request_data)
 
 
 def request_fence(method, coordinates, coordinate_system):
     sas = cloud.generate_container_signature()
 
     _payload = payload.fence(VDS_URL, coordinate_system, coordinates, sas)
-    rdata = payload.send_request("fence", method, _payload)
-    rdata.raise_for_status()
-
-    multipart_data = decoder.MultipartDecoder.from_response(rdata)
-    assert len(multipart_data.parts) == 2
-    metadata = json.loads(multipart_data.parts[0].content)
-    data = multipart_data.parts[1].content
-
-    data = np.ndarray(metadata['shape'], metadata['format'], data)
-    return metadata, data
-
-
-def request_metadata(method):
-    sas = cloud.generate_container_signature()
-
-    _payload = payload.metadata(VDS_URL, sas)
-    rdata = payload.send_request("metadata", method, _payload)
-    rdata.raise_for_status()
-
-    return rdata.json()
+    _request_data = payload.send_request("fence", method, _payload)
+    return proccess_data_request(_request_data)
 
 
 def request_attributes_along_surface(method, values):
     sas = cloud.generate_container_signature()
 
     _payload = payload.attributes_along_surface(values=values, sas=sas)
-    rdata = payload.send_request("attributes/surface/along", method, _payload)
-    rdata.raise_for_status()
-
-    multipart_data = decoder.MultipartDecoder.from_response(rdata)
-    assert len(multipart_data.parts) == 2
-    metadata = json.loads(multipart_data.parts[0].content)
-    data = multipart_data.parts[1].content
-
-    data = np.ndarray(metadata['shape'], metadata['format'], data)
-    return metadata, data
+    _request_data = payload.send_request(
+        "attributes/surface/along", method, _payload)
+    return proccess_data_request(_request_data)
 
 
 def request_attributes_between_surfaces(method, primary, secondary):
@@ -230,14 +205,6 @@ def request_attributes_between_surfaces(method, primary, secondary):
 
     _payload = payload.attributes_between_surfaces(
         primary, secondary, sas=sas)
-    rdata = payload.send_request("attributes/surface/between", method, _payload)
-    rdata.raise_for_status()
-
-    multipart_data = decoder.MultipartDecoder.from_response(rdata)
-    assert len(multipart_data.parts) == 2
-    metadata = json.loads(multipart_data.parts[0].content)
-    data = multipart_data.parts[1].content
-
-    data = np.ndarray(metadata['shape'], metadata['format'], data)
-    return metadata, data
-
+    _request_data = payload.send_request(
+        "attributes/surface/between", method, _payload)
+    return proccess_data_request(_request_data)
