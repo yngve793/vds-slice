@@ -65,12 +65,17 @@ func prepareRequestLogging(ctx *gin.Context, request Stringable) {
 
 func (e *Endpoint) metadata(ctx *gin.Context, request MetadataRequest) {
 	prepareRequestLogging(ctx, request)
-	conn, err := e.MakeVdsConnection(request.Vds, request.Sas)
-	if abortOnError(ctx, err) {
-		return
+	vds_url, sas_key := request.credentials()
+	var conn []core.Connection
+	for i := 0; i < len(vds_url); i++ {
+		conn_t, err := e.MakeVdsConnection(vds_url[i], sas_key[i])
+		conn = append(conn, conn_t)
+		if abortOnError(ctx, err) {
+			return
+		}
 	}
 
-	handle, err := core.NewDSHandle([]core.Connection{conn}, "")
+	handle, err := core.NewDSHandle(conn, "")
 	if abortOnError(ctx, err) {
 		return
 	}
@@ -94,7 +99,7 @@ func (e *Endpoint) makeDataRequest(
 	var conn []core.Connection
 
 	for i := 0; i < len(vds_url); i++ {
-		fmt.Println(vds_url[i])
+		fmt.Println(i, vds_url[i])
 		conn_t, err := e.MakeVdsConnection(vds_url[i], sas_key[i])
 		conn = append(conn, conn_t)
 		if abortOnError(ctx, err) {
@@ -475,90 +480,6 @@ func (e *Endpoint) AttributesAlongSurfacePost(ctx *gin.Context) {
 // @Router   /attributes/surface/between  [post]
 func (e *Endpoint) AttributesBetweenSurfacesPost(ctx *gin.Context) {
 	var request AttributeBetweenSurfacesRequest
-	err := parsePostRequest(ctx, &request)
-	if abortOnError(ctx, err) {
-		return
-	}
-
-	e.makeDataRequest(ctx, request)
-}
-
-// FenceMultiPost godoc
-// @Summary  Returns traces along an arbitrary path in the difference between two cubes, such as a well-path
-// @description.markdown fence
-// @Tags     two_cubes
-// @Param    body  body  FenceMultiRequest  True  "Request Parameters"
-// @Accept   application/json
-// @Produce  multipart/mixed
-// @Success  200 {object} core.FenceMetadata "(Example below only for metadata part)"
-// @Failure  400 {object} ErrorResponse "Request is invalid"
-// @Failure  500 {object} ErrorResponse "openvds failed to process the request"
-// @Router   /two_cubes/fence  [post]
-func (e *Endpoint) FenceMultiPost(ctx *gin.Context) {
-	var request FenceMultiRequest
-	err := parsePostRequest(ctx, &request)
-	if abortOnError(ctx, err) {
-		return
-	}
-
-	e.makeDataRequest(ctx, request)
-}
-
-// SliceMultiPost godoc
-// @Summary  Fetch a slice from a VDS in the difference between two cubes
-// @description.markdown slice
-// @Tags     two_cubes
-// @Param    body  body  SliceMultiRequest  True  "Query Parameters"
-// @Accept   application/json
-// @Produce  multipart/mixed
-// @Success  200 {object} core.SliceMetadata "(Example below only for metadata part)"
-// @Failure  400 {object} ErrorResponse "Request is invalid"
-// @Failure  500 {object} ErrorResponse "openvds failed to process the request"
-// @Router   /two_cubes/slice  [post]
-func (e *Endpoint) SliceMultiPost(ctx *gin.Context) {
-	var request SliceMultiRequest
-	err := parsePostRequest(ctx, &request)
-	if abortOnError(ctx, err) {
-		return
-	}
-
-	e.makeDataRequest(ctx, request)
-}
-
-// TwoCubesAttributesAlongSurfacePost godoc
-// @Summary  Returns horizon attributes along the surface of the difference between two cubes
-// @description.markdown two cubes attribute_along
-// @Tags     attributes
-// @Param    body  body  TwoCubesAttributeAlongSurfaceRequest  True  "Request Parameters"
-// @Accept   application/json
-// @Produce  multipart/mixed
-// @Success  200 {object} core.AttributeMetadata "(Example below only for metadata part)"
-// @Failure  400 {object} ErrorResponse "Request is invalid"
-// @Failure  500 {object} ErrorResponse "openvds failed to process the request"
-// @Router   /two_cubes/attributes/surface/along  [post]
-func (e *Endpoint) TwoCubesAttributesAlongSurfacePost(ctx *gin.Context) {
-	var request TwoCubesAttributeAlongSurfaceRequest
-	err := parsePostRequest(ctx, &request)
-	if abortOnError(ctx, err) {
-		return
-	}
-
-	e.makeDataRequest(ctx, request)
-}
-
-// TwoCubesAttributesBetweenSurfacesPost godoc
-// @Summary  Returns horizon attributes between provided surfaces of the difference between two cubes
-// @description.markdown two cubes attribute_between
-// @Tags     attributes
-// @Param    body  body  TwoCubesAttributeBetweenSurfacesRequest  True  "Request Parameters"
-// @Accept   application/json
-// @Produce  multipart/mixed
-// @Success  200 {object} core.AttributeMetadata "(Example below only for metadata part)"
-// @Failure  400 {object} ErrorResponse "Request is invalid"
-// @Failure  500 {object} ErrorResponse "openvds failed to process the request"
-// @Router   /two_cubes/attributes/surface/between  [post]
-func (e *Endpoint) TwoCubesAttributesBetweenSurfacesPost(ctx *gin.Context) {
-	var request TwoCubesAttributeBetweenSurfacesRequest
 	err := parsePostRequest(ctx, &request)
 	if abortOnError(ctx, err) {
 		return

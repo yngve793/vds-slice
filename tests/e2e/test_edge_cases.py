@@ -1,9 +1,7 @@
 import http
 import os
 import json
-# import urllib.parse
 import pytest
-# import requests
 from utils.cloud import Cloud as a_cloud
 from utils import cloud as zz_cloud
 from utils.payload import PayLoad as pl
@@ -45,7 +43,7 @@ cloud = a_cloud(STORAGE_ACCOUNT_NAME,
     )
 ])
 def test_assure_no_unauthorized_access(_path, _payload, _sas, _allowed_error_messages):
-    _payload.update({"sas": _sas})
+    _payload.update({"sas": [_sas]})
     res = payload.send_request(_path, "post", _payload)
     assert res.status_code == http.HTTPStatus.INTERNAL_SERVER_ERROR
     error_body = json.loads(res.content)['error']
@@ -84,13 +82,13 @@ def test_cached_data_access_with_various_sas(_path, _payload, _token, _status, _
     def make_caching_call():
         container_sas = cloud.generate_container_signature(
             permission=cloud.blob_container_sas_permissions(read=True))
-        _payload.update({"sas": container_sas})
+        _payload.update({"sas": [container_sas]})
         res = payload.send_request(_path, "post", _payload)
         assert res.status_code == http.HTTPStatus.OK
 
     make_caching_call()
 
-    _payload.update({"sas": _token})
+    _payload.update({"sas": [_token]})
     res = payload.send_request(_path, "post", _payload)
     assert res.status_code == _status
     if _error:
@@ -106,7 +104,7 @@ def test_cached_data_access_with_various_sas(_path, _payload, _token, _status, _
 ])
 def test_assure_only_allowed_storage_accounts(_path, _payload):
     _payload.update({
-        "vds": "https://dummy.blob.core.windows.net/container/blob",
+        "vds": ["https://dummy.blob.core.windows.net/container/blob"],
     })
     res = payload.send_request(_path, "post", _payload)
     assert res.status_code == http.HTTPStatus.BAD_REQUEST
@@ -149,7 +147,7 @@ def test_assure_only_allowed_storage_accounts(_path, _payload):
 ])
 def test_errors(_path, _payload, _error_code, _error):
     sas = cloud.generate_container_signature()
-    _payload.update({"sas": sas})
+    _payload.update({"sas": [sas]})
     res = payload.send_request(_path, "post", _payload)
     assert res.status_code == _error_code
 
@@ -172,8 +170,8 @@ def test_errors(_path, _payload, _error_code, _error):
 ])
 def test_sas_token_in_url(_path, _payload, _vds, _sas, _expected):
     _payload.update({
-        "vds": _vds,
-        "sas": _sas
+        "vds": [_vds],
+        "sas": [_sas]
     })
     res = payload.send_request(_path, "post", _payload)
     assert res.status_code == _expected

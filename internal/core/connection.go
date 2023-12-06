@@ -3,8 +3,8 @@ package core
 import (
 	"context"
 	"fmt"
-	"strings"
 	"net/url"
+	"strings"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/blob"
 )
@@ -19,11 +19,11 @@ func equalsOneOf(parameter string, values []string) bool {
 }
 
 func srtContainsObject(srt string) bool {
-	return strings.Contains(srt, "o");
+	return strings.Contains(srt, "o")
 }
 
 func srtContainsContainer(srt string) bool {
-	return strings.Contains(srt, "c");
+	return strings.Contains(srt, "c")
 }
 
 /** Validate 'srt' (Signed Resource Types)
@@ -61,9 +61,9 @@ func validateSasSrt(connection *AzureConnection) error {
 }
 
 type Connection interface {
-	Url()              string
+	Url() string
 	ConnectionString() string
-	IsAuthorizedToRead()    bool
+	IsAuthorizedToRead() bool
 }
 
 type AzureConnection struct {
@@ -123,15 +123,15 @@ func (c *AzureConnection) IsAuthorizedToRead() bool {
 		return false
 	}
 
-	_, err = client.GetProperties(context.Background(), nil);
+	_, err = client.GetProperties(context.Background(), nil)
 	return err == nil
 }
 
 func NewAzureConnection(
-	blobPath  string,
+	blobPath string,
 	container string,
-	host      string,
-	sas       string,
+	host string,
+	sas string,
 ) *AzureConnection {
 	return &AzureConnection{
 		blobPath:  blobPath,
@@ -158,7 +158,7 @@ func (c *FileConnection) IsAuthorizedToRead() bool {
 }
 
 func NewFileConnection(path string) *FileConnection {
-	return &FileConnection{ url: path }
+	return &FileConnection{url: path}
 }
 
 /*
@@ -180,11 +180,12 @@ func isAllowed(allowlist []*url.URL, requested *url.URL) error {
 			return nil
 		}
 	}
-	msg := "unsupported storage account: %s. This API is configured to work "  +
+	msg := "unsupported storage account: %s. This API is configured to work " +
 		"with a pre-defined set of storage accounts. Contact the system admin " +
 		"to get your storage account on the allowlist"
 	return NewInvalidArgument(fmt.Sprintf(msg, requested.Host))
 }
+
 /*
  * Strip leading ? if present from the input SAS token
  */

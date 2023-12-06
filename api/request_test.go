@@ -14,8 +14,8 @@ func newSliceRequest(
 ) SliceRequest {
 	return SliceRequest{
 		RequestedResource: RequestedResource{
-			Vds: vds,
-			Sas: sas,
+			Vds: []string{vds},
+			Sas: []string{sas},
 		},
 		GenericSliceRequest: GenericSliceRequest{
 			Direction: direction,
@@ -33,8 +33,8 @@ func newFenceRequest(
 ) FenceRequest {
 	return FenceRequest{
 		RequestedResource: RequestedResource{
-			Vds: vds,
-			Sas: sas,
+			Vds: []string{vds},
+			Sas: []string{sas},
 		},
 		GenericFenceRequest: GenericFenceRequest{
 			CoordinateSystem: coordinateSystem,
@@ -49,8 +49,8 @@ func newRequestedResource(
 	sas string,
 ) RequestedResource {
 	return RequestedResource{
-		Vds: vds,
-		Sas: sas,
+		Vds: []string{vds},
+		Sas: []string{sas},
 	}
 }
 
@@ -237,7 +237,9 @@ func TestExtractSasFromUrl(t *testing.T) {
 			require.ErrorContains(t, err, testCase.expected)
 		} else {
 			require.NoError(t, err)
-			require.Equal(t, testCase.expected, testCase.request.Sas)
+			for i := 0; i < len(testCase.request.Sas); i++ {
+				require.Equal(t, testCase.expected, testCase.request.Sas[i])
+			}
 		}
 	}
 }
@@ -267,6 +269,8 @@ func TestPortPresenceInURL(t *testing.T) {
 	for _, testCase := range testCases {
 		err := testCase.request.NormalizeConnection()
 		require.NoError(t, err)
-		require.Equal(t, testCase.expected, testCase.request.Vds)
+		for i := 0; i < len(testCase.request.Sas); i++ {
+			require.Equal(t, testCase.expected, testCase.request.Vds[i])
+		}
 	}
 }

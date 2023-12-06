@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -28,50 +27,18 @@ type RequestedResource struct {
 	// Warning: We do not expect storage accounts to have snapshots. If your
 	// storage account has any, please contact System Admin, as due to caching
 	// you might end up with incorrect data.
-	Vds string `json:"vds" binding:"required" example:"https://account.blob.core.windows.net/container/blob"`
+	Vds []string `json:"vds" binding:"required" example:"https://account.blob.core.windows.net/container/blob"`
 
 	// A valid sas-token with read access to the container specified in Vds
-	Sas string `json:"sas,omitempty" example:"sp=r&st=2022-09-12T09:44:17Z&se=2022-09-12T17:44:17Z&spr=https&sv=2021-06-08&sr=c&sig=..."`
-}
-
-func (f RequestedResource) toString() string {
-	return fmt.Sprintf("vds: %s", f.Vds)
-}
-
-func (f RequestedResource) cubeFunction() string {
-	return ""
-}
-
-type RequestedMultiResource struct {
-	// The blob URL can be sent in either format:
-	// - https://account.blob.core.windows.net/container/blob
-	//    In the above case the user must provide a sas-token as a separate key.
-	//
-	// - https://account.blob.core.windows.net/container/blob?sp=r&st=2022-09-12T09:44:17Z&se=2022-09-12T17:44:17Z&spr=https&sv=2021-06-08&sr=c&sig=...
-	//	  Instead of passing the sas-token explicitly in the sas field, you can
-	//	  pass an sign url. If the sas-token is provided in both fields, the
-	//	  sas-token in the sas field is prioritized.
-	//
-	// Note that your whole query string will be passed further down to
-	// openvds. We expect query parameters to contain sas-token and sas-token
-	// only and give no guarantee that Openvds/Azure returns you if you provide
-	// any additional arguments.
-	//
-	// Warning: We do not expect storage accounts to have snapshots. If your
-	// storage account has any, please contact System Admin, as due to caching
-	// you might end up with incorrect data.
-	Vds_urls []string `json:"vds_urls" binding:"required" example:"https://account.blob.core.windows.net/container/blob"`
-
-	// A valid sas-token with read access to the container specified in Vds
-	Sas_keys []string `json:"sas_keys,omitempty" example:"sp=r&st=2022-09-12T09:44:17Z&se=2022-09-12T17:44:17Z&spr=https&sv=2021-06-08&sr=c&sig=..."`
+	Sas []string `json:"sas,omitempty" example:"sp=r&st=2022-09-12T09:44:17Z&se=2022-09-12T17:44:17Z&spr=https&sv=2021-06-08&sr=c&sig=..."`
 
 	// The function to be applied to the cubes valid options are: addition, subtraction, multiplication, division
 	Binary_operator string `json:"binary_operator,omitempty" example:"subtraction"`
 }
 
-func (f RequestedMultiResource) toString() string {
+func (f RequestedResource) toString() string {
 	var vds_all = "["
-	for _, vds := range f.Vds_urls {
+	for _, vds := range f.Vds {
 		if len(vds_all) > 1 {
 			vds_all += ", "
 		}
@@ -81,7 +48,7 @@ func (f RequestedMultiResource) toString() string {
 	return fmt.Sprintf("vds: %s, binary_operator: %s", vds_all, f.Binary_operator)
 }
 
-func (s RequestedMultiResource) cubeFunction() string {
+func (s RequestedResource) cubeFunction() string {
 	return s.Binary_operator
 }
 
@@ -328,7 +295,7 @@ type FenceRequest struct {
 } //@name FenceRequest
 
 func (h FenceRequest) hash() (string, error) {
-	h.Sas = ""
+	h.Sas = nil
 	return cache.Hash(h)
 }
 
@@ -337,17 +304,17 @@ func (f FenceRequest) toString() (string, error) {
 }
 
 type FenceMultiRequest struct {
-	RequestedMultiResource
+	RequestedResource
 	GenericFenceRequest
 } //@name FenceMultiRequest
 
 func (f FenceMultiRequest) hash() (string, error) {
-	f.Sas_keys = nil
+	f.Sas = nil
 	return cache.Hash(f)
 }
 
 func (f FenceMultiRequest) toString() (string, error) {
-	return fmt.Sprintf("{%s, %s}", f.RequestedMultiResource.toString(), f.GenericFenceRequest.toString()), nil
+	return fmt.Sprintf("{%s, %s}", f.RequestedResource.toString(), f.GenericFenceRequest.toString()), nil
 }
 
 type SliceRequest struct {
@@ -356,7 +323,7 @@ type SliceRequest struct {
 } //@name SliceRequest
 
 func (s SliceRequest) hash() (string, error) {
-	s.Sas = ""
+	s.Sas = nil
 	return cache.Hash(s)
 }
 
@@ -365,17 +332,17 @@ func (s SliceRequest) toString() (string, error) {
 }
 
 type SliceMultiRequest struct {
-	RequestedMultiResource
+	RequestedResource
 	GenericSliceRequest
 } //@name SliceMultiRequest
 
 func (s SliceMultiRequest) hash() (string, error) {
-	s.Sas_keys = nil
+	s.Sas = nil
 	return cache.Hash(s)
 }
 
 func (s SliceMultiRequest) toString() (string, error) {
-	return fmt.Sprintf("{%s, %s}", s.RequestedMultiResource.toString(), s.GenericSliceRequest.toString()), nil
+	return fmt.Sprintf("{%s, %s}", s.RequestedResource.toString(), s.GenericSliceRequest.toString()), nil
 }
 
 type AttributeAlongSurfaceRequest struct {
@@ -384,7 +351,7 @@ type AttributeAlongSurfaceRequest struct {
 } //@name AttributeAlongSurfaceRequest
 
 func (h AttributeAlongSurfaceRequest) hash() (string, error) {
-	h.Sas = ""
+	h.Sas = nil
 	return cache.Hash(h)
 }
 
@@ -398,7 +365,7 @@ type AttributeBetweenSurfacesRequest struct {
 } //@name AttributeBetweenSurfacesRequest
 
 func (h AttributeBetweenSurfacesRequest) hash() (string, error) {
-	h.Sas = ""
+	h.Sas = nil
 	return cache.Hash(h)
 }
 
@@ -407,35 +374,31 @@ func (h AttributeBetweenSurfacesRequest) toString() (string, error) {
 }
 
 type TwoCubesAttributeAlongSurfaceRequest struct {
-	RequestedMultiResource
+	RequestedResource
 	AttributeAlongRequest
 } //@name TwoCubesAttributeAlongSurfaceRequest
 
 func (h TwoCubesAttributeAlongSurfaceRequest) hash() (string, error) {
-	h.Sas_keys = nil
+	h.Sas = nil
 	return cache.Hash(h)
 }
 
 func (h TwoCubesAttributeAlongSurfaceRequest) toString() (string, error) {
-	return fmt.Sprintf("{%s, %s}", h.RequestedMultiResource.toString(), h.AttributeAlongRequest.toString()), nil
+	return fmt.Sprintf("{%s, %s}", h.RequestedResource.toString(), h.AttributeAlongRequest.toString()), nil
 }
 
 type TwoCubesAttributeBetweenSurfacesRequest struct {
-	RequestedMultiResource
+	RequestedResource
 	AttributeBetweenRequest
 } //@name TwoCubesAttributeBetweenSurfacesRequest
 
 func (h TwoCubesAttributeBetweenSurfacesRequest) hash() (string, error) {
-	h.Sas_keys = nil
+	h.Sas = nil
 	return cache.Hash(h)
 }
 
 func (h TwoCubesAttributeBetweenSurfacesRequest) toString() (string, error) {
-	return fmt.Sprintf("{%s, %s}", h.RequestedMultiResource.toString(), h.AttributeBetweenRequest.toString()), nil
-}
-
-func (r RequestedResource) credentials() ([]string, []string) {
-	return []string{r.Vds}, []string{r.Sas}
+	return fmt.Sprintf("{%s, %s}", h.RequestedResource.toString(), h.AttributeBetweenRequest.toString()), nil
 }
 
 type DataRequest interface {
@@ -453,44 +416,26 @@ type Normalizable interface {
 	NormalizeConnection() error
 }
 
+func (r RequestedResource) credentials() ([]string, []string) {
+	return r.Vds, r.Sas
+}
+
 func (r *RequestedResource) NormalizeConnection() error {
-	url, err := url.Parse(r.Vds)
-	if err != nil {
-		return core.NewInvalidArgument(err.Error())
-	}
-	if strings.TrimSpace(r.Sas) == "" {
-		if url.RawQuery == "" {
-			return core.NewInvalidArgument("No valid Sas token is found in the request")
-		}
-		r.Sas = url.RawQuery
-	}
 
-	url.RawQuery = ""
-	url.Host = url.Hostname()
-	r.Vds = url.String()
-	return nil
-}
-
-func (r RequestedMultiResource) credentials() ([]string, []string) {
-	return r.Vds_urls, r.Sas_keys
-}
-
-func (r *RequestedMultiResource) NormalizeConnection() error {
-
-	for i, url_req := range r.Vds_urls {
+	for i, url_req := range r.Vds {
 		url_object, err := url.Parse(url_req)
 		if err != nil {
 			return core.NewInvalidArgument(err.Error())
 		}
-		if strings.TrimSpace(r.Sas_keys[i]) == "" {
+		if strings.TrimSpace(r.Sas[i]) == "" {
 			if url_object.RawQuery == "" {
 				return core.NewInvalidArgument("No valid Sas token is found in the request")
 			}
-			r.Sas_keys[i] = url_object.RawQuery
+			r.Sas[i] = url_object.RawQuery
 		}
 		url_object.RawQuery = ""
 		url_object.Host = url_object.Hostname()
-		r.Vds_urls[i] = url_object.String()
+		r.Vds[i] = url_object.String()
 	}
 	return nil
 }
@@ -500,11 +445,5 @@ type MetadataRequest struct {
 } //@name MetadataRequest
 
 func (m MetadataRequest) toString() (string, error) {
-	m.Sas = ""
-	out, err := json.Marshal(m)
-	if err != nil {
-		return "", err
-	}
-	str := string(out)
-	return str, nil
+	return m.RequestedResource.toString(), nil
 }

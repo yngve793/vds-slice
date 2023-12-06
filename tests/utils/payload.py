@@ -51,28 +51,28 @@ class PayLoad:
         if vds is None:
             vds = self.vds_url
         return {
-            "vds": vds,
+            "vds": [vds],
             "direction": direction,
             "lineno": lineno,
-            "sas": sas
+            "sas": [sas]
         }
 
     def fence(self, vds=None, coordinate_system="ij", coordinates=[[0, 0]], sas="sas"):
         if vds is None:
             vds = self.vds_url
         return {
-            "vds": vds,
+            "vds": [vds],
             "coordinateSystem": coordinate_system,
             "coordinates": coordinates,
-            "sas": sas
+            "sas": [sas]
         }
 
     def metadata(self, vds=None, sas="sas"):
         if vds is None:
             vds = self.vds_url
         return {
-            "vds": vds,
-            "sas": sas
+            "vds": [vds],
+            "sas": [sas]
         }
 
     def surface(self):
@@ -107,8 +107,8 @@ class PayLoad:
         request = {
             "surface": regular_surface,
             "interpolation": "nearest",
-            "vds": vds,
-            "sas": sas,
+            "vds": [vds],
+            "sas": [sas],
             "above": above,
             "below": below,
             "attributes": attributes
@@ -144,8 +144,8 @@ class PayLoad:
             "primarySurface": primary,
             "secondarySurface": secondary,
             "interpolation": "nearest",
-            "vds": vds,
-            "sas": sas,
+            "vds": [vds],
+            "sas": [sas],
             "stepsize": stepsize,
             "attributes": attributes
         }
