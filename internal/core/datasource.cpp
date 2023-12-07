@@ -97,6 +97,22 @@ std::int64_t DoubleDataSource::samples_buffer_size(std::size_t const nsamples) n
     return this->handle_A->samples_buffer_size(nsamples);
 }
 
+void DoubleDataSource::read_samples(
+    void* const buffer,
+    std::int64_t const size,
+    voxel const* samples,
+    std::size_t const nsamples,
+    interpolation_method const interpolation_method
+) noexcept(false) {
+
+    std::vector<float> buffer_B(nsamples);
+
+    this->handle_A->read_samples((float*)buffer, size, samples, nsamples, interpolation_method);
+    this->handle_B->read_samples(buffer_B.data(), size, samples, nsamples, interpolation_method);
+
+    this->binary_operator((float*)buffer, buffer_B.data(), nsamples);
+}
+
 std::int64_t DoubleDataSource::subcube_buffer_size(SubCube const& subcube) noexcept(false) {
     return this->handle_A->subcube_buffer_size(subcube);
 }
@@ -135,21 +151,7 @@ void DoubleDataSource::read_traces(
     this->binary_operator((float*)buffer, buffer_B.data(), (int)size / sizeof(float));
 }
 
-void DoubleDataSource::read_samples(
-    void* const buffer,
-    std::int64_t const size,
-    voxel const* samples,
-    std::size_t const nsamples,
-    interpolation_method const interpolation_method
-) noexcept(false) {
 
-    std::vector<float> buffer_B(nsamples);
-
-    this->handle_A->read_samples((float*)buffer, size, samples, nsamples, interpolation_method);
-    this->handle_B->read_samples(buffer_B.data(), size, samples, nsamples, interpolation_method);
-
-    this->binary_operator((float*)buffer, buffer_B.data(), nsamples);
-}
 
 DoubleDataSource* make_double_datasource(
     const char* url_A,
