@@ -447,3 +447,8 @@ type MetadataRequest struct {
 func (m MetadataRequest) toString() (string, error) {
 	return m.RequestedResource.toString(), nil
 }
+
+func (h MetadataRequest) hash() (string, error) {
+	h.Sas = nil
+	return cache.Hash(h)
+}

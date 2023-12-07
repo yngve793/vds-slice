@@ -137,6 +137,49 @@ func (e *Endpoint) makeDataRequest(
 	writeResponse(ctx, metadata, data)
 }
 
+func (request MetadataRequest) execute(
+	handle core.DSHandle,
+) (data [][]byte, metadata []byte, err error) {
+
+	buffer, err := handle.GetMetadata()
+	if abortOnError(ctx, err) {
+		return
+	}
+
+	if err != nil {
+		return
+	}
+
+	
+	return data, metadata, nil
+}
+
+func (request GenericSliceRequest) execute(
+	handle core.DSHandle,
+) (data [][]byte, metadata []byte, err error) {
+	axis, err := core.GetAxis(strings.ToLower(request.Direction))
+	if err != nil {
+		return
+	}
+
+	metadata, err = handle.GetSliceMetadata(
+		*request.Lineno,
+		axis,
+		request.Bounds,
+	)
+	if err != nil {
+		return
+	}
+
+	res, err := handle.GetSlice(*request.Lineno, axis, request.Bounds)
+	if err != nil {
+		return
+	}
+	data = [][]byte{res}
+
+	return data, metadata, nil
+}
+
 func (request GenericSliceRequest) execute(
 	handle core.DSHandle,
 ) (data [][]byte, metadata []byte, err error) {
@@ -340,7 +383,7 @@ func (e *Endpoint) MetadataGet(ctx *gin.Context) {
 		return
 	}
 
-	e.metadata(ctx, request)
+	e.makeDataRequest(ctx, request)
 }
 
 // MetadataPost godoc
@@ -360,7 +403,7 @@ func (e *Endpoint) MetadataPost(ctx *gin.Context) {
 		return
 	}
 
-	e.metadata(ctx, request)
+	e.makeDataRequest(ctx, request)
 }
 
 // SliceGet godoc
