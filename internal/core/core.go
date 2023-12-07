@@ -402,7 +402,7 @@ func (v DSHandle) Close() error {
 	return toError(cerr, v.ctx)
 }
 
-func NewVDSHandle(conn Connection) (DSHandle, error) {
+func NewDSHandle(conn Connection) (DSHandle, error) {
 	curl := C.CString(conn.Url())
 	defer C.free(unsafe.Pointer(curl))
 
