@@ -66,8 +66,7 @@ std::string SingleMetadataHandle::import_time_stamp() const noexcept(false) {
     return this->m_layout->GetMetadataString(time_stamp.GetCategory(), time_stamp.GetName());
 }
 
-OpenVDS::IJKCoordinateTransformer SingleMetadataHandle::coordinate_transformer()
-    const noexcept(true) {
+OpenVDS::IJKCoordinateTransformer SingleMetadataHandle::coordinate_transformer() const noexcept(true) {
     return OpenVDS::IJKCoordinateTransformer(this->m_layout);
 }
 
