@@ -135,22 +135,18 @@ Axis DoubleMetadataHandle::get_axis(
 
 BoundingBox DoubleMetadataHandle::bounding_box() const noexcept(false) {
     throw std::runtime_error("Not implemented");
-    return this->m_handle_A->bounding_box();
 }
 
 std::string DoubleMetadataHandle::crs() const noexcept(false) {
     throw std::runtime_error("Not implemented");
-    return this->m_handle_A->crs();
 }
 
 std::string DoubleMetadataHandle::input_filename() const noexcept(false) {
     throw std::runtime_error("Not implemented");
-    return this->m_handle_A->input_filename();
 }
 
 std::string DoubleMetadataHandle::import_time_stamp() const noexcept(false) {
     throw std::runtime_error("Not implemented");
-    return this->m_handle_A->import_time_stamp();
 }
 
 OpenVDS::IJKCoordinateTransformer DoubleMetadataHandle::coordinate_transformer() const noexcept(true) {
@@ -159,7 +155,6 @@ OpenVDS::IJKCoordinateTransformer DoubleMetadataHandle::coordinate_transformer()
 
 OpenVDS::VolumeDataLayout const* const DoubleMetadataHandle::get_layout() const noexcept(false) {
     throw std::runtime_error("Not implemented");
-    return this->m_handle_A->get_layout();
 }
 
 void DoubleMetadataHandle::validate_metadata() const noexcept(false) {
