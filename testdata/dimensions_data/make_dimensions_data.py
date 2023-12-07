@@ -3,7 +3,7 @@ import numpy as np
 import sys
 
 
-def create_dim_data(path, 
+def create_dim_data(path,
                     ilines_number, xlines_number, samples_number,
                     ilines_offset, xlines_offset, samples_offset,
                     ilines_step, xlines_step, samples_step):
@@ -12,9 +12,12 @@ def create_dim_data(path,
 
     spec.sorting = 2
     spec.format = 1
-    spec.ilines = range (ilines_offset, ilines_offset+ (ilines_number*ilines_step), ilines_step)
-    spec.xlines = range (xlines_offset, xlines_offset+ (xlines_number*xlines_step), xlines_step)
-    spec.samples = range (samples_offset, samples_offset+ (samples_number*samples_step), samples_step)
+    spec.ilines = range(ilines_offset, ilines_offset +
+                        (ilines_number*ilines_step), ilines_step)
+    spec.xlines = range(xlines_offset, xlines_offset +
+                        (xlines_number*xlines_step), xlines_step)
+    spec.samples = range(samples_offset, samples_offset +
+                         (samples_number*samples_step), samples_step)
 
     # We use scaling constant of -10, meaning that values will be divided by 10
     # note that lines are not perpendicular
@@ -45,7 +48,8 @@ def create_dim_data(path,
                     segyio.su.delrt: 4,
                 }
                 data = data + 0.00001
-                f.trace[tr] = np.linspace(start=data, stop=data+2, num=len(spec.samples), dtype=np.single)
+                f.trace[tr] = np.linspace(
+                    start=data, stop=data+2, num=len(spec.samples), dtype=np.single)
                 tr += 1
 
         f.bin.update(tsort=segyio.TraceSortingFormat.INLINE_SORTING)
@@ -74,4 +78,5 @@ if __name__ == "__main__":
     print(f"xlines_step: {xlines_step}")
     print(f"samples_step: {samples_step}")
 
-    create_dim_data(path, ilines, xlines, samples, ilines_offset, xlines_offset, samples_offset, ilines_step, xlines_step, samples_step)
+    create_dim_data(path, ilines, xlines, samples, ilines_offset,
+                    xlines_offset, samples_offset, ilines_step, xlines_step, samples_step)
