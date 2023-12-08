@@ -51,7 +51,7 @@ float Axis::to_sample_position(float coordinate) noexcept(false) {
     return this->m_axis_descriptor.CoordinateToSamplePosition(coordinate);
 }
 
-void Axis::validate_compatible(Axis const& other) noexcept(false) {
+void Axis::equal_properties(Axis const& other) noexcept(false) {
 
     if (this->nsamples() != other.nsamples()) {
         throw detail::bad_request(
