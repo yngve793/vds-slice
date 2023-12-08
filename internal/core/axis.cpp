@@ -80,28 +80,16 @@ void Axis::equal_properties(Axis const& other) noexcept(false) {
     // Stepsize is a data integrity check.
     // If min,max and nsamples are equal stepsize is equal for consistent data.
     if (this->stepsize() != other.stepsize()) {
-        throw detail::bad_request(
-            "Axis: " + this->name() +
-            ": Mismatch in stepsize: " +
-            std::to_string(this->stepsize()) +
-            " != " + std::to_string(other.stepsize()));
+        throw detail::bad_request("Mismatch in axis: " + this->name());
     }
 
     if (this->unit() != other.unit()) {
-        throw detail::bad_request(
-            "Axis: " + this->name() +
-            ": Mismatch in unit: " +
-            this->unit() +
-            " != " + other.unit());
+        throw detail::bad_request("Mismatch in axis: " + this->name());
     }
 
     // Ignore order of dimensions
 
     if (this->name() != other.name()) {
-        throw detail::bad_request(
-            "Axis: " + this->name() +
-            ": Mismatch in name: " +
-            this->name() +
-            " != " + other.name());
+        throw detail::bad_request("Mismatch in axis: " + this->name());
     }
 }
