@@ -68,7 +68,7 @@ SingleDataSource* make_single_datasource(
 DoubleDataSource::DoubleDataSource(
     const char* url_A, const char* credentials_A,
     const char* url_B, const char* credentials_B,
-    void (*binary_operator)(float*, const float*, std::size_t) noexcept(true)
+    binary_function binary_operator
 ) {
     this->handle_A = make_single_datasource(url_A, credentials_A);
     this->handle_B = make_single_datasource(url_B, credentials_B);
@@ -165,7 +165,7 @@ DoubleDataSource* make_double_datasource(
     const char* credentials_A,
     const char* url_B,
     const char* credentials_B,
-    void (*binary_operator)(float*, const float*, std::size_t) noexcept(true)
+    binary_function binary_operator
 ) noexcept(false) {
     return new DoubleDataSource(url_A, credentials_A, url_B, credentials_B, binary_operator);
 }
