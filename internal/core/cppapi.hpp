@@ -6,7 +6,6 @@
 #include "ctypes.h"
 
 #include "attribute.hpp"
-#include "datahandle.hpp"
 #include "datasource.hpp"
 #include "direction.hpp"
 #include "regularsurface.hpp"
