@@ -19,14 +19,13 @@ target_link_libraries(cppcoretests
   PRIVATE GTest::gmock_main
 )
 
-configure_file(../../testdata/10_samples/10_samples_default.vds 10_samples_default.vds COPYONLY)
-configure_file(../../testdata/dimensions_data/dimensions_data_il_10_xl_20_s_30.vds . COPYONLY)
-configure_file(../../testdata/dimensions_data/dimensions_data_il_11_xl_20_s_30.vds . COPYONLY)
-configure_file(../../testdata/dimensions_data/dimensions_data_il_10_xl_21_s_30.vds . COPYONLY)
-configure_file(../../testdata/dimensions_data/dimensions_data_il_10_xl_20_s_31.vds . COPYONLY)
-configure_file(../../testdata/dimensions_data/dimensions_data_il_10_xl_20_s_30_offset.vds . COPYONLY)
-configure_file(../../testdata/dimensions_data/dimensions_data_il_10_xl_20_s_30_stepsize.vds . COPYONLY)
-configure_file(../../testdata/dimensions_data/dimensions_data_il_10_xl_20_s_30_double.vds . COPYONLY)
+configure_file(../../testdata/10_samples/10_samples_default.vds . COPYONLY)
+configure_file(../../testdata/10_samples/10_missing_iline.vds . COPYONLY)
+configure_file(../../testdata/10_samples/10_missing_samples.vds . COPYONLY)
+configure_file(../../testdata/10_samples/10_missing_xline.vds . COPYONLY)
+configure_file(../../testdata/10_samples/10_double_value.vds . COPYONLY)
+configure_file(../../testdata/10_samples/10_miss_offset.vds . COPYONLY)
+configure_file(../../testdata/10_samples/10_miss_stepsize.vds . COPYONLY)
 
 include(GoogleTest)
 gtest_discover_tests(cppcoretests)
