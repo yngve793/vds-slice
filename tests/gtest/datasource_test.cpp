@@ -44,7 +44,7 @@ protected:
         RegularSurface(bottom_surface_data.data(), nrows, ncols, default_grid, fill);
 
     void SetUp() override {
-        datasource_A = make_single_datasource(
+        datasource_reference = make_single_datasource(
             DEFAULT_DATA.c_str(),
             CREDENTIALS.c_str()
         );
@@ -55,16 +55,16 @@ protected:
             bottom_surface_data[i] = 29.0;
         };
 
-        subvolume_A = make_subvolume(
-            datasource_A->get_metadata(), primary_surface, top_surface, bottom_surface
+        subvolume_reference = make_subvolume(
+            datasource_reference->get_metadata(), primary_surface, top_surface, bottom_surface
         );
 
-        cppapi::fetch_subvolume(*datasource_A, *subvolume_A, NEAREST, 0, size);
+        cppapi::fetch_subvolume(*datasource_reference, *subvolume_reference, NEAREST, 0, size);
     }
 
     void TearDown() override {
-        delete subvolume_A;
-        delete datasource_A;
+        delete subvolume_reference;
+        delete datasource_reference;
     }
 };
 
@@ -181,10 +181,10 @@ TEST_F(DataSourceTest, Addition) {
     int compared_values = 0;
     for (int i = 0; i < size; ++i) {
         RawSegment rs = subvolume->vertical_segment(i);
-        RawSegment rs_A = subvolume_A->vertical_segment(i);
+        RawSegment rs_ref = subvolume_reference->vertical_segment(i);
 
-        for (auto it = rs.begin(), a_it = rs_A.begin();
-             it != rs.end() && a_it != rs_A.end();
+        for (auto it = rs.begin(), a_it = rs_ref.begin();
+             it != rs.end() && a_it != rs_ref.end();
              ++it, ++a_it) {
             compared_values++;
             EXPECT_NEAR(*it, *a_it * 3, DELTA) << "at segment " << i << " at position in data " << std::distance(rs.begin(), it);
@@ -215,10 +215,10 @@ TEST_F(DataSourceTest, Multiplication) {
     int compared_values = 0;
     for (int i = 0; i < size; ++i) {
         RawSegment rs = subvolume->vertical_segment(i);
-        RawSegment rs_A = subvolume_A->vertical_segment(i);
+        RawSegment rs_ref = subvolume_reference->vertical_segment(i);
 
-        for (auto it = rs.begin(), a_it = rs_A.begin();
-             it != rs.end() && a_it != rs_A.end();
+        for (auto it = rs.begin(), a_it = rs_ref.begin();
+             it != rs.end() && a_it != rs_ref.end();
              ++it, ++a_it) {
             compared_values++;
             EXPECT_NEAR(*it, 2 * (*a_it) * (*a_it), DELTA) << "at segment " << i << " at position in data " << std::distance(rs.begin(), it);
@@ -247,10 +247,10 @@ TEST_F(DataSourceTest, Division) {
     int compared_values = 0;
     for (int i = 0; i < size; ++i) {
         RawSegment rs = subvolume->vertical_segment(i);
-        RawSegment rs_A = subvolume_A->vertical_segment(i);
+        RawSegment rs_ref = subvolume_reference->vertical_segment(i);
 
-        for (auto it = rs.begin(), a_it = rs_A.begin();
-             it != rs.end() && a_it != rs_A.end();
+        for (auto it = rs.begin(), a_it = rs_ref.begin();
+             it != rs.end() && a_it != rs_ref.end();
              ++it, ++a_it) {
             compared_values++;
             EXPECT_NEAR(*it, 0.5, DELTA) << "at segment " << i << " at position in data " << std::distance(rs.begin(), it);
@@ -279,10 +279,10 @@ TEST_F(DataSourceTest, Subtraction) {
     int compared_values = 0;
     for (int i = 0; i < size; ++i) {
         RawSegment rs = subvolume->vertical_segment(i);
-        RawSegment rs_A = subvolume_A->vertical_segment(i);
+        RawSegment rs_ref = subvolume_reference->vertical_segment(i);
 
-        for (auto it = rs.begin(), a_it = rs_A.begin();
-             it != rs.end() && a_it != rs_A.end();
+        for (auto it = rs.begin(), a_it = rs_ref.begin();
+             it != rs.end() && a_it != rs_ref.end();
              ++it, ++a_it) {
             compared_values++;
             EXPECT_NEAR(*it, -*a_it, DELTA) << "at segment " << i << " at position in data " << std::distance(rs.begin(), it);
@@ -311,10 +311,10 @@ TEST_F(DataSourceTest, SubtractionReverse) {
     int compared_values = 0;
     for (int i = 0; i < size; ++i) {
         RawSegment rs = subvolume->vertical_segment(i);
-        RawSegment rs_A = subvolume_A->vertical_segment(i);
+        RawSegment rs_ref = subvolume_reference->vertical_segment(i);
 
-        for (auto it = rs.begin(), a_it = rs_A.begin();
-             it != rs.end() && a_it != rs_A.end();
+        for (auto it = rs.begin(), a_it = rs_ref.begin();
+             it != rs.end() && a_it != rs_ref.end();
              ++it, ++a_it) {
             compared_values++;
             EXPECT_NEAR(*it, *a_it, DELTA) << "at segment " << i << " at position in data " << std::distance(rs.begin(), it);
