@@ -187,7 +187,7 @@ TEST_F(DataSourceTest, Addition) {
              it != rs.end() && a_it != rs_A.end();
              ++it, ++a_it) {
             compared_values++;
-            EXPECT_NEAR(*it, *a_it * 3, DELTA);
+            EXPECT_NEAR(*it, *a_it * 3, DELTA) << "at segment " << i << " at position in data " << std::distance(rs.begin(), it);
         }
     }
     EXPECT_EQ(compared_values, size * EXPECTED_TRACE_LENGTH);
@@ -221,7 +221,7 @@ TEST_F(DataSourceTest, Multiplication) {
              it != rs.end() && a_it != rs_A.end();
              ++it, ++a_it) {
             compared_values++;
-            EXPECT_NEAR(*it, 2 * (*a_it) * (*a_it), DELTA);
+            EXPECT_NEAR(*it, 2 * (*a_it) * (*a_it), DELTA) << "at segment " << i << " at position in data " << std::distance(rs.begin(), it);
         }
     }
     EXPECT_EQ(compared_values, size * EXPECTED_TRACE_LENGTH);
@@ -253,7 +253,7 @@ TEST_F(DataSourceTest, Division) {
              it != rs.end() && a_it != rs_A.end();
              ++it, ++a_it) {
             compared_values++;
-            EXPECT_NEAR(*it, 0.5, DELTA);
+            EXPECT_NEAR(*it, 0.5, DELTA) << "at segment " << i << " at position in data " << std::distance(rs.begin(), it);
         }
     }
     EXPECT_EQ(compared_values, size * EXPECTED_TRACE_LENGTH);
@@ -285,7 +285,7 @@ TEST_F(DataSourceTest, Subtraction) {
              it != rs.end() && a_it != rs_A.end();
              ++it, ++a_it) {
             compared_values++;
-            EXPECT_NEAR(*it, -*a_it, DELTA);
+            EXPECT_NEAR(*it, -*a_it, DELTA) << "at segment " << i << " at position in data " << std::distance(rs.begin(), it);
         }
     }
     EXPECT_EQ(compared_values, size * EXPECTED_TRACE_LENGTH);
@@ -317,7 +317,7 @@ TEST_F(DataSourceTest, SubtractionReverse) {
              it != rs.end() && a_it != rs_A.end();
              ++it, ++a_it) {
             compared_values++;
-            EXPECT_NEAR(*it, *a_it, DELTA);
+            EXPECT_NEAR(*it, *a_it, DELTA) << "at segment " << i << " at position in data " << std::distance(rs.begin(), it);
         }
     }
     EXPECT_EQ(compared_values, size * EXPECTED_TRACE_LENGTH);
