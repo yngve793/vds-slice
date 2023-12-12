@@ -5,6 +5,7 @@
 
 #include <OpenVDS/IJKCoordinateTransformer.h>
 #include <OpenVDS/KnownMetadata.h>
+#include "utils.hpp"
 
 
 Axis::Axis(
@@ -57,24 +58,24 @@ void Axis::equal_properties(Axis const& other) noexcept(false) {
         throw detail::bad_request(
             "Axis: " + this->name() +
             ": Mismatch in number of samples: " +
-            std::to_string(this->nsamples()) +
-            " != " + std::to_string(other.nsamples()));
+            utils::to_string_with_precision(this->nsamples()) +
+            " != " + utils::to_string_with_precision(other.nsamples()));
     }
 
     if (this->min() != other.min()) {
         throw detail::bad_request(
             "Axis: " + this->name() +
             ": Mismatch in min value: " +
-            std::to_string(this->min()) +
-            " != " + std::to_string(other.min()));
+            utils::to_string_with_precision(this->min()) +
+            " != " + utils::to_string_with_precision(other.min()));
     }
 
     if (this->max() != other.max()) {
         throw detail::bad_request(
             "Axis: " + this->name() +
             ": Mismatch in max value: " +
-            std::to_string(this->max()) +
-            " != " + std::to_string(other.max()));
+            utils::to_string_with_precision(this->max()) +
+            " != " + utils::to_string_with_precision(other.max()));
     }
 
     // Stepsize is a data integrity check.
