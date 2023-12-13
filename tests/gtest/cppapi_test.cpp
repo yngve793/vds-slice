@@ -5,10 +5,12 @@
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "direction.hpp"
 
 namespace
 {
 const std::string SAMPLES_10 = "file://10_samples_default.vds";
+const std::string SAMPLES_10_x2 = "file://10_double_value.vds";
 const std::string CREDENTIALS = "";
 
 Grid samples_10_grid = Grid(2, 0, 7.2111, 3.6056, 33.69);
@@ -677,6 +679,176 @@ TEST_F(SurfaceAlignmentTest, IntersectingSurfaces)
         [&]() { cppapi::align_surfaces(primary, secondary, aligned, &primary_is_top); },
         testing::ThrowsMessage<std::runtime_error>(
             testing::HasSubstr("Surfaces intersect at primary surface point (2, 0)")));
+}
+
+void inplace_subtraction(float* buffer_A, const float* buffer_B, std::size_t nsamples) noexcept(true) {
+    for (std::size_t i = 0; i < nsamples; i++) {
+        buffer_A[i] -= buffer_B[i];
+    }
+}
+
+class FenceFunctionTest : public ::testing::Test {
+protected:
+    void SetUp() override {
+        datasource = make_single_datasource(SAMPLES_10.c_str(), CREDENTIALS.c_str());
+        datasourceDouble = make_double_datasource(
+            SAMPLES_10.c_str(),
+            CREDENTIALS.c_str(),
+            SAMPLES_10_x2.c_str(),
+            CREDENTIALS.c_str(),
+            &inplace_subtraction
+        );
+    }
+
+    void TearDown() override {
+        delete datasource;
+        delete datasourceDouble;
+    }
+
+    SingleDataSource* datasource;
+    DoubleDataSource* datasourceDouble;
+};
+
+TEST_F(FenceFunctionTest, RequestingFenceData) {
+
+    const coordinate_system c_system = coordinate_system::INDEX;
+    const std::vector<float> coordinates{1, 1, 2, 1};
+    const int coordinate_size = int(coordinates.size() / 2);
+    const enum interpolation_method interpolation = NEAREST;
+    const float fill = -999.25;
+    struct response fence_response;
+
+    const std::vector<float> expected{
+        25.5, 0.5, 2.5, 4.5, 6.5, 8.5, 10.5, 12.5, 14.5, 25.5,
+        25.5, -4.5, -8.5, -12.5, -16.5, -20.5, -24.5, -20.5, -16.5, -8.5
+    };
+
+    cppapi::fence(
+        *datasource,
+        c_system,
+        coordinates.data(),
+        coordinate_size,
+        interpolation,
+        &fill,
+        &fence_response
+    );
+
+    std::vector<float> fence_data(fence_response.size / sizeof(float));
+    std::memcpy(fence_data.data(), fence_response.data, fence_response.size * sizeof(float));
+
+    for (int i = 0; i < fence_data.size(); ++i) {
+        EXPECT_EQ(fence_data[i], expected[i]) << "Unexpected value at index " << i;
+    }
+}
+
+TEST_F(FenceFunctionTest, RequestingFenceDataSubtract) {
+
+    const coordinate_system c_system = coordinate_system::INDEX;
+    const std::vector<float> coordinates{1, 1, 2, 1};
+    const int coordinate_size = int(coordinates.size() / 2);
+    const enum interpolation_method interpolation = NEAREST;
+    const float fill = -999.25;
+    struct response fence_response;
+
+    const std::vector<float> expected{
+        25.5, 0.5, 2.5, 4.5, 6.5, 8.5, 10.5, 12.5, 14.5, 25.5,
+        25.5, -4.5, -8.5, -12.5, -16.5, -20.5, -24.5, -20.5, -16.5, -8.5
+    };
+
+    cppapi::fence(
+        *datasourceDouble,
+        c_system,
+        coordinates.data(),
+        coordinate_size,
+        interpolation,
+        &fill,
+        &fence_response
+    );
+
+    std::vector<float> fence_data(fence_response.size / sizeof(float));
+    std::memcpy(fence_data.data(), fence_response.data, fence_response.size * sizeof(float));
+
+    for (int i = 0; i < fence_data.size(); ++i) {
+        EXPECT_EQ(fence_data[i], -expected[i]) << "Unexpected value at index " << i;
+    }
+}
+
+class SliceFunctionTest : public ::testing::Test {
+protected:
+    void SetUp() override {
+        datasource = make_single_datasource(SAMPLES_10.c_str(), CREDENTIALS.c_str());
+        datasourceDouble = make_double_datasource(
+            SAMPLES_10.c_str(),
+            CREDENTIALS.c_str(),
+            SAMPLES_10_x2.c_str(),
+            CREDENTIALS.c_str(),
+            &inplace_subtraction
+        );
+    }
+
+    void TearDown() override {
+        delete datasource;
+        delete datasourceDouble;
+    }
+
+    SingleDataSource* datasource;
+    DoubleDataSource* datasourceDouble;
+};
+
+TEST_F(SliceFunctionTest, RequestingSliceData) {
+    const Direction direction(axis_name::K);
+    const int lineno = 4;
+    std::vector<Bound> slice_bounds;
+    slice_bounds.push_back(Bound{0, 2, axis_name::I});
+    struct response* slice_resp;
+
+    const std::vector<float> expected{
+        -0.5, 0.5, -8.5,
+        6.5, 16.5, -16.5
+    };
+
+    cppapi::slice(
+        *datasource,
+        direction,
+        lineno,
+        slice_bounds,
+        slice_resp
+    );
+
+    std::vector<float> slice_response(slice_resp->size / sizeof(float));
+    std::memcpy(slice_response.data(), slice_resp->data, slice_resp->size);
+
+    for (int i = 0; i < slice_response.size(); ++i) {
+        EXPECT_EQ(slice_response[i], expected[i]) << "Unexpected value at index " << i;
+    }
+}
+
+TEST_F(SliceFunctionTest, RequestingSliceDataSubtraction) {
+    const Direction direction(axis_name::K);
+    const int lineno = 4;
+    std::vector<Bound> slice_bounds;
+    slice_bounds.push_back(Bound{0, 2, axis_name::I});
+    struct response* slice_resp;
+
+    const std::vector<float> expected{
+        -0.5, 0.5, -8.5,
+        6.5, 16.5, -16.5
+    };
+
+    cppapi::slice(
+        *datasourceDouble,
+        direction,
+        lineno,
+        slice_bounds,
+        slice_resp
+    );
+
+    std::vector<float> slice_response(slice_resp->size / sizeof(float));
+    std::memcpy(slice_response.data(), slice_resp->data, slice_resp->size);
+
+    for (int i = 0; i < slice_response.size(); ++i) {
+        EXPECT_EQ(slice_response[i], -expected[i]) << "Unexpected value at index " << i;
+    }
 }
 
 } // namespace
