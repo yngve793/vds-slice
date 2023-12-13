@@ -707,22 +707,21 @@ protected:
 
     SingleDataSource* datasource;
     DoubleDataSource* datasourceDouble;
-};
-
-TEST_F(FenceFunctionTest, RequestingFenceData) {
 
     const coordinate_system c_system = coordinate_system::INDEX;
     const std::vector<float> coordinates{1, 1, 2, 1};
     const int coordinate_size = int(coordinates.size() / 2);
     const enum interpolation_method interpolation = NEAREST;
     const float fill = -999.25;
-    struct response fence_response;
 
     const std::vector<float> expected{
         25.5, 0.5, 2.5, 4.5, 6.5, 8.5, 10.5, 12.5, 14.5, 25.5,
         25.5, -4.5, -8.5, -12.5, -16.5, -20.5, -24.5, -20.5, -16.5, -8.5
     };
+};
 
+TEST_F(FenceFunctionTest, RequestingFenceData) {
+    struct response response_data;
     cppapi::fence(
         *datasource,
         c_system,
@@ -730,30 +729,20 @@ TEST_F(FenceFunctionTest, RequestingFenceData) {
         coordinate_size,
         interpolation,
         &fill,
-        &fence_response
+        &response_data
     );
 
-    std::vector<float> fence_data(fence_response.size / sizeof(float));
-    std::memcpy(fence_data.data(), fence_response.data, fence_response.size * sizeof(float));
-
-    for (int i = 0; i < fence_data.size(); ++i) {
-        EXPECT_EQ(fence_data[i], expected[i]) << "Unexpected value at index " << i;
+    std::size_t nr_of_values = (std::size_t)(response_data.size / sizeof(float));
+    for (int i = 0; i < nr_of_values; ++i) {
+        EXPECT_EQ(*(float*)&response_data.data[i * sizeof(float)], expected[i]) << "Unexpected value at index " << i;
     }
+
+    EXPECT_EQ(nr_of_values, expected.size());
 }
 
 TEST_F(FenceFunctionTest, RequestingFenceDataSubtract) {
 
-    const coordinate_system c_system = coordinate_system::INDEX;
-    const std::vector<float> coordinates{1, 1, 2, 1};
-    const int coordinate_size = int(coordinates.size() / 2);
-    const enum interpolation_method interpolation = NEAREST;
-    const float fill = -999.25;
-    struct response fence_response;
-
-    const std::vector<float> expected{
-        25.5, 0.5, 2.5, 4.5, 6.5, 8.5, 10.5, 12.5, 14.5, 25.5,
-        25.5, -4.5, -8.5, -12.5, -16.5, -20.5, -24.5, -20.5, -16.5, -8.5
-    };
+    struct response response_data;
 
     cppapi::fence(
         *datasourceDouble,
@@ -762,15 +751,15 @@ TEST_F(FenceFunctionTest, RequestingFenceDataSubtract) {
         coordinate_size,
         interpolation,
         &fill,
-        &fence_response
+        &response_data
     );
 
-    std::vector<float> fence_data(fence_response.size / sizeof(float));
-    std::memcpy(fence_data.data(), fence_response.data, fence_response.size * sizeof(float));
-
-    for (int i = 0; i < fence_data.size(); ++i) {
-        EXPECT_EQ(fence_data[i], -expected[i]) << "Unexpected value at index " << i;
+    std::size_t nr_of_values = (std::size_t)(response_data.size / sizeof(float));
+    for (int i = 0; i < nr_of_values; ++i) {
+        EXPECT_EQ(*(float*)&response_data.data[i * sizeof(float)], -expected[i]) << "Unexpected value at index " << i;
     }
+
+    EXPECT_EQ(nr_of_values, expected.size());
 }
 
 class SliceFunctionTest : public ::testing::Test {
@@ -793,62 +782,54 @@ protected:
 
     SingleDataSource* datasource;
     DoubleDataSource* datasourceDouble;
-};
-
-TEST_F(SliceFunctionTest, RequestingSliceData) {
-    const Direction direction(axis_name::K);
     const int lineno = 4;
     std::vector<Bound> slice_bounds;
-    slice_bounds.push_back(Bound{0, 2, axis_name::I});
-    struct response* slice_resp;
-
     const std::vector<float> expected{
         -0.5, 0.5, -8.5,
         6.5, 16.5, -16.5
     };
+};
+
+TEST_F(SliceFunctionTest, RequestingSliceData) {
+    const Direction direction(axis_name::K);
+    slice_bounds.push_back(Bound{0, 2, axis_name::I});
+    struct response response_data;
 
     cppapi::slice(
         *datasource,
         direction,
         lineno,
         slice_bounds,
-        slice_resp
+        &response_data
     );
 
-    std::vector<float> slice_response(slice_resp->size / sizeof(float));
-    std::memcpy(slice_response.data(), slice_resp->data, slice_resp->size);
-
-    for (int i = 0; i < slice_response.size(); ++i) {
-        EXPECT_EQ(slice_response[i], expected[i]) << "Unexpected value at index " << i;
+    std::size_t nr_of_values = (std::size_t)(response_data.size / sizeof(float));
+    for (int i = 0; i < nr_of_values; ++i) {
+        EXPECT_EQ(*(float*)&response_data.data[i * sizeof(float)], expected[i]) << "Unexpected value at index " << i;
     }
+
+    EXPECT_EQ(nr_of_values, expected.size());
 }
 
 TEST_F(SliceFunctionTest, RequestingSliceDataSubtraction) {
     const Direction direction(axis_name::K);
-    const int lineno = 4;
-    std::vector<Bound> slice_bounds;
     slice_bounds.push_back(Bound{0, 2, axis_name::I});
-    struct response* slice_resp;
-
-    const std::vector<float> expected{
-        -0.5, 0.5, -8.5,
-        6.5, 16.5, -16.5
-    };
+    struct response response_data;
 
     cppapi::slice(
         *datasourceDouble,
         direction,
         lineno,
         slice_bounds,
-        slice_resp
+        &response_data
     );
 
-    std::vector<float> slice_response(slice_resp->size / sizeof(float));
-    std::memcpy(slice_response.data(), slice_resp->data, slice_resp->size);
-
-    for (int i = 0; i < slice_response.size(); ++i) {
-        EXPECT_EQ(slice_response[i], -expected[i]) << "Unexpected value at index " << i;
+    std::size_t nr_of_values = (std::size_t)(response_data.size / sizeof(float));
+    for (int i = 0; i < nr_of_values; ++i) {
+        EXPECT_EQ(*(float*)&response_data.data[i * sizeof(float)], -expected[i]) << "Unexpected value at index " << i;
     }
+
+    EXPECT_EQ(nr_of_values, expected.size());
 }
 
 } // namespace
