@@ -97,7 +97,7 @@ MetadataHandle const& DoubleDataSource::get_metadata() const noexcept(true) {
 std::int64_t DoubleDataSource::samples_buffer_size(std::size_t const nsamples) noexcept(false) {
     // Be aware that asking both sources may cost some time
     std::int64_t size_a = this->handle_A->samples_buffer_size(nsamples);
-    std::int64_t size_b = this->handle_A->samples_buffer_size(nsamples);
+    std::int64_t size_b = this->handle_B->samples_buffer_size(nsamples);
     if (size_a != size_b) {
         throw detail::bad_request("Mismatch in sample buffer size");
     }
@@ -123,7 +123,7 @@ void DoubleDataSource::read_samples(
 std::int64_t DoubleDataSource::subcube_buffer_size(SubCube const& subcube) noexcept(false) {
     // Be aware that asking both sources may cost some time
     std::int64_t size_a = this->handle_A->subcube_buffer_size(subcube);
-    std::int64_t size_b = this->handle_A->subcube_buffer_size(subcube);
+    std::int64_t size_b = this->handle_B->subcube_buffer_size(subcube);
     if (size_a != size_b) {
         throw detail::bad_request("Mismatch in subcube buffer size");
     }
