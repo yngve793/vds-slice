@@ -46,8 +46,6 @@ def create_10_samples(path, samples, ilines, xlines, factor):
         [25.5,  -4.5,  -8.5, -12.5, -16.5, -20.5, -24.5, -20.5, -16.5,  -8.5],
     ]
 
-    # data = np.array(data)
-
     with segyio.create(path + ".segy", spec) as f:
         tr = 0
         for il in spec.ilines:
@@ -73,8 +71,7 @@ def create_10_samples(path, samples, ilines, xlines, factor):
 
 
 if __name__ == "__main__":
-    # path = sys.argv[1]
-    parameters = [  # { "path":"default", "samples":[4, 8, 12, 16, 20, 24, 28, 32, 36, 40],"ilines":[1, 3, 5], "xlines":[10, 11], "factor":1},
+    parameters = [
         {"path": "10_missing_iline", "samples": [4, 8, 12, 16, 20, 24, 28, 32, 36, 40], "ilines": [
             1, 3], "xlines": [10, 11], "factor": 1},
         {"path": "10_missing_samples", "samples": [4, 8, 12, 16, 20, 24, 28, 32], "ilines": [
