@@ -691,7 +691,7 @@ class FenceFunctionTest : public ::testing::Test {
 protected:
     void SetUp() override {
         datasource = make_single_datasource(SAMPLES_10.c_str(), CREDENTIALS.c_str());
-        datasourceDouble = make_double_datasource(
+        double_datasource = make_double_datasource(
             SAMPLES_10.c_str(),
             CREDENTIALS.c_str(),
             SAMPLES_10_x2.c_str(),
@@ -702,11 +702,11 @@ protected:
 
     void TearDown() override {
         delete datasource;
-        delete datasourceDouble;
+        delete double_datasource;
     }
 
     SingleDataSource* datasource;
-    DoubleDataSource* datasourceDouble;
+    DoubleDataSource* double_datasource;
 
     const coordinate_system c_system = coordinate_system::INDEX;
     const std::vector<float> coordinates{1, 1, 2, 1};
@@ -745,7 +745,7 @@ TEST_F(FenceFunctionTest, RequestingFenceDataSubtract) {
     struct response response_data;
 
     cppapi::fence(
-        *datasourceDouble,
+        *double_datasource,
         c_system,
         coordinates.data(),
         coordinate_size,
@@ -766,7 +766,7 @@ class SliceFunctionTest : public ::testing::Test {
 protected:
     void SetUp() override {
         datasource = make_single_datasource(SAMPLES_10.c_str(), CREDENTIALS.c_str());
-        datasourceDouble = make_double_datasource(
+        double_datasource = make_double_datasource(
             SAMPLES_10.c_str(),
             CREDENTIALS.c_str(),
             SAMPLES_10_x2.c_str(),
@@ -777,11 +777,11 @@ protected:
 
     void TearDown() override {
         delete datasource;
-        delete datasourceDouble;
+        delete double_datasource;
     }
 
     SingleDataSource* datasource;
-    DoubleDataSource* datasourceDouble;
+    DoubleDataSource* double_datasource;
     const int lineno = 4;
     std::vector<Bound> slice_bounds;
     const std::vector<float> expected{
@@ -817,7 +817,7 @@ TEST_F(SliceFunctionTest, RequestingSliceDataSubtraction) {
     struct response response_data;
 
     cppapi::slice(
-        *datasourceDouble,
+        *double_datasource,
         direction,
         lineno,
         slice_bounds,
