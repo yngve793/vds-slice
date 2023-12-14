@@ -170,7 +170,7 @@ void DoubleMetadataHandle::validate_metadata() const noexcept(false) {
             std::to_string(this->m_handle_B->get_layout()->GetDimensionality())
         );
     }
-    this->m_handle_A->iline().equal_properties(this->m_handle_B->iline());
-    this->m_handle_A->xline().equal_properties(this->m_handle_B->xline());
-    this->m_handle_A->sample().equal_properties(this->m_handle_B->sample());
+    this->m_handle_A->iline().assert_equal(this->m_handle_B->iline());
+    this->m_handle_A->xline().assert_equal(this->m_handle_B->xline());
+    this->m_handle_A->sample().assert_equal(this->m_handle_B->sample());
 }
