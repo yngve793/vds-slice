@@ -10,6 +10,7 @@
 #include "direction.hpp"
 
 class MetadataHandle {
+    friend class DoubleMetadataHandle;
 public:
     virtual Axis iline() const noexcept(true) = 0;
     virtual Axis xline() const noexcept(true) = 0;
@@ -75,7 +76,8 @@ public:
 
     OpenVDS::IJKCoordinateTransformer coordinate_transformer() const noexcept(false);
     OpenVDS::VolumeDataLayout const* const get_layout() const noexcept(false);
-
+protected:
+    void dimension_validation() const;
 private:
     MetadataHandle const* m_handle_A;
     MetadataHandle const* m_handle_B;

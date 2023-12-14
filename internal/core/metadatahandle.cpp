@@ -157,19 +157,13 @@ OpenVDS::VolumeDataLayout const* const DoubleMetadataHandle::get_layout() const 
     throw std::runtime_error("Not implemented");
 }
 
+void DoubleMetadataHandle::dimension_validation() const {
+    this->m_handle_A->dimension_validation();
+    this->m_handle_B->dimension_validation();
+}
+
 void DoubleMetadataHandle::validate_metadata() const noexcept(false) {
-    if (this->m_handle_A->get_layout()->GetDimensionality() != 3) {
-        throw std::runtime_error(
-            "Unsupported VDS, expected 3 dimensions, got " +
-            std::to_string(this->m_handle_A->get_layout()->GetDimensionality())
-        );
-    }
-    if (this->m_handle_B->get_layout()->GetDimensionality() != 3) {
-        throw std::runtime_error(
-            "Unsupported VDS, expected 3 dimensions, got " +
-            std::to_string(this->m_handle_B->get_layout()->GetDimensionality())
-        );
-    }
+    this->dimension_validation();
     this->m_handle_A->iline().assert_equal(this->m_handle_B->iline());
     this->m_handle_A->xline().assert_equal(this->m_handle_B->xline());
     this->m_handle_A->sample().assert_equal(this->m_handle_B->sample());
