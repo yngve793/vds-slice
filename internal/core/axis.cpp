@@ -55,27 +55,15 @@ float Axis::to_sample_position(float coordinate) noexcept(false) {
 void Axis::assert_equal(Axis const& other) noexcept(false) {
 
     if (this->nsamples() != other.nsamples()) {
-        throw detail::bad_request(
-            "Axis: " + this->name() +
-            ": Mismatch in number of samples: " +
-            utils::to_string_with_precision(this->nsamples()) +
-            " != " + utils::to_string_with_precision(other.nsamples()));
+        throw detail::bad_request("Mismatch in axis: " + this->name());
     }
 
     if (this->min() != other.min()) {
-        throw detail::bad_request(
-            "Axis: " + this->name() +
-            ": Mismatch in min value: " +
-            utils::to_string_with_precision(this->min()) +
-            " != " + utils::to_string_with_precision(other.min()));
+        throw detail::bad_request("Mismatch in axis: " + this->name());
     }
 
     if (this->max() != other.max()) {
-        throw detail::bad_request(
-            "Axis: " + this->name() +
-            ": Mismatch in max value: " +
-            utils::to_string_with_precision(this->max()) +
-            " != " + utils::to_string_with_precision(other.max()));
+        throw detail::bad_request("Mismatch in axis: " + this->name());
     }
 
     // Stepsize is a data integrity check.

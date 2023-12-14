@@ -73,7 +73,7 @@ protected:
 };
 
 TEST_F(DataSourceTest, ILineMismatch) {
-    const std::string EXPECTED_MSG = "Axis: Inline: Mismatch in number of samples: 3 != 2";
+    const std::string EXPECTED_MSG = "Mismatch in axis: Inline";
 
     EXPECT_THAT([&]() {         
             DoubleDataSource *datasource = make_double_datasource(
@@ -86,7 +86,7 @@ TEST_F(DataSourceTest, ILineMismatch) {
 }
 
 TEST_F(DataSourceTest, XLineMismatch) {
-    const std::string EXPECTED_MSG = "Axis: Crossline: Mismatch in number of samples: 2 != 1";
+    const std::string EXPECTED_MSG = "Mismatch in axis: Crossline";
 
     EXPECT_THAT([&]() {         
             DoubleDataSource *datasource = make_double_datasource(
@@ -99,7 +99,7 @@ TEST_F(DataSourceTest, XLineMismatch) {
 }
 
 TEST_F(DataSourceTest, SamplesMismatch) {
-    const std::string EXPECTED_MSG = "Axis: Sample: Mismatch in number of samples: 10 != 8";
+    const std::string EXPECTED_MSG = "Mismatch in axis: Sample";
 
     EXPECT_THAT([&]() {         
             DoubleDataSource *datasource = make_double_datasource(
@@ -112,7 +112,7 @@ TEST_F(DataSourceTest, SamplesMismatch) {
 }
 
 TEST_F(DataSourceTest, OffsetMismatch) {
-    const std::string EXPECTED_MSG = "Axis: Crossline: Mismatch in min value: 10.00 != 12.00";
+    const std::string EXPECTED_MSG = "Mismatch in axis: Crossline";
 
     EXPECT_THAT([&]() {         
             DoubleDataSource *datasource = make_double_datasource(
@@ -126,7 +126,7 @@ TEST_F(DataSourceTest, OffsetMismatch) {
 
 TEST_F(DataSourceTest, StepSizeMismatch) {
     // Changing the stepsize causes the max value to change. Max value is checked before stepsize.
-    const std::string EXPECTED_MSG = "Axis: Inline: Mismatch in max value: 5.00 != 7.00";
+    const std::string EXPECTED_MSG = "Mismatch in axis: Inline";
 
     EXPECT_THAT([&]() {         
             DoubleDataSource *datasource = make_double_datasource(
