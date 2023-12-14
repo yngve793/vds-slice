@@ -92,9 +92,6 @@ public:
         const char *url_B,
         const char *credentials_B,
         binary_function binary_operator);
-        // bin_op binary_operator);
-        //void (*binary_operator)(float *, const float *, std::size_t) noexcept(true));
-
 
     ~DoubleDataSource();
 
@@ -129,8 +126,6 @@ private:
     DataSource *handle_A;
     DataSource *handle_B;
     MetadataHandle *metadata;
-    // void (*binary_operator)(float *, const float *, std::size_t) noexcept(true);
-    //bin_op *binary_operator;
     binary_function binary_operator;
 };
 
@@ -140,8 +135,6 @@ DoubleDataSource *make_double_datasource(
     const char *url_B,
     const char *credentials_B,
     binary_function binary_operator);
-    // bin_op *binary_operator);
-    // void (*binary_operator)(float *, const float *, std::size_t) noexcept(true));
 
 void inplace_subtraction(
     float *buffer_A,
