@@ -23,6 +23,8 @@ public:
 
     virtual OpenVDS::IJKCoordinateTransformer coordinate_transformer() const noexcept(false) = 0;
     virtual OpenVDS::VolumeDataLayout const* const get_layout() const noexcept(false) = 0;
+protected:
+    virtual void dimension_validation() const = 0;
 };
 
 class SingleMetadataHandle : public MetadataHandle {
@@ -41,6 +43,8 @@ public:
 
     OpenVDS::IJKCoordinateTransformer coordinate_transformer() const noexcept(false);
     OpenVDS::VolumeDataLayout const* const get_layout() const noexcept(false);
+protected:
+    void dimension_validation() const;
 
 private:
     OpenVDS::VolumeDataLayout const* const m_layout;
@@ -49,7 +53,6 @@ private:
     Axis m_xline;
     Axis m_sample;
 
-    void dimension_validation() const;
     int get_dimension(std::vector<std::string> const& names) const;
 };
 
