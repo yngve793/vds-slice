@@ -147,7 +147,7 @@ std::int64_t DoubleDataSource::traces_buffer_size(
 ) noexcept(false) {
     // Be aware that asking both sources may cost some time
     std::int64_t size_a = this->handle_A->traces_buffer_size(ntraces);
-    std::int64_t size_b = this->handle_A->traces_buffer_size(ntraces);
+    std::int64_t size_b = this->handle_B->traces_buffer_size(ntraces);
     if (size_a != size_b) {
         throw detail::bad_request("Mismatch in trace buffer size");
     }
