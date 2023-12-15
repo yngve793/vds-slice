@@ -149,10 +149,6 @@ OpenVDS::IJKCoordinateTransformer DoubleMetadataHandle::coordinate_transformer()
     throw std::runtime_error("Not implemented");
 }
 
-OpenVDS::VolumeDataLayout const* const DoubleMetadataHandle::get_layout() const noexcept(false) {
-    throw std::runtime_error("Not implemented");
-}
-
 void DoubleMetadataHandle::dimension_validation() const {
     this->m_handle_A->dimension_validation();
     this->m_handle_B->dimension_validation();

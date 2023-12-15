@@ -73,7 +73,6 @@ public:
     std::string import_time_stamp() const noexcept(false);
 
     OpenVDS::IJKCoordinateTransformer coordinate_transformer() const noexcept(false);
-    OpenVDS::VolumeDataLayout const* const get_layout() const noexcept(false);
 protected:
     void dimension_validation() const;
 private:
