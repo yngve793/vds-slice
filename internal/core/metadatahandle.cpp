@@ -70,10 +70,6 @@ OpenVDS::IJKCoordinateTransformer SingleMetadataHandle::coordinate_transformer()
     return OpenVDS::IJKCoordinateTransformer(this->m_layout);
 }
 
-OpenVDS::VolumeDataLayout const* const SingleMetadataHandle::get_layout() const noexcept(false) {
-    return this->m_layout;
-}
-
 void SingleMetadataHandle::dimension_validation() const {
     if (this->m_layout->GetDimensionality() != 3) {
         throw std::runtime_error(

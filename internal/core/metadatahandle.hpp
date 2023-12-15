@@ -23,7 +23,6 @@ public:
     virtual std::string import_time_stamp() const noexcept(false) = 0;
 
     virtual OpenVDS::IJKCoordinateTransformer coordinate_transformer() const noexcept(false) = 0;
-    virtual OpenVDS::VolumeDataLayout const* const get_layout() const noexcept(false) = 0;
 protected:
     virtual void dimension_validation() const = 0;
 };
@@ -43,7 +42,6 @@ public:
     std::string import_time_stamp() const noexcept(false);
 
     OpenVDS::IJKCoordinateTransformer coordinate_transformer() const noexcept(false);
-    OpenVDS::VolumeDataLayout const* const get_layout() const noexcept(false);
 protected:
     void dimension_validation() const;
 
