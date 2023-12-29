@@ -7,52 +7,51 @@
 #include <OpenVDS/KnownMetadata.h>
 #include "utils.hpp"
 
-
-Axis::Axis(
+SingleAxis::SingleAxis(
     OpenVDS::VolumeDataLayout const * const layout,
     int const                               dimension
 ) : m_dimension(dimension),
     m_axis_descriptor(layout->GetAxisDescriptor(dimension))
 {}
 
-float Axis::min() const noexcept(true) {
+float SingleAxis::min() const noexcept(true) {
     return this->m_axis_descriptor.GetCoordinateMin();
 }
 
-float Axis::max() const noexcept(true) {
+float SingleAxis::max() const noexcept(true) {
     return this->m_axis_descriptor.GetCoordinateMax();
 }
 
-int Axis::nsamples() const noexcept(true) {
+int SingleAxis::nsamples() const noexcept(true) {
     return this->m_axis_descriptor.GetNumSamples();
 }
 
-std::string Axis::unit() const noexcept(true) {
+std::string SingleAxis::unit() const noexcept(true) {
     return this->m_axis_descriptor.GetUnit();
 }
 
-int Axis::dimension() const noexcept(true) {
+int SingleAxis::dimension() const noexcept(true) {
     return this->m_dimension;
 }
 
-float Axis::stepsize() const noexcept (true) {
+float SingleAxis::stepsize() const noexcept (true) {
     return (this->max() - this->min()) / (this->nsamples() - 1);
 }
 
-std::string Axis::name() const noexcept(true) {
+std::string SingleAxis::name() const noexcept(true) {
     return this->m_axis_descriptor.GetName();
 }
 
-bool Axis::inrange(float coordinate) const noexcept(true) {
+bool SingleAxis::inrange(float coordinate) const noexcept(true) {
     return (this->min() - 0.5 * this->stepsize()) <= coordinate &&
            (this->max() + 0.5 * this->stepsize()) >  coordinate;
 }
 
-float Axis::to_sample_position(float coordinate) noexcept(false) {
+float SingleAxis::to_sample_position(float coordinate) const noexcept(false) {
     return this->m_axis_descriptor.CoordinateToSamplePosition(coordinate);
 }
 
-void Axis::assert_equal(Axis const& other) noexcept(false) {
+void SingleAxis::assert_equal(Axis const& other) noexcept(false) {
 
     if (this->nsamples() != other.nsamples()) {
         throw detail::bad_request(

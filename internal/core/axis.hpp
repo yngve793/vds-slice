@@ -8,10 +8,28 @@
 
 class Axis {
 public:
-    Axis(
-        OpenVDS::VolumeDataLayout const * const layout,
-        int const dimension
-    );
+    virtual int nsamples() const noexcept(true) = 0;
+
+    virtual float min() const noexcept(true) = 0;
+    virtual float max() const noexcept(true) = 0;
+
+    virtual float stepsize() const noexcept (true) = 0;
+
+    virtual std::string unit() const noexcept(true) = 0;
+    virtual int dimension() const noexcept(true) = 0;
+
+    virtual std::string name() const noexcept (true) = 0;
+
+    virtual bool inrange(float coordinate) const noexcept(true) = 0;
+    virtual float to_sample_position(float coordinate) const noexcept(false) = 0;
+
+    virtual void assert_equal(Axis const& other) noexcept(false) = 0;
+};
+
+class SingleAxis : public Axis {
+
+public:
+    SingleAxis(OpenVDS::VolumeDataLayout const * const layout, int const dimension);
 
     int nsamples() const noexcept(true);
 
@@ -26,7 +44,7 @@ public:
     std::string name() const noexcept (true);
 
     bool inrange(float coordinate) const noexcept(true);
-    float to_sample_position(float coordinate) noexcept(false);
+    float to_sample_position(float coordinate) const noexcept(false);
 
     void assert_equal(Axis const& other) noexcept(false);
 

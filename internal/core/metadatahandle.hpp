@@ -12,10 +12,10 @@
 class MetadataHandle {
     friend class DoubleMetadataHandle;
 public:
-    virtual Axis iline() const noexcept(true) = 0;
-    virtual Axis xline() const noexcept(true) = 0;
-    virtual Axis sample() const noexcept(true) = 0;
-    virtual Axis get_axis(Direction const direction) const noexcept(false) = 0;
+    virtual  Axis& iline() const noexcept(true) = 0;
+    virtual  Axis& xline() const noexcept(true) = 0;
+    virtual  Axis& sample() const noexcept(true) = 0;
+    virtual  Axis& get_axis(Direction const direction) const noexcept(false) = 0;
 
     virtual BoundingBox bounding_box() const noexcept(false) = 0;
     virtual std::string crs() const noexcept(false) = 0;
@@ -31,10 +31,10 @@ class SingleMetadataHandle : public MetadataHandle {
 public:
     SingleMetadataHandle(OpenVDS::VolumeDataLayout const* const layout);
 
-    Axis iline() const noexcept(true);
-    Axis xline() const noexcept(true);
-    Axis sample() const noexcept(true);
-    Axis get_axis(Direction const direction) const noexcept(false);
+     Axis& iline() const noexcept(true);
+     Axis& xline() const noexcept(true);
+     Axis& sample() const noexcept(true);
+     Axis& get_axis(Direction const direction) const noexcept(false);
 
     BoundingBox bounding_box() const noexcept(false);
     std::string crs() const noexcept(false);
@@ -48,9 +48,9 @@ protected:
 private:
     OpenVDS::VolumeDataLayout const* const m_layout;
 
-    Axis m_iline;
-    Axis m_xline;
-    Axis m_sample;
+     SingleAxis m_iline;
+     SingleAxis m_xline;
+     SingleAxis m_sample;
 
     int get_dimension(std::vector<std::string> const& names) const;
 };
@@ -62,10 +62,10 @@ public:
         MetadataHandle const& handle_B
     );
 
-    Axis iline() const noexcept(true);
-    Axis xline() const noexcept(true);
-    Axis sample() const noexcept(true);
-    Axis get_axis(Direction const direction) const noexcept(false);
+     Axis& iline() const noexcept(true);
+     Axis& xline() const noexcept(true);
+     Axis& sample() const noexcept(true);
+     Axis& get_axis(Direction const direction) const noexcept(false);
 
     BoundingBox bounding_box() const noexcept(false);
     std::string crs() const noexcept(false);

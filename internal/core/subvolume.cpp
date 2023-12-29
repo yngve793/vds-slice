@@ -48,9 +48,9 @@ SurfaceBoundedSubVolume* make_subvolume(
 
     auto transform = metadata.coordinate_transformer();
 
-    auto iline = metadata.iline();
-    auto xline = metadata.xline();
-    auto sample = metadata.sample();
+    const Axis& iline = metadata.iline();
+    const Axis& xline = metadata.xline();
+    const Axis& sample = metadata.sample();
 
     RawSegmentBlueprint segment_blueprint = RawSegmentBlueprint(sample.stepsize(), sample.min());
     auto subvolume = new SurfaceBoundedSubVolume(reference, top, bottom, segment_blueprint);

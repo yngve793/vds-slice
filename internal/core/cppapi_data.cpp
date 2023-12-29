@@ -189,9 +189,9 @@ void fence(
             }
         }
     };
-    Axis inline_axis    = metadata.iline();
-    Axis crossline_axis = metadata.xline();
-    Axis samples_axis   = metadata.sample();
+    const Axis& inline_axis    = metadata.iline();
+    const Axis& crossline_axis = metadata.xline();
+    const Axis& samples_axis   = metadata.sample();
     auto nsamples       = samples_axis.nsamples();
 
     for (size_t i = 0; i < npoints; i++) {
@@ -215,10 +215,10 @@ void fence(
             }
         };
 
-        validate_boundary(0, inline_axis);
+        validate_boundary(0, metadata.iline());
         validate_boundary(1, crossline_axis);
 
-        coords[i][   inline_axis.dimension()] = inline_axis.to_sample_position(coordinate[0]);
+        coords[i][   metadata.iline().dimension()] = metadata.iline().to_sample_position(coordinate[0]);
         coords[i][crossline_axis.dimension()] = crossline_axis.to_sample_position(coordinate[1]);
     }
 
@@ -255,9 +255,9 @@ void fetch_subvolume(
     MetadataHandle const& metadata = handle.get_metadata();
     auto transform = metadata.coordinate_transformer();
 
-    auto iline  = metadata.iline ();
-    auto xline  = metadata.xline();
-    auto sample = metadata.sample();
+    const Axis& iline  = metadata.iline();
+    const Axis& xline  = metadata.xline();
+    const Axis& sample = metadata.sample();
 
     std::size_t const nsamples = subvolume.nsamples(from, to);
     if (nsamples == 0){

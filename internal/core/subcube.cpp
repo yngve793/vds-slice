@@ -90,7 +90,7 @@ void SubCube::constrain(
     for (auto const& bound : bounds) {
         auto direction = Direction(bound.name);
         auto system = direction.coordinate_system();
-        auto axis = metadata.get_axis(direction);
+        const Axis& axis = metadata.get_axis(direction);
 
         auto lower = ::to_voxel(axis, bound.lower, system);
         auto upper = ::to_voxel(axis, bound.upper, system);

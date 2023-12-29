@@ -12,25 +12,25 @@
 
 SingleMetadataHandle::SingleMetadataHandle(OpenVDS::VolumeDataLayout const* const layout)
     : m_layout(layout),
-      m_iline(Axis(layout, get_dimension({std::string(OpenVDS::KnownAxisNames::Inline())}))),
-      m_xline(Axis(layout, get_dimension({std::string(OpenVDS::KnownAxisNames::Crossline())}))),
-      m_sample(Axis(layout, get_dimension({std::string(OpenVDS::KnownAxisNames::Sample()), std::string(OpenVDS::KnownAxisNames::Depth()), std::string(OpenVDS::KnownAxisNames::Time())}))) {
+      m_iline(SingleAxis(layout, get_dimension({std::string(OpenVDS::KnownAxisNames::Inline())}))),
+      m_xline(SingleAxis(layout, get_dimension({std::string(OpenVDS::KnownAxisNames::Crossline())}))),
+      m_sample(SingleAxis(layout, get_dimension({std::string(OpenVDS::KnownAxisNames::Sample()), std::string(OpenVDS::KnownAxisNames::Depth()), std::string(OpenVDS::KnownAxisNames::Time())}))) {
     this->dimension_validation();
 }
 
-Axis SingleMetadataHandle::iline() const noexcept(true) {
-    return this->m_iline;
+ Axis& SingleMetadataHandle::iline() const noexcept(true) {
+    return (Axis&)(this->m_iline);
 }
 
-Axis SingleMetadataHandle::xline() const noexcept(true) {
-    return this->m_xline;
+ Axis& SingleMetadataHandle::xline() const noexcept(true) {
+    return (Axis&)this->m_xline;
 }
 
-Axis SingleMetadataHandle::sample() const noexcept(true) {
-    return this->m_sample;
+ Axis& SingleMetadataHandle::sample() const noexcept(true) {
+    return (Axis&)this->m_sample;
 }
 
-Axis SingleMetadataHandle::get_axis(
+ Axis& SingleMetadataHandle::get_axis(
     Direction const direction
 ) const noexcept(false) {
     if (direction.is_iline())
@@ -101,22 +101,22 @@ DoubleMetadataHandle::DoubleMetadataHandle(
     this->validate_metadata();
 }
 
-Axis DoubleMetadataHandle::iline() const noexcept(true) {
+ Axis& DoubleMetadataHandle::iline() const noexcept(true) {
     // Axis iline in handle A and B are identical by validate_metadata()
-    return this->m_handle_A->iline();
+    return (Axis&)(this->m_handle_A->iline());
 }
 
-Axis DoubleMetadataHandle::xline() const noexcept(true) {
+ Axis& DoubleMetadataHandle::xline() const noexcept(true) {
     // Axis xline in handle A and B are identical by validate_metadata()
     return this->m_handle_A->xline();
 }
 
-Axis DoubleMetadataHandle::sample() const noexcept(true) {
+ Axis& DoubleMetadataHandle::sample() const noexcept(true) {
     // Axis sample in handle A and B are identical by validate_metadata()
     return this->m_handle_A->sample();
 }
 
-Axis DoubleMetadataHandle::get_axis(
+ Axis& DoubleMetadataHandle::get_axis(
     Direction const direction
 ) const noexcept(false) {
     if (direction.is_iline())
