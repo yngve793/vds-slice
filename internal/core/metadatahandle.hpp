@@ -79,6 +79,8 @@ private:
     MetadataHandle const* m_handle_A;
     MetadataHandle const* m_handle_B;
 
-    void validate_metadata() const noexcept(false);
+    DoubleAxis m_iline;
+    DoubleAxis m_xline;
+    DoubleAxis m_samples;
 };
 #endif /* VDS_SLICE_METADATAHANDLE_HPP */
