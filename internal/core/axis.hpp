@@ -23,7 +23,6 @@ public:
     virtual bool inrange(float coordinate) const noexcept(true) = 0;
     virtual float to_sample_position(float coordinate) const noexcept(false) = 0;
 
-    virtual void assert_equal(Axis const& other) noexcept(false) = 0;
 };
 
 class SingleAxis : public Axis {
@@ -46,7 +45,6 @@ public:
     bool inrange(float coordinate) const noexcept(true);
     float to_sample_position(float coordinate) const noexcept(false);
 
-    void assert_equal(Axis const& other) noexcept(false);
 
 private:
     int const m_dimension;
