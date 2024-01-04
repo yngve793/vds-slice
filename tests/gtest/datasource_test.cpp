@@ -12,6 +12,9 @@ const std::string DOUBLE_VALUE_DATA = "file://10_double_value.vds";
 // const std::string MISSING_SAMPLE_DATA = "file://10_missing_samples.vds";
 // const std::string ALTERED_OFFSET_DATA = "file://10_miss_offset.vds";
 // const std::string ALTERED_STEPSIZE_DATA = "file://10_miss_stepsize.vds";
+const std::string PARTIAL_INTERSECT_DATA = "file://10_offset_value.vds";
+const std::string NO_INTERSECT_DATA = "file://10_no_intersection.vds";
+
 
 const std::string CREDENTIALS = "";
 
@@ -72,19 +75,67 @@ protected:
     }
 };
 
-// TEST_F(DataSourceTest, StepSizeMismatch) {
-//     // Changing the stepsize causes the max value to change. Max value is checked before stepsize.
-//     const std::string EXPECTED_MSG = "Axis: Inline: Mismatch in max value: 5.00 != 7.00";
+TEST_F(DataSourceTest, No_Intersect) {
+    // Changing the stepsize causes the max value to change. Max value is checked before stepsize.
+    const std::string EXPECTED_MSG = "Axis: Crossline: No data overlap: min = 12.000000 and max = 11.000000";
 
-//     EXPECT_THAT([&]() {         
-//             DoubleDataSource *datasource = make_double_datasource(
-//                 DEFAULT_DATA.c_str(),
-//                 CREDENTIALS.c_str(),
-//                 ALTERED_STEPSIZE_DATA.c_str(),
-//                 CREDENTIALS.c_str(),
-//                 &inplace_subtraction);
-//                 delete datasource; }, testing::ThrowsMessage<std::runtime_error>(testing::HasSubstr(EXPECTED_MSG)));
-// }
+    EXPECT_THAT([&]() {         
+            DoubleDataSource *datasource = make_double_datasource(
+                DEFAULT_DATA.c_str(),
+                CREDENTIALS.c_str(),
+                NO_INTERSECT_DATA.c_str(),
+                CREDENTIALS.c_str(),
+                &inplace_subtraction);
+                delete datasource; }, testing::ThrowsMessage<std::runtime_error>(testing::HasSubstr(EXPECTED_MSG)));
+}
+
+
+TEST_F(DataSourceTest, Intersect) {
+
+    DoubleDataSource* datasource = make_double_datasource(
+        DEFAULT_DATA.c_str(),
+        CREDENTIALS.c_str(),
+        PARTIAL_INTERSECT_DATA.c_str(),
+        CREDENTIALS.c_str(),
+        &inplace_addition
+    );
+
+    SurfaceBoundedSubVolume* subvolume = make_subvolume(
+        datasource->get_metadata(), primary_surface, top_surface, bottom_surface
+    );
+
+    // std::cout << "Test ()" <<  std::endl;
+    // std::cout << "Test" <<  datasource->get_metadata().iline().min() << std::endl;
+
+    
+
+
+
+
+
+    // Print data to standard out 
+
+    cppapi::fetch_subvolume(*datasource, *subvolume, NEAREST, 0, size);
+    int compared_values = 0;
+    for (int i = 0; i < size; ++i) {
+        RawSegment rs = subvolume->vertical_segment(i);
+        RawSegment rs_ref = subvolume_reference->vertical_segment(i);
+
+        for (auto it = rs.begin(), a_it = rs_ref.begin();
+             it != rs.end() && a_it != rs_ref.end();
+             ++it, ++a_it) {
+            compared_values++;
+            // std::cout << "*it: " << *it << " *a_it: " << *a_it << " i: " << i << "  " <<   std::distance(rs.begin(), it) << std::endl;
+            // EXPECT_NEAR(*it, *a_it * 3, DELTA) << "at segment " << i << " at position in data " << std::distance(rs.begin(), it);
+        }
+        std::cout << std::endl;
+    }
+    // EXPECT_EQ(compared_values, size * EXPECTED_TRACE_LENGTH);
+
+    delete subvolume;
+    delete datasource;
+}
+
 
 TEST_F(DataSourceTest, Addition) {
 

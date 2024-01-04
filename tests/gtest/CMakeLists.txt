@@ -26,6 +26,9 @@ configure_file(../../testdata/10_samples/10_missing_xline.vds . COPYONLY)
 configure_file(../../testdata/10_samples/10_double_value.vds . COPYONLY)
 configure_file(../../testdata/10_samples/10_miss_offset.vds . COPYONLY)
 configure_file(../../testdata/10_samples/10_miss_stepsize.vds . COPYONLY)
+configure_file(../../testdata/10_samples/10_offset_value.vds . COPYONLY)
+configure_file(../../testdata/10_samples/10_no_intersection.vds . COPYONLY)
+
 
 include(GoogleTest)
 gtest_discover_tests(cppcoretests)
