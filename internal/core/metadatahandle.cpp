@@ -9,6 +9,10 @@
 #include "axis.hpp"
 #include "boundingbox.hpp"
 #include "direction.hpp"
+#include <iostream>
+#include <execinfo.h>
+#include "volumedatalayout.hpp"
+
 
 SingleMetadataHandle::SingleMetadataHandle(OpenVDS::VolumeDataLayout const* const layout)
     : m_layout(layout),
@@ -98,6 +102,7 @@ DoubleMetadataHandle::DoubleMetadataHandle(
 )
     : m_handle_A(&handle_A),
       m_handle_B(&handle_B),
+      m_doubleVolumeDataLayout(DoubleVolumeDataLayout(handle_A.get_layout(), handle_B.get_layout())),
       m_iline(DoubleAxis((SingleAxis&)(m_handle_A->iline()), (SingleAxis&)(m_handle_B->iline()))),
       m_xline(DoubleAxis((SingleAxis&)(m_handle_A->xline()), (SingleAxis&)(m_handle_B->xline()))),
       m_samples(DoubleAxis((SingleAxis&)(m_handle_A->sample()), (SingleAxis&)(m_handle_B->sample()))) {

@@ -7,11 +7,6 @@
 namespace {
 const std::string DEFAULT_DATA = "file://10_samples_default.vds";
 const std::string DOUBLE_VALUE_DATA = "file://10_double_value.vds";
-// const std::string MISSING_ILINE_DATA = "file://10_missing_iline.vds";
-// const std::string MISSING_XLINE_DATA = "file://10_missing_xline.vds";
-// const std::string MISSING_SAMPLE_DATA = "file://10_missing_samples.vds";
-// const std::string ALTERED_OFFSET_DATA = "file://10_miss_offset.vds";
-// const std::string ALTERED_STEPSIZE_DATA = "file://10_miss_stepsize.vds";
 const std::string PARTIAL_INTERSECT_DATA = "file://10_offset_value.vds";
 const std::string NO_INTERSECT_DATA = "file://10_no_intersection.vds";
 

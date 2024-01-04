@@ -91,7 +91,7 @@ DoubleDataSource::~DoubleDataSource() {
 }
 
 MetadataHandle const& DoubleDataSource::get_metadata() const noexcept(true) {
-    return this->handle_A->get_metadata();
+    return *(this->metadata);
 }
 
 std::int64_t DoubleDataSource::samples_buffer_size(std::size_t const nsamples) noexcept(false) {

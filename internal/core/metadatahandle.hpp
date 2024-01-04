@@ -8,21 +8,24 @@
 #include "axis.hpp"
 #include "boundingbox.hpp"
 #include "direction.hpp"
+#include "volumedatalayout.hpp"
 
 class MetadataHandle {
     friend class DoubleMetadataHandle;
+
 public:
-    virtual  Axis& iline() const noexcept(true) = 0;
-    virtual  Axis& xline() const noexcept(true) = 0;
-    virtual  Axis& sample() const noexcept(true) = 0;
-    virtual  Axis& get_axis(Direction const direction) const noexcept(false) = 0;
+    virtual Axis& iline() const noexcept(true) = 0;
+    virtual Axis& xline() const noexcept(true) = 0;
+    virtual Axis& sample() const noexcept(true) = 0;
+    virtual Axis& get_axis(Direction const direction) const noexcept(false) = 0;
 
     virtual BoundingBox bounding_box() const noexcept(false) = 0;
     virtual std::string crs() const noexcept(false) = 0;
     virtual std::string input_filename() const noexcept(false) = 0;
     virtual std::string import_time_stamp() const noexcept(false) = 0;
-
+    virtual OpenVDS::VolumeDataLayout const* const get_layout() const noexcept(false) = 0;
     virtual OpenVDS::IJKCoordinateTransformer coordinate_transformer() const noexcept(false) = 0;
+
 protected:
     virtual void dimension_validation() const = 0;
 };
@@ -31,26 +34,30 @@ class SingleMetadataHandle : public MetadataHandle {
 public:
     SingleMetadataHandle(OpenVDS::VolumeDataLayout const* const layout);
 
-     Axis& iline() const noexcept(true);
-     Axis& xline() const noexcept(true);
-     Axis& sample() const noexcept(true);
-     Axis& get_axis(Direction const direction) const noexcept(false);
+    Axis& iline() const noexcept(true);
+    Axis& xline() const noexcept(true);
+    Axis& sample() const noexcept(true);
+    Axis& get_axis(Direction const direction) const noexcept(false);
 
     BoundingBox bounding_box() const noexcept(false);
     std::string crs() const noexcept(false);
     std::string input_filename() const noexcept(false);
     std::string import_time_stamp() const noexcept(false);
+    OpenVDS::VolumeDataLayout const* const get_layout() const noexcept(false) {
+        return this->m_layout;
+    }
 
     OpenVDS::IJKCoordinateTransformer coordinate_transformer() const noexcept(false);
+
 protected:
     void dimension_validation() const;
 
 private:
     OpenVDS::VolumeDataLayout const* const m_layout;
 
-     SingleAxis m_iline;
-     SingleAxis m_xline;
-     SingleAxis m_sample;
+    SingleAxis m_iline;
+    SingleAxis m_xline;
+    SingleAxis m_sample;
 
     int get_dimension(std::vector<std::string> const& names) const;
 };
@@ -62,22 +69,29 @@ public:
         MetadataHandle const& handle_B
     );
 
-     Axis& iline() const noexcept(true);
-     Axis& xline() const noexcept(true);
-     Axis& sample() const noexcept(true);
-     Axis& get_axis(Direction const direction) const noexcept(false);
+    Axis& iline() const noexcept(true);
+    Axis& xline() const noexcept(true);
+    Axis& sample() const noexcept(true);
+    Axis& get_axis(Direction const direction) const noexcept(false);
 
     BoundingBox bounding_box() const noexcept(false);
     std::string crs() const noexcept(false);
     std::string input_filename() const noexcept(false);
     std::string import_time_stamp() const noexcept(false);
 
+    OpenVDS::VolumeDataLayout const* const get_layout() const noexcept(false) { 
+        throw std::runtime_error("Not implemented"); 
+    }
+
     OpenVDS::IJKCoordinateTransformer coordinate_transformer() const noexcept(false);
+
 protected:
     void dimension_validation() const;
+
 private:
     MetadataHandle const* m_handle_A;
     MetadataHandle const* m_handle_B;
+    DoubleVolumeDataLayout m_doubleVolumeDataLayout;
 
     DoubleAxis m_iline;
     DoubleAxis m_xline;
