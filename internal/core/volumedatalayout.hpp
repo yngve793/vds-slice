@@ -23,9 +23,7 @@ public:
         throw std::runtime_error("Not implemented: DoubleVolumeDataLayout::GetLayoutHash");
     }
 
-    int GetDimensionality() const {
-        throw std::runtime_error("Not implemented: DoubleVolumeDataLayout::GetDimensionality");
-    }
+    int GetDimensionality() const;
 
     int GetChannelCount() const {
         throw std::runtime_error("Not implemented: DoubleVolumeDataLayout::GetChannelCount");
@@ -95,29 +93,21 @@ public:
         throw std::runtime_error("Not implemented: DoubleVolumeDataLayout::GetChannelMapping");
     }
 
-    int GetDimensionNumSamples(int dimension) const {
-        throw std::runtime_error("Not implemented: DoubleVolumeDataLayout::GetDimensionNumSamples");
-    }
+    int GetDimensionNumSamples(int dimension) const;
 
     const char* GetDimensionName(int dimension) const {
-        throw std::runtime_error("Not implemented: DoubleVolumeDataLayout::GetDimensionNumSamples");
+        throw std::runtime_error("Not implemented: DoubleVolumeDataLayout::GetDimensionName");
     }
 
     const char* GetDimensionUnit(int dimension) const {
         throw std::runtime_error("Not implemented: DoubleVolumeDataLayout::GetDimensionUnit");
     }
 
-    float GetDimensionMin(int dimension) const {
-        throw std::runtime_error("Not implemented: DoubleVolumeDataLayout::GetDimensionMin");
-    }
+    float GetDimensionMin(int dimension) const;
 
-    float GetDimensionMax(int dimension) const {
-        throw std::runtime_error("Not implemented: DoubleVolumeDataLayout::GetDimensionMax");
-    }
+    float GetDimensionMax(int dimension) const;
 
-    OpenVDS::VDSIJKGridDefinition GetVDSIJKGridDefinitionFromMetadata() const {
-        throw std::runtime_error("Not implemented: DoubleVolumeDataLayout::GetVDSIJKGridDefinitionFromMetadata");
-    }
+    OpenVDS::VDSIJKGridDefinition GetVDSIJKGridDefinitionFromMetadata() const;
 
     bool IsChannelUseNoValue(int channel) const {
         throw std::runtime_error("Not implemented: DoubleVolumeDataLayout::IsChannelUseNoValue");
@@ -172,6 +162,9 @@ public:
 
 private:
     int32_t m_dimensionNumSamples[Dimensionality_Max];
+    int32_t m_dimensionCoordinateMin[Dimensionality_Max];
+    int32_t m_dimensionCoordinateMax[Dimensionality_Max];
+
     OpenVDS::VolumeDataLayout const* const m_layout_a;
     OpenVDS::VolumeDataLayout const* const m_layout_b;
 };
