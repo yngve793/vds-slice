@@ -102,13 +102,7 @@ TEST_F(DataSourceTest, Intersect) {
     // std::cout << "Test ()" <<  std::endl;
     // std::cout << "Test" <<  datasource->get_metadata().iline().min() << std::endl;
 
-    
-
-
-
-
-
-    // Print data to standard out 
+    // Print data to standard out
 
     cppapi::fetch_subvolume(*datasource, *subvolume, NEAREST, 0, size);
     int compared_values = 0;
@@ -116,21 +110,26 @@ TEST_F(DataSourceTest, Intersect) {
         RawSegment rs = subvolume->vertical_segment(i);
         RawSegment rs_ref = subvolume_reference->vertical_segment(i);
 
+        std::cout << rs.size() << " " << rs_ref.size() << std::endl;
+
+        for (auto it = rs.begin(); it != rs.end(); ++it) {
+            std::cout << i << " " << *it << std::endl;
+        }
+
         for (auto it = rs.begin(), a_it = rs_ref.begin();
              it != rs.end() && a_it != rs_ref.end();
              ++it, ++a_it) {
             compared_values++;
-            // std::cout << "*it: " << *it << " *a_it: " << *a_it << " i: " << i << "  " <<   std::distance(rs.begin(), it) << std::endl;
-            // EXPECT_NEAR(*it, *a_it * 3, DELTA) << "at segment " << i << " at position in data " << std::distance(rs.begin(), it);
+            std::cout << "*it: " << *it << " *a_it: " << *a_it << " i: " << i << "  " <<   std::distance(rs.begin(), it) << std::endl;
+            EXPECT_NEAR(*it, *a_it * 3, DELTA) << "at segment " << i << " at position in data " << std::distance(rs.begin(), it);
         }
         std::cout << std::endl;
     }
-    // EXPECT_EQ(compared_values, size * EXPECTED_TRACE_LENGTH);
+    EXPECT_EQ(compared_values, size * EXPECTED_TRACE_LENGTH);
 
     delete subvolume;
     delete datasource;
 }
-
 
 TEST_F(DataSourceTest, Addition) {
 
@@ -263,6 +262,9 @@ TEST_F(DataSourceTest, Subtraction) {
 }
 
 TEST_F(DataSourceTest, SubtractionReverse) {
+    // std::cout << "\n\nStart test  SubtractionReverse" << std::endl;
+    // std::cout << DOUBLE_VALUE_DATA.c_str() << std::endl;
+    // std::cout << DEFAULT_DATA.c_str() << std::endl;
 
     DoubleDataSource* datasource = make_double_datasource(
         DOUBLE_VALUE_DATA.c_str(),
@@ -281,10 +283,7 @@ TEST_F(DataSourceTest, SubtractionReverse) {
     for (int i = 0; i < size; ++i) {
         RawSegment rs = subvolume->vertical_segment(i);
         RawSegment rs_ref = subvolume_reference->vertical_segment(i);
-
-        for (auto it = rs.begin(), a_it = rs_ref.begin();
-             it != rs.end() && a_it != rs_ref.end();
-             ++it, ++a_it) {
+        for (auto it = rs.begin(), a_it = rs_ref.begin(); it != rs.end() && a_it != rs_ref.end(); ++it, ++a_it) {
             compared_values++;
             EXPECT_NEAR(*it, *a_it, DELTA) << "at segment " << i << " at position in data " << std::distance(rs.begin(), it);
         }

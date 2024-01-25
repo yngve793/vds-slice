@@ -145,13 +145,18 @@ void DoubleDataSource::read_subcube(
 std::int64_t DoubleDataSource::traces_buffer_size(
     std::size_t const ntraces
 ) noexcept(false) {
-    // Be aware that asking both sources may cost some time
-    std::int64_t size_a = this->handle_A->traces_buffer_size(ntraces);
-    std::int64_t size_b = this->handle_B->traces_buffer_size(ntraces);
-    if (size_a != size_b) {
-        throw detail::bad_request("Mismatch in trace buffer size");
-    }
-    return size_a;
+
+    int const dimension = this->get_metadata().sample().dimension();
+    return dimension;
+    // return this->m_access_manager.GetVolumeTracesBufferSize(ntraces, dimension);
+
+    // // Be aware that asking both sources may cost some time
+    // std::int64_t size_a = this->handle_A->traces_buffer_size(ntraces);
+    // std::int64_t size_b = this->handle_B->traces_buffer_size(ntraces);
+    // if (size_a != size_b) {
+    //     throw detail::bad_request("Mismatch in trace buffer size");
+    // }
+    // return size_a;
 }
 
 void DoubleDataSource::read_traces(
