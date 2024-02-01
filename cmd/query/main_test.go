@@ -45,6 +45,39 @@ func TestSliceHappyHTTPResponse(t *testing.T) {
 				},
 			},
 		},
+		{
+			baseTest{
+				name:           "Valid Request Subtraction",
+				method:         http.MethodPost,
+				expectedStatus: http.StatusOK,
+			},
+			testSliceRequest{
+				Vds:            []string{well_known, well_known},
+				Direction:      "crossline",
+				Lineno:         10,
+				Sas:            []string{"n/a", "n/a"},
+				BinaryOperator: "subtraction",
+				Bounds: []testBound{
+					{Direction: "inline", Lower: 1, Upper: 3},
+				},
+			},
+		},
+		{
+			baseTest{
+				name:           "Valid Request Subtraction, sas provided as query parameter",
+				method:         http.MethodPost,
+				expectedStatus: http.StatusOK,
+			},
+			testSliceRequest{
+				Vds:            []string{well_known + "?n/a", well_known + "?n/a"},
+				Direction:      "crossline",
+				Lineno:         10,
+				BinaryOperator: "subtraction",
+				Bounds: []testBound{
+					{Direction: "inline", Lower: 1, Upper: 3},
+				},
+			},
+		},
 	}
 
 	for _, testcase := range testcases {
@@ -204,6 +237,106 @@ func TestSliceErrorHTTPResponse(t *testing.T) {
 				Sas:       []string{"n/a"},
 			},
 		},
+		sliceTest{
+			baseTest{
+				name:           "Extra sas token",
+				method:         http.MethodPost,
+				expectedStatus: http.StatusBadRequest,
+				expectedError:  "Number of VDS urls and sas tokens do not match. Vds: 1, Sas: 2",
+			},
+			testSliceRequest{
+				Vds:       []string{"unknown"},
+				Direction: "i",
+				Lineno:    1,
+				Sas:       []string{"n/a", "n/a"},
+			},
+		},
+		sliceTest{
+			baseTest{
+				name:           "Missing one sas token",
+				method:         http.MethodPost,
+				expectedStatus: http.StatusBadRequest,
+				expectedError:  "Number of VDS urls and sas tokens do not match. Vds: 2, Sas: 1",
+			},
+			testSliceRequest{
+				Vds:       []string{"unknown", "unknown"},
+				Direction: "i",
+				Lineno:    1,
+				Sas:       []string{"n/a"},
+			},
+		},
+		sliceTest{
+			baseTest{
+				name:           "Sas token provided twice",
+				method:         http.MethodPost,
+				expectedStatus: http.StatusBadRequest,
+				expectedError:  "Signed urls are not accepted when providing sas-tokens. Vds url nr 2 is signed",
+			},
+			testSliceRequest{
+				Vds:            []string{well_known, well_known + "?n/a"},
+				Direction:      "crossline",
+				Lineno:         10,
+				Sas:            []string{"n/a", "n/a"},
+				BinaryOperator: "subtraction",
+				Bounds: []testBound{
+					{Direction: "inline", Lower: 1, Upper: 3},
+				},
+			},
+		},
+		sliceTest{
+			baseTest{
+				name:           "Missing binary operator",
+				method:         http.MethodPost,
+				expectedStatus: http.StatusBadRequest,
+				expectedError:  "Binary operator must be provided when two VDS urls are provided",
+			},
+			testSliceRequest{
+				Vds:       []string{well_known, well_known},
+				Direction: "crossline",
+				Lineno:    10,
+				Sas:       []string{"n/a", "n/a"},
+				Bounds: []testBound{
+					{Direction: "inline", Lower: 1, Upper: 3},
+				},
+			},
+		},
+		sliceTest{
+			baseTest{
+				name:           "Binary operator and single vds",
+				method:         http.MethodPost,
+				expectedStatus: http.StatusBadRequest,
+				expectedError:  "Binary operator must be empty when a single VDS url is provided",
+			},
+			testSliceRequest{
+				Vds:            []string{well_known},
+				Direction:      "crossline",
+				Lineno:         10,
+				Sas:            []string{"n/a"},
+				BinaryOperator: "subtraction",
+				Bounds: []testBound{
+					{Direction: "inline", Lower: 1, Upper: 3},
+				},
+			},
+		},
+
+		sliceTest{
+			baseTest{
+				name:           "Invalid binary operator",
+				method:         http.MethodPost,
+				expectedStatus: http.StatusBadRequest,
+				expectedError:  "Binary operator not recognized: 'notsubtraction', valid options are: addition, subtraction, multiplication, division",
+			},
+			testSliceRequest{
+				Vds:            []string{well_known, well_known},
+				Direction:      "crossline",
+				Lineno:         10,
+				Sas:            []string{"n/a", "n/a"},
+				BinaryOperator: "notsubtraction",
+				Bounds: []testBound{
+					{Direction: "inline", Lower: 1, Upper: 3},
+				},
+			},
+		},
 	}
 	testErrorHTTPResponse(t, testcases)
 }
@@ -238,6 +371,22 @@ func TestFenceHappyHTTPResponse(t *testing.T) {
 				Coordinates:      [][]float32{{0, 1}, {1, 1}, {1, 0}},
 				FillValue:        float32(-999.25),
 				Sas:              []string{"n/a"},
+			},
+		},
+		{
+			baseTest{
+				name:           "Valid difference POST Request",
+				method:         http.MethodPost,
+				expectedStatus: http.StatusOK,
+			},
+
+			testFenceRequest{
+				Vds:              []string{well_known, well_known},
+				CoordinateSystem: "ij",
+				Coordinates:      [][]float32{{0, 1}, {1, 1}, {1, 0}},
+				FillValue:        float32(-999.25),
+				Sas:              []string{"n/a", "n/a"},
+				BinaryOperator:   "subtraction",
 			},
 		},
 	}
@@ -481,7 +630,7 @@ func TestMetadataErrorHTTPResponse(t *testing.T) {
 				method:         http.MethodPost,
 				jsonRequest:    "{\"sas\":\"somevalidsas\"}",
 				expectedStatus: http.StatusBadRequest,
-				expectedError:  "Error:Field validation for 'Vds'",
+				expectedError:  "Field validation for 'Vds'",
 			}, testMetadataRequest{},
 		},
 		metadataTest{
@@ -495,6 +644,32 @@ func TestMetadataErrorHTTPResponse(t *testing.T) {
 			testMetadataRequest{
 				Vds: []string{"unknown"},
 				Sas: []string{"n/a"},
+			},
+		},
+		metadataTest{
+			baseTest{
+				name:           "Single vds url and double sas token",
+				method:         http.MethodPost,
+				expectedStatus: http.StatusBadRequest,
+				expectedError:  "Number of VDS urls and sas tokens do not match",
+			},
+
+			testMetadataRequest{
+				Vds: []string{"unknown"},
+				Sas: []string{"n/a", "n/a"},
+			},
+		},
+		metadataTest{
+			baseTest{
+				name:           "Two urls to metadata request",
+				method:         http.MethodPost,
+				expectedStatus: http.StatusBadRequest,
+				expectedError:  "Metadata requests only accepts one VDS url and one sas token",
+			},
+
+			testMetadataRequest{
+				Vds: []string{"unknown", "unknown"},
+				Sas: []string{"n/a", "n/a"},
 			},
 		},
 	}
@@ -554,6 +729,24 @@ func TestAttributeHappyHTTPResponse(t *testing.T) {
 				Attributes: []string{"samplevalue"},
 			},
 		},
+
+		attributeAlongSurfaceTest{
+			baseTest{
+				name:           "Valid difference POST Request along surface",
+				method:         http.MethodPost,
+				expectedStatus: http.StatusOK,
+			},
+
+			testAttributeAlongSurfaceRequest{
+				Vds:            []string{samples10, samples10},
+				Values:         [][]float32{{20, 20}, {20, 20}, {20, 20}},
+				Sas:            []string{"n/a", "n/a"},
+				BinaryOperator: "subtraction",
+				Above:          8.0,
+				Below:          4.0,
+				Attributes:     []string{"samplevalue"},
+			},
+		},
 		attributeBetweenSurfacesTest{
 			baseTest{
 				name:           "Valid json POST Request between surfaces",
@@ -566,6 +759,22 @@ func TestAttributeHappyHTTPResponse(t *testing.T) {
 				ValuesPrimary:   [][]float32{{20, 20}, {20, 20}, {20, 20}},
 				ValuesSecondary: [][]float32{{20, 20}, {20, 20}, {20, 20}},
 				Sas:             []string{"n/a"},
+				Attributes:      []string{"samplevalue"},
+			},
+		},
+		attributeBetweenSurfacesTest{
+			baseTest{
+				name:           "Valid difference POST Request along surface",
+				method:         http.MethodPost,
+				expectedStatus: http.StatusOK,
+			},
+
+			testAttributeBetweenSurfacesRequest{
+				Vds:             []string{samples10, samples10},
+				ValuesPrimary:   [][]float32{{20, 20}, {20, 20}, {20, 20}},
+				ValuesSecondary: [][]float32{{20, 20}, {20, 20}, {20, 20}},
+				Sas:             []string{"n/a", "n/a"},
+				BinaryOperator:  "subtraction",
 				Attributes:      []string{"samplevalue"},
 			},
 		},
