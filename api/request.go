@@ -105,7 +105,7 @@ func (r *RequestedResource) NormalizeConnection() error {
 	}
 
 	signedUrls := false
-	if len(r.Sas) == 0 || r.Sas[0] == "" {
+	if len(r.Sas) == 0 || (len(r.Sas) == 1 && r.Sas[0] == "") {
 		// All vds urls are signed
 		r.Sas = []string{}
 		signedUrls = true

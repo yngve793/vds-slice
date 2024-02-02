@@ -409,15 +409,26 @@ func TestExtractSasFromUrl(t *testing.T) {
 					"../../testdata/well_known/well_known_default.vds?sastoken2"},
 				[]string{"", ""},
 			),
-			expected:    []string{"sastoken1", "sastoken2"},
-			shouldError: false,
+			expected:    []string{"Signed urls are not accepted when providing sas-tokens. Vds url nr 1 is signed"},
+			shouldError: true,
 		},
 		{
 			request: newRequestedResource(
 				[]string{
 					"../../testdata/well_known/well_known_default.vds?sastoken1",
+					"../../testdata/well_known/well_known_default.vds?sastoken2"},
+				[]string{""},
+			),
+			expected:    []string{"sastoken1", "sastoken2"},
+			shouldError: false,
+		},
+
+		{
+			request: newRequestedResource(
+				[]string{
+					"../../testdata/well_known/well_known_default.vds?sastoken1",
 					"../../testdata/well_known/well_known_default.vds"},
-				[]string{"", "sastoken2"},
+				[]string{""},
 			),
 			expected:    []string{"No valid Sas token found at the end of vds url nr 2"},
 			shouldError: true,
@@ -473,7 +484,7 @@ func TestPortPresenceInURL(t *testing.T) {
 				[]string{
 					"https://account.blob.core.windows.net:443/container/blob?sastoken1",
 					"https://account.blob.core.windows.net:443/container/blob?sastoken2"},
-				[]string{"", ""},
+				[]string{""},
 			),
 			expected: []string{
 				"https://account.blob.core.windows.net/container/blob",
@@ -484,7 +495,7 @@ func TestPortPresenceInURL(t *testing.T) {
 				[]string{
 					"https://account.blob.core.windows.net/container/blob?sastoken1",
 					"https://account.blob.core.windows.net:443/container/blob?sastoken2"},
-				[]string{"", ""},
+				[]string{""},
 			),
 			expected: []string{
 				"https://account.blob.core.windows.net/container/blob",
