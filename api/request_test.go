@@ -65,34 +65,34 @@ func TestSasIsOmmitedFromSliceHash(t *testing.T) {
 			name: "Sas differ",
 			request1: newSliceRequest(
 				[]string{"some-path"},
-				[]string{"some-sas"}, "", "inline", 9961),
+				[]string{"some-sas"}, "", "inline", lineNr),
 			request2: newSliceRequest(
 				[]string{"some-path"},
-				[]string{"different-sas"}, "", "inline", 9961),
+				[]string{"different-sas"}, "", "inline", lineNr),
 		},
 		{
 			name: "Sas differ 1",
 			request1: newSliceRequest(
 				[]string{"some-path", "some-path"},
-				[]string{"some-sas", "some-sas"}, "subtraction", "inline", 9961),
+				[]string{"some-sas", "some-sas"}, "subtraction", "inline", lineNr),
 			request2: newSliceRequest(
 				[]string{"some-path", "some-path"},
-				[]string{"different-sas", "some-sas"}, "subtraction", "inline", 9961),
+				[]string{"different-sas", "some-sas"}, "subtraction", "inline", lineNr),
 		},
 		{
 			name: "Sas differ 2",
 			request1: newSliceRequest(
 				[]string{"some-path", "some-path"},
-				[]string{"some-sas", "some-sas"}, "subtraction", "inline", 9961),
+				[]string{"some-sas", "some-sas"}, "subtraction", "inline", lineNr),
 			request2: newSliceRequest(
 				[]string{"some-path", "some-path"},
-				[]string{"some-sas", "different-sas"}, "subtraction", "inline", 9961),
+				[]string{"some-sas", "different-sas"}, "subtraction", "inline", lineNr),
 		},
 		{
 			name: "Binary operator specified",
 			request1: newSliceRequest(
 				[]string{"some-path"},
-				[]string{"some-sas"}, "", "inline", 9961),
+				[]string{"some-sas"}, "", "inline", lineNr),
 			request2: SliceRequest{
 				RequestedResource: RequestedResource{Vds: []string{"some-path"}, Sas: []string{"some-sas"}},
 				Direction:         "inline",
