@@ -672,6 +672,20 @@ func TestMetadataErrorHTTPResponse(t *testing.T) {
 				Sas: []string{"n/a", "n/a"},
 			},
 		},
+		metadataTest{
+			baseTest{
+				name:           "Metadata request with binary operator",
+				method:         http.MethodPost,
+				expectedStatus: http.StatusBadRequest,
+				expectedError:  "Metadata requests binary_operator key to be the empty string",
+			},
+
+			testMetadataRequest{
+				Vds:            []string{"unknown"},
+				Sas:            []string{"n/a"},
+				BinaryOperator: "subtraction",
+			},
+		},
 	}
 	testErrorHTTPResponse(t, testcases)
 }

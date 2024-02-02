@@ -73,6 +73,13 @@ func (e *Endpoint) metadata(ctx *gin.Context, request MetadataRequest) {
 		}
 	}
 
+	if request.BinaryOperator != "" {
+		err := core.NewInvalidArgument("Metadata requests binary_operator key to be the empty string")
+		if abortOnError(ctx, err) {
+			return
+		}
+	}
+
 	connection, err := e.MakeVdsConnection(request.Vds[0], request.Sas[0])
 	if abortOnError(ctx, err) {
 		return
