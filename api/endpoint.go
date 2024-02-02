@@ -153,7 +153,7 @@ func (e *Endpoint) makeDataRequest(
 		}
 	}
 
-	handle, err := core.NewDoubleDSHandle(connections, binaryOperator)
+	handle, err := core.CreateDSHandle(connections, binaryOperator)
 	if abortOnError(ctx, err) {
 		return
 	}

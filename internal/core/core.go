@@ -443,7 +443,7 @@ func (v DSHandle) Close() error {
 }
 
 func NewDSHandle(connection Connection) (DSHandle, error) {
-	return NewDoubleDSHandle([]Connection{connection}, BinaryOperatorNoOperator)
+	return CreateDSHandle([]Connection{connection}, BinaryOperatorNoOperator)
 }
 
 func contains(elems []string, v string) bool {
@@ -455,7 +455,7 @@ func contains(elems []string, v string) bool {
 	return false
 }
 
-func NewDoubleDSHandle(connections []Connection, operator uint32) (DSHandle, error) {
+func CreateDSHandle(connections []Connection, operator uint32) (DSHandle, error) {
 
 	if len(connections) == 0 || len(connections) > 2 {
 		return DSHandle{}, NewInvalidArgument("Invalid number of connections provided")
