@@ -184,6 +184,43 @@ func TestSliceErrorHTTPResponse(t *testing.T) {
 			testSliceRequest{},
 		},
 		sliceTest{
+
+			baseTest{
+				name:           "Missing VDS parameter, POST Request",
+				method:         http.MethodPost,
+				expectedStatus: http.StatusBadRequest,
+				expectedError:  "No VDS url provided",
+			},
+			testSliceRequest{
+				Vds:       []string{},
+				Direction: "crossline",
+				Lineno:    10,
+				Sas:       []string{"n/a"},
+				Bounds: []testBound{
+					{Direction: "inline", Lower: 1, Upper: 3},
+				},
+			},
+		},
+		sliceTest{
+
+			baseTest{
+				name:           "First VDS is empty string, POST Request",
+				method:         http.MethodPost,
+				expectedStatus: http.StatusBadRequest,
+				expectedError:  "VDS url cannot be the empty string. VDS url 1 is empty",
+			},
+			testSliceRequest{
+				Vds:            []string{"", "some_url"},
+				Direction:      "crossline",
+				Lineno:         10,
+				Sas:            []string{"n/a", "n/a"},
+				BinaryOperator: "subtraction",
+				Bounds: []testBound{
+					{Direction: "inline", Lower: 1, Upper: 3},
+				},
+			},
+		},
+		sliceTest{
 			baseTest{
 				name:   "Incomplete bounds parameters POST Request",
 				method: http.MethodPost,
@@ -300,6 +337,24 @@ func TestSliceErrorHTTPResponse(t *testing.T) {
 				},
 			},
 		},
+		sliceTest{
+			baseTest{
+				name:           "More than two VDS urls",
+				method:         http.MethodPost,
+				expectedStatus: http.StatusBadRequest,
+				expectedError:  "No endpoint accepts more than two vds urls.",
+			},
+			testSliceRequest{
+				Vds:       []string{well_known, well_known, well_known},
+				Direction: "crossline",
+				Lineno:    10,
+				Sas:       []string{"n/a", "n/a", "n/a"},
+				Bounds: []testBound{
+					{Direction: "inline", Lower: 1, Upper: 3},
+				},
+			},
+		},
+
 		sliceTest{
 			baseTest{
 				name:           "Binary operator and single vds",
@@ -677,7 +732,7 @@ func TestMetadataErrorHTTPResponse(t *testing.T) {
 				name:           "Metadata request with binary operator",
 				method:         http.MethodPost,
 				expectedStatus: http.StatusBadRequest,
-				expectedError:  "Metadata requests binary_operator key to be the empty string",
+				expectedError:  "Metadata requests does not accept binary_operator key. The binary_operator key must be undefined or the empty string",
 			},
 
 			testMetadataRequest{
