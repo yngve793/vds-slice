@@ -100,8 +100,15 @@ type Normalizable interface {
 
 func (r *RequestedResource) NormalizeConnection() error {
 
-	if len(r.Vds) == 0 || r.Vds[0] == "" {
+	if len(r.Vds) == 0 || (len(r.Vds) == 1 && r.Vds[0] == "") {
 		return core.NewInvalidArgument("No VDS url provided")
+	}
+
+	for i, urlReq := range r.Vds {
+		if urlReq == "" {
+			return core.NewInvalidArgument(fmt.Sprintf(
+				"VDS url cannot be the empty string. VDS url %d is empty", i+1))
+		}
 	}
 
 	signedUrls := false

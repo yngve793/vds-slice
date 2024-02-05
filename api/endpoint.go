@@ -74,7 +74,8 @@ func (e *Endpoint) metadata(ctx *gin.Context, request MetadataRequest) {
 	}
 
 	if request.BinaryOperator != "" {
-		err := core.NewInvalidArgument("Metadata requests binary_operator key to be the empty string")
+		err := core.NewInvalidArgument("Metadata requests does not accept binary_operator key. " +
+			"The binary_operator key must be undefined or the empty string")
 		if abortOnError(ctx, err) {
 			return
 		}
@@ -144,20 +145,19 @@ func (e *Endpoint) makeDataRequest(
 		return
 	}
 
-	var canRead bool = true
-	for i := 0; i < len(connections); i++ {
-		if !connections[i].IsAuthorizedToRead() {
-			canRead = false
+	cacheEntry, hit := e.Cache.Get(cacheKey)
+	if hit {
+		for i := 0; i < len(connections); i++ {
+			if !connections[i].IsAuthorizedToRead() {
+				err := core.NewInternalError(fmt.Sprintf("403 Server failed to authenticate access to cached result. VDS nr %d failed", i+1))
+				if abortOnError(ctx, err) {
+					return
+				}
+			}
 		}
-	}
-
-	if canRead {
-		cacheEntry, hit := e.Cache.Get(cacheKey)
-		if hit {
-			ctx.Set("cache-hit", true)
-			writeResponse(ctx, cacheEntry.Metadata(), cacheEntry.Data())
-			return
-		}
+		ctx.Set("cache-hit", true)
+		writeResponse(ctx, cacheEntry.Metadata(), cacheEntry.Data())
+		return
 	}
 
 	handle, err := core.CreateDSHandle(connections, binaryOperator)
