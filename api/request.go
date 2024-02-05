@@ -40,12 +40,12 @@ type RequestedResource struct {
 	// - Signed form:
 	//    example:"https://account.blob.core.windows.net/container/blob?sp=r&st=2022-09-12T09:44:17Z&se=2022-09-12T17:44:17Z&spr=https&sv=2021-06-08&sr=c&sig=..."
 	//    In the signed form the blob URL and the sas-token are separated by "?" and passed as a single string.
-	//    The sas-key can not be used when blob URLs are provided in signed form, 
+	//    The sas-key can not be used when blob URLs are provided in signed form,
 	//    i.e. the user can choose to leave the sas-key unassigned or to send the empty string ("").
 	//
 	// Note: The whole query string will be passed further down to openvds.
 	// We expect query parameters to contain sas-token and sas-token
-	// only and give no guarantee for what Openvds/Azure returns 
+	// only and give no guarantee for what Openvds/Azure returns
 	// if any additional arguments are provided.
 	//
 	// Warning: We do not expect storage accounts to have snapshots. If your
@@ -53,12 +53,12 @@ type RequestedResource struct {
 	// you might end up with incorrect data.
 	Vds stringOrSlice `json:"vds" binding:"required" example:"https://account.blob.core.windows.net/container/blob"`
 
-	// A sas-token is a string containing a key that give time limited read access to a blob URL.
+	// A sas-token is a string containing a key that must have read access to the corresponding blob URL.
 	// If blob URLs are provided in the signed form the sas-key must be undefined or set to the empty string ("").
 	// When blob URLs are provided in unsigned form the sas-key must contain tokens corresponding to the provided URLs.
-	// I.e. sas-key is provided as a string if the vds-key is provided as a string and as a list of strings if 
-	// the vds-key is provided as a list.
-	// 
+	// I.e. sas-key is provided as a string if the vds-keys are in signed form or if the vds-key is a string
+	// otherwise the sas-key is a list of strings with the same number of elements as the vds-key list.
+	//
 	// When using string list representation the vds-key and sas-key must contain the same number of elements and
 	// element number "i" in the sas-key is the token for the URL in element "i" in the vds-key.
 	Sas stringOrSlice `json:"sas,omitempty" example:"sp=r&st=2022-09-12T09:44:17Z&se=2022-09-12T17:44:17Z&spr=https&sv=2021-06-08&sr=c&sig=..."`
@@ -67,11 +67,11 @@ type RequestedResource struct {
 	// If two pairs are provided the binary_operator-key defines how the two data sets are combined into a new virtual data set.
 	// Provided VDS A, VDS B and the binary_operator-key "subtraction" the request returns data from data set (A - B).
 	// Valid options are: "addition", "subtraction", "multiplication", "division" and empty string ("").
-	// 
-	// Note that there are some restrictions when applying a binary operation on two cubes. 
-	// The axis must be identical. I.e, same start value, sane stepsize and same number of values. 
-	// Further more the axis must be of the same type, for instance it is not possible to take the 
-	// difference between a time cube and a depth cube.   
+	//
+	// Note that there are some restrictions when applying a binary operation on two cubes.
+	// The axis must be identical. I.e, same start value, same stepsize and same number of values.
+	// Further more the axis must be of the same type, for instance it is not possible to take the
+	// difference between a time cube and a depth cube.
 	BinaryOperator string `json:"binary_operator,omitempty" example:"subtraction"`
 }
 
