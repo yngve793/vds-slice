@@ -17,9 +17,9 @@ void slice(
     DataSource& datasource,
     Direction const direction,
     int lineno,
-    std::vector< Bound > const& bounds,
+    std::vector<Bound> const& bounds,
     response* out
-) noexcept (false);
+) noexcept(false);
 
 void fence(
     DataSource& datasource,
@@ -29,7 +29,7 @@ void fence(
     enum interpolation_method interpolation_method,
     const float* fillValue,
     response* out
-) noexcept (false);
+) noexcept(false);
 
 void fetch_subvolume(
     DataSource& datasource,
@@ -37,7 +37,7 @@ void fetch_subvolume(
     enum interpolation_method interpolation,
     std::size_t from,
     std::size_t to
-) noexcept (false);
+) noexcept(false);
 
 void attributes(
     SurfaceBoundedSubVolume const& src_subvolume,
@@ -47,7 +47,7 @@ void attributes(
     std::size_t from,
     std::size_t to,
     void** out
-) noexcept (false);
+) noexcept(false);
 
 /**
  * Given two input surfaces, primary and secondary, updates third surface,
@@ -72,36 +72,35 @@ void attributes(
 void align_surfaces(
     RegularSurface const& primary,
     RegularSurface const& secondary,
-    RegularSurface &aligned,
+    RegularSurface& aligned,
     bool* primary_is_top
-) noexcept (false);
+) noexcept(false);
 
 void slice_metadata(
     DataSource& datasource,
     Direction const direction,
     int lineno,
-    std::vector< Bound > const& bounds,
+    std::vector<Bound> const& bounds,
     response* out
-) noexcept (false);
-
+) noexcept(false);
 
 void fence_metadata(
     DataSource& datasource,
     size_t npoints,
     response* out
-) noexcept (false);
+) noexcept(false);
 
 void metadata(
     DataSource& datasource,
     response* out
-) noexcept (false);
+) noexcept(false);
 
 void attributes_metadata(
     DataSource& datasource,
     std::size_t nrows,
     std::size_t ncols,
     response* out
-) noexcept (false);
+) noexcept(false);
 
 } // namespace cppapi
 

@@ -3,12 +3,11 @@
 #include "cppapi.hpp"
 #include "ctypes.h"
 
+#include "direction.hpp"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
-#include "direction.hpp"
 
-namespace
-{
+namespace {
 const std::string SAMPLES_10 = "file://10_samples_default.vds";
 const std::string SAMPLES_10_x2 = "file://10_double_value.vds";
 const std::string CREDENTIALS = "";
@@ -17,8 +16,7 @@ Grid samples_10_grid = Grid(2, 0, 7.2111, 3.6056, 33.69);
 Grid larger_grid = Grid(-8, -11, 7.2111, 3.6056, 33.69);
 Grid other_grid = Grid(2, 3, 4.472, 2.236, 333.43);
 
-enum Samples10Points
-{
+enum Samples10Points {
     i1_x10,
     i1_x11,
     i3_x10,
@@ -28,8 +26,7 @@ enum Samples10Points
     nodata
 };
 
-std::map<Samples10Points, std::vector<float>> samples_10_data(float fill)
-{
+std::map<Samples10Points, std::vector<float>> samples_10_data(float fill) {
     std::map<Samples10Points, std::vector<float>> points;
     points[i1_x10] = {-4.5, -3.5, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, 3.5, 4.5};
     points[i1_x11] = {4.5, 3.5, 2.5, 1.5, 0.5, -0.5, -1.5, -2.5, -3.5, -4.5};
@@ -41,29 +38,26 @@ std::map<Samples10Points, std::vector<float>> samples_10_data(float fill)
     return points;
 }
 
-class SubvolumeTest : public ::testing::Test
-{
-  protected:
-    void SetUp() override
-    {
+class SubvolumeTest : public ::testing::Test {
+protected:
+    void SetUp() override {
         datasource = make_single_datasource(SAMPLES_10.c_str(), CREDENTIALS.c_str());
     }
 
-    void TearDown() override
-    {
+    void TearDown() override {
         delete datasource;
     }
 
-    SingleDataSource *datasource;
+    SingleDataSource* datasource;
 
     static constexpr float fill = -999.25;
     std::map<float, std::vector<float>> points;
 
     void test_successful_subvolume_call(
-        RegularSurface const &primary_surface,
-        RegularSurface const &top_surface,
-        RegularSurface const &bottom_surface,
-        const Samples10Points *expected_data
+        RegularSurface const& primary_surface,
+        RegularSurface const& top_surface,
+        RegularSurface const& bottom_surface,
+        const Samples10Points* expected_data
     ) {
         auto size = primary_surface.grid().size();
 
@@ -74,23 +68,21 @@ class SubvolumeTest : public ::testing::Test
         cppapi::fetch_subvolume(*datasource, *subvolume, NEAREST, 0, size);
 
         /* We are checking here points unordered. Meaning that if all points in a
-        * row appear somewhere in the horizon, we assume we are good. Alternative
-        * is to check all points explicitly, but for this we need to know margin
-        * logic, which is too private to the code. Current solution seems to check
-        * good enough that for unaligned surface data from correct trace is
-        * returned.
-        */
+         * row appear somewhere in the horizon, we assume we are good. Alternative
+         * is to check all points explicitly, but for this we need to know margin
+         * logic, which is too private to the code. Current solution seems to check
+         * good enough that for unaligned surface data from correct trace is
+         * returned.
+         */
         auto points = samples_10_data(primary_surface.fillvalue());
-        for (int i = 0; i < size; ++i)
-        {
+        for (int i = 0; i < size; ++i) {
             auto expected_position = expected_data[i];
             if (expected_position == nodata) {
                 ASSERT_TRUE(subvolume->is_empty(i))
                     << "Expected empty subvolume at position " << i;
                 continue;
             }
-            for (auto it = subvolume->vertical_segment(i).begin(); it != subvolume->vertical_segment(i).end(); ++it)
-            {
+            for (auto it = subvolume->vertical_segment(i).begin(); it != subvolume->vertical_segment(i).end(); ++it) {
                 ASSERT_THAT(points.at(expected_position), ::testing::Contains(*it))
                     << "Retrieved value " << *it << " is not expected at position " << i;
             }
@@ -99,14 +91,14 @@ class SubvolumeTest : public ::testing::Test
     }
 };
 
-TEST_F(SubvolumeTest, SubvolumeSize)
-{
+TEST_F(SubvolumeTest, SubvolumeSize) {
     static constexpr int nrows = 3;
     static constexpr int ncols = 2;
     static constexpr std::size_t size = nrows * ncols;
 
     // 16, 20 and 24 fall on samples
 
+    // clang-format off
     std::array<float, size> primary_surface_data = {
         20, 20,
         20, 20,
@@ -142,6 +134,7 @@ TEST_F(SubvolumeTest, SubvolumeSize)
         6, 6,
         7, 7,
     };
+    // clang-format on
 
     RegularSurface primary_surface =
         RegularSurface(primary_surface_data.data(), nrows, ncols, samples_10_grid, fill);
@@ -157,8 +150,7 @@ TEST_F(SubvolumeTest, SubvolumeSize)
     );
 
     cppapi::fetch_subvolume(*datasource, *subvolume, NEAREST, 0, size);
-    for (int i = 0; i < size; ++i)
-    {
+    for (int i = 0; i < size; ++i) {
         EXPECT_EQ(expected_fetched_size[i], subvolume->vertical_segment(i).size())
             << "Retrieved segment size not as expected at position " << i;
     }
@@ -166,8 +158,7 @@ TEST_F(SubvolumeTest, SubvolumeSize)
     delete subvolume;
 }
 
-TEST_F(SubvolumeTest, DataForUnalignedSurface)
-{
+TEST_F(SubvolumeTest, DataForUnalignedSurface) {
     const float above = 2;
     const float below = 2;
 
@@ -195,10 +186,8 @@ TEST_F(SubvolumeTest, DataForUnalignedSurface)
     std::array<float, size> above_data = surface_data;
     std::array<float, size> below_data = surface_data;
 
-    std::transform(above_data.cbegin(), above_data.cend(), above_data.begin(),
-                  [above](float value) { return value - above; });
-    std::transform(below_data.cbegin(), below_data.cend(), below_data.begin(),
-                   [below](float value) { return value + below; });
+    std::transform(above_data.cbegin(), above_data.cend(), above_data.begin(), [above](float value) { return value - above; });
+    std::transform(below_data.cbegin(), below_data.cend(), below_data.begin(), [below](float value) { return value + below; });
 
     RegularSurface top_surface =
         RegularSurface(above_data.data(), nrows, ncols, other_grid, fill);
@@ -209,12 +198,12 @@ TEST_F(SubvolumeTest, DataForUnalignedSurface)
     test_successful_subvolume_call(primary_surface, top_surface, bottom_surface, expected.data());
 }
 
-TEST_F(SubvolumeTest, ManyFills)
-{
+TEST_F(SubvolumeTest, ManyFills) {
     static constexpr int nrows = 6;
     static constexpr int ncols = 4;
     static constexpr std::size_t size = nrows * ncols;
 
+    // clang-format off
     std::array<float, size> primary_surface_data = {
         fill, 20,   20,   fill,
         24,   24,   24,   24,
@@ -241,6 +230,7 @@ TEST_F(SubvolumeTest, ManyFills)
         16,   fill, 24,   28,
         60,   40,   80,   100
     };
+    // clang-format on
 
     std::array<Samples10Points, size> expected = {
         nodata, nodata, nodata, nodata,
@@ -263,14 +253,13 @@ TEST_F(SubvolumeTest, ManyFills)
     test_successful_subvolume_call(primary_surface, top_surface, bottom_surface, expected.data());
 }
 
-
-TEST_F(SubvolumeTest, LargestPossibleMarginRetrievedNearTraceTopBoundary)
-{
+TEST_F(SubvolumeTest, LargestPossibleMarginRetrievedNearTraceTopBoundary) {
     static constexpr int nrows = 3;
     static constexpr int ncols = 2;
     static constexpr std::size_t size = nrows * ncols;
 
     std::array<float, size> primary_surface_data = {
+        // clang-format off
         20, 20,
         20, 20,
         20, 19,
@@ -286,7 +275,7 @@ TEST_F(SubvolumeTest, LargestPossibleMarginRetrievedNearTraceTopBoundary)
         20, 20,
         20, 20,
         20, 20,
-    };
+    }; // clang-format on
 
     std::array expected_positions{
         4.0f, 8.0f, 12.0f, 16.0f, 20.0f, 24.0f, 28.0f
@@ -308,8 +297,7 @@ TEST_F(SubvolumeTest, LargestPossibleMarginRetrievedNearTraceTopBoundary)
     );
 
     cppapi::fetch_subvolume(*datasource, *subvolume, NEAREST, 0, size);
-    for (int i = 0; i < size; ++i)
-    {
+    for (int i = 0; i < size; ++i) {
         auto segment = subvolume->vertical_segment(i);
         EXPECT_EQ(expected_fetched_size, segment.size())
             << "Retrieved segment size not as expected at position " << i;
@@ -321,13 +309,13 @@ TEST_F(SubvolumeTest, LargestPossibleMarginRetrievedNearTraceTopBoundary)
     delete subvolume;
 }
 
-TEST_F(SubvolumeTest, LargestPossibleMarginRetrievedNearTraceBottomBoundary)
-{
+TEST_F(SubvolumeTest, LargestPossibleMarginRetrievedNearTraceBottomBoundary) {
     static constexpr int nrows = 3;
     static constexpr int ncols = 2;
     static constexpr std::size_t size = nrows * ncols;
 
     std::array<float, size> primary_surface_data = {
+        // clang-format off
         24, 24,
         24, 24,
         24, 23,
@@ -343,7 +331,7 @@ TEST_F(SubvolumeTest, LargestPossibleMarginRetrievedNearTraceBottomBoundary)
         40, 39,
         36, 35,
         32, 32,
-    };
+    }; // clang-format on
 
     std::array expected_positions{
         12, 16, 20, 24, 28, 32, 36, 40
@@ -365,8 +353,7 @@ TEST_F(SubvolumeTest, LargestPossibleMarginRetrievedNearTraceBottomBoundary)
     );
 
     cppapi::fetch_subvolume(*datasource, *subvolume, NEAREST, 0, size);
-    for (int i = 0; i < size; ++i)
-    {
+    for (int i = 0; i < size; ++i) {
         auto segment = subvolume->vertical_segment(i);
         EXPECT_EQ(expected_fetched_size, segment.size())
             << "Retrieved segment size not as expected at position " << i;
@@ -378,30 +365,26 @@ TEST_F(SubvolumeTest, LargestPossibleMarginRetrievedNearTraceBottomBoundary)
     delete subvolume;
 }
 
-
-class SurfaceAlignmentTest : public ::testing::Test
-{
-  protected:
-    void SetUp() override
-    {
+class SurfaceAlignmentTest : public ::testing::Test {
+protected:
+    void SetUp() override {
         datasource = make_single_datasource(SAMPLES_10.c_str(), CREDENTIALS.c_str());
     }
 
-    void TearDown() override
-    {
+    void TearDown() override {
         delete datasource;
     }
 
-    SingleDataSource *datasource;
+    SingleDataSource* datasource;
 
     static constexpr float fill = -999.25;
 };
 
 void test_successful_align_call(
-    RegularSurface const &primary,
-    RegularSurface const &secondary,
-    RegularSurface &aligned,
-    const float *expected_data,
+    RegularSurface const& primary,
+    RegularSurface const& secondary,
+    RegularSurface& aligned,
+    const float* expected_data,
     bool expected_primary_is_top
 ) {
     bool primary_is_top;
@@ -409,27 +392,26 @@ void test_successful_align_call(
 
     EXPECT_EQ(primary_is_top, expected_primary_is_top) << "Wrong column number";
 
-    for (int i = 0; i < primary.size(); ++i)
-    {
+    for (int i = 0; i < primary.size(); ++i) {
         EXPECT_EQ(aligned[i], expected_data[i]) << "Wrong surface at index " << i;
     }
 }
 
 void test_successful_align_call(
-    RegularSurface const &primary,
-    RegularSurface const &secondary,
-    const float *expected_data,
+    RegularSurface const& primary,
+    RegularSurface const& secondary,
+    const float* expected_data,
     bool expected_primary_is_top
 ) {
-    std::vector< float> data(primary.size());
+    std::vector<float> data(primary.size());
     RegularSurface aligned = RegularSurface(
-        data.data(), primary.grid(), secondary.fillvalue());
+        data.data(), primary.grid(), secondary.fillvalue()
+    );
 
     test_successful_align_call(primary, secondary, aligned, expected_data, expected_primary_is_top);
 }
 
-TEST_F(SurfaceAlignmentTest, AlignedSurfaces)
-{
+TEST_F(SurfaceAlignmentTest, AlignedSurfaces) {
     static constexpr std::size_t nrows = 3;
     static constexpr std::size_t ncols = 2;
     std::array<float, nrows * ncols> primary_surface_data = {
@@ -444,15 +426,16 @@ TEST_F(SurfaceAlignmentTest, AlignedSurfaces)
     };
 
     RegularSurface primary = RegularSurface(
-        primary_surface_data.data(), nrows, ncols, samples_10_grid, fill);
+        primary_surface_data.data(), nrows, ncols, samples_10_grid, fill
+    );
     RegularSurface secondary = RegularSurface(
-        secondary_surface_data.data(), nrows, ncols, samples_10_grid, fill);
+        secondary_surface_data.data(), nrows, ncols, samples_10_grid, fill
+    );
 
     test_successful_align_call(primary, secondary, secondary_surface_data.data(), true);
 }
 
-TEST_F(SurfaceAlignmentTest, PrimaryIsBottom)
-{
+TEST_F(SurfaceAlignmentTest, PrimaryIsBottom) {
     static constexpr std::size_t nrows = 3;
     static constexpr std::size_t ncols = 2;
     std::array<float, nrows * ncols> primary_surface_data = {
@@ -467,15 +450,16 @@ TEST_F(SurfaceAlignmentTest, PrimaryIsBottom)
     };
 
     RegularSurface primary = RegularSurface(
-        primary_surface_data.data(), nrows, ncols, samples_10_grid, fill);
+        primary_surface_data.data(), nrows, ncols, samples_10_grid, fill
+    );
     RegularSurface secondary = RegularSurface(
-        secondary_surface_data.data(), nrows, ncols, samples_10_grid, fill);
+        secondary_surface_data.data(), nrows, ncols, samples_10_grid, fill
+    );
 
     test_successful_align_call(primary, secondary, secondary_surface_data.data(), false);
 }
 
-TEST_F(SurfaceAlignmentTest, SecondaryLarger)
-{
+TEST_F(SurfaceAlignmentTest, SecondaryLarger) {
     static constexpr std::size_t pnrows = 2;
     static constexpr std::size_t pncols = 1;
 
@@ -499,15 +483,16 @@ TEST_F(SurfaceAlignmentTest, SecondaryLarger)
     };
 
     RegularSurface primary = RegularSurface(
-        primary_surface_data.data(), pnrows, pncols, samples_10_grid, fill);
+        primary_surface_data.data(), pnrows, pncols, samples_10_grid, fill
+    );
     RegularSurface secondary = RegularSurface(
-        secondary_surface_data.data(), snrows, sncols, samples_10_grid, fill);
+        secondary_surface_data.data(), snrows, sncols, samples_10_grid, fill
+    );
 
     test_successful_align_call(primary, secondary, expected.data(), true);
 }
 
-TEST_F(SurfaceAlignmentTest, PrimaryLarger)
-{
+TEST_F(SurfaceAlignmentTest, PrimaryLarger) {
     static constexpr std::size_t pnrows = 3;
     static constexpr std::size_t pncols = 2;
 
@@ -532,15 +517,16 @@ TEST_F(SurfaceAlignmentTest, PrimaryLarger)
     };
 
     RegularSurface primary = RegularSurface(
-        primary_surface_data.data(), pnrows, pncols, samples_10_grid, fill);
+        primary_surface_data.data(), pnrows, pncols, samples_10_grid, fill
+    );
     RegularSurface secondary = RegularSurface(
-        secondary_surface_data.data(), snrows, sncols, samples_10_grid, fill);
+        secondary_surface_data.data(), snrows, sncols, samples_10_grid, fill
+    );
 
     test_successful_align_call(primary, secondary, expected.data(), true);
 }
 
-TEST_F(SurfaceAlignmentTest, HolesInData)
-{
+TEST_F(SurfaceAlignmentTest, HolesInData) {
     static constexpr std::size_t pnrows = 3;
     static constexpr std::size_t pncols = 2;
 
@@ -570,19 +556,21 @@ TEST_F(SurfaceAlignmentTest, HolesInData)
     };
 
     RegularSurface primary = RegularSurface(
-        primary_surface_data.data(), pnrows, pncols, samples_10_grid, fill1);
+        primary_surface_data.data(), pnrows, pncols, samples_10_grid, fill1
+    );
     RegularSurface secondary = RegularSurface(
-        secondary_surface_data.data(), snrows, sncols, samples_10_grid, fill2);
+        secondary_surface_data.data(), snrows, sncols, samples_10_grid, fill2
+    );
 
-    std::vector< float> data(primary.size());
+    std::vector<float> data(primary.size());
     RegularSurface aligned = RegularSurface(
-        data.data(), primary.grid(), fill3);
+        data.data(), primary.grid(), fill3
+    );
 
     test_successful_align_call(primary, secondary, aligned, expected.data(), true);
 }
 
-TEST_F(SurfaceAlignmentTest, SurfaceDifferentOrigin)
-{
+TEST_F(SurfaceAlignmentTest, SurfaceDifferentOrigin) {
     static constexpr std::size_t pnrows = 6;
     static constexpr std::size_t pncols = 4;
 
@@ -599,6 +587,7 @@ TEST_F(SurfaceAlignmentTest, SurfaceDifferentOrigin)
     static constexpr std::size_t sncols = 2;
 
     std::array<float, snrows * sncols> secondary_surface_data = {
+        // clang-format off
         24, 25,
         26, 27,
         28, 29,
@@ -611,18 +600,19 @@ TEST_F(SurfaceAlignmentTest, SurfaceDifferentOrigin)
         fill, 26,   27,   fill,
         fill, 28,   29,   fill,
         fill, fill, fill, fill,
-    };
+    }; // clang-format on
 
     RegularSurface primary = RegularSurface(
-        primary_surface_data.data(), pnrows, pncols, larger_grid, fill);
+        primary_surface_data.data(), pnrows, pncols, larger_grid, fill
+    );
     RegularSurface secondary = RegularSurface(
-        secondary_surface_data.data(), snrows, sncols, samples_10_grid, fill);
+        secondary_surface_data.data(), snrows, sncols, samples_10_grid, fill
+    );
 
     test_successful_align_call(primary, secondary, expected.data(), true);
 }
 
-TEST_F(SurfaceAlignmentTest, UnalignedSurfacesPrimaryAligned)
-{
+TEST_F(SurfaceAlignmentTest, UnalignedSurfacesPrimaryAligned) {
     static constexpr std::size_t pnrows = 3;
     static constexpr std::size_t pncols = 2;
 
@@ -649,24 +639,26 @@ TEST_F(SurfaceAlignmentTest, UnalignedSurfacesPrimaryAligned)
     };
 
     RegularSurface primary = RegularSurface(
-        primary_surface_data.data(), pnrows, pncols, samples_10_grid, fill);
+        primary_surface_data.data(), pnrows, pncols, samples_10_grid, fill
+    );
     RegularSurface secondary = RegularSurface(
-        secondary_surface_data.data(), snrows, sncols, other_grid, fill);
+        secondary_surface_data.data(), snrows, sncols, other_grid, fill
+    );
 
     test_successful_align_call(primary, secondary, expected.data(), true);
 }
 
-TEST_F(SurfaceAlignmentTest, UnalignedSurfacesPrimaryUnaligned)
-{
+TEST_F(SurfaceAlignmentTest, UnalignedSurfacesPrimaryUnaligned) {
     static constexpr std::size_t pnrows = 4;
     static constexpr std::size_t pncols = 6;
 
     std::array<float, pnrows * pncols> primary_surface_data = {
+        // clang-format off
         20, 20, 20, 20, 20, 20,
         20, 20, 20, 20, 20, 20,
         20, 20, 20, 20, 20, 20,
         20, 20, 20, 20, 20, 20,
-    };
+    }; // clang-format on
 
     static constexpr std::size_t snrows = 3;
     static constexpr std::size_t sncols = 2;
@@ -685,15 +677,16 @@ TEST_F(SurfaceAlignmentTest, UnalignedSurfacesPrimaryUnaligned)
     };
 
     RegularSurface primary = RegularSurface(
-        primary_surface_data.data(), pnrows, pncols, other_grid, fill);
+        primary_surface_data.data(), pnrows, pncols, other_grid, fill
+    );
     RegularSurface secondary = RegularSurface(
-        secondary_surface_data.data(), snrows, sncols, samples_10_grid, fill);
+        secondary_surface_data.data(), snrows, sncols, samples_10_grid, fill
+    );
 
     test_successful_align_call(primary, secondary, expected.data(), true);
 }
 
-TEST_F(SurfaceAlignmentTest, IdenticalSurfaces)
-{
+TEST_F(SurfaceAlignmentTest, IdenticalSurfaces) {
     static constexpr std::size_t pnrows = 3;
     static constexpr std::size_t pncols = 2;
 
@@ -721,19 +714,21 @@ TEST_F(SurfaceAlignmentTest, IdenticalSurfaces)
     const bool expected_primary_is_top = false;
 
     RegularSurface primary = RegularSurface(
-        primary_surface_data.data(), pnrows, pncols, samples_10_grid, fill);
+        primary_surface_data.data(), pnrows, pncols, samples_10_grid, fill
+    );
     RegularSurface secondary = RegularSurface(
-        secondary_surface_data.data(), snrows, sncols, samples_10_grid, fill);
+        secondary_surface_data.data(), snrows, sncols, samples_10_grid, fill
+    );
 
     test_successful_align_call(primary, secondary, expected.data(), expected_primary_is_top);
 }
 
-TEST_F(SurfaceAlignmentTest, SameStartingValue)
-{
+TEST_F(SurfaceAlignmentTest, SameStartingValue) {
     static constexpr std::size_t pnrows = 2;
     static constexpr std::size_t pncols = 2;
 
     std::array<float, pnrows * pncols> primary_surface_data = {
+        // clang-format off
         20, 20,
         21, 20,
     };
@@ -749,18 +744,19 @@ TEST_F(SurfaceAlignmentTest, SameStartingValue)
     const std::array<float, pnrows * pncols> expected = {
         20, 20,
         20, 20,
-    };
+    }; // clang-format on
 
     RegularSurface primary = RegularSurface(
-        primary_surface_data.data(), pnrows, pncols, samples_10_grid, fill);
+        primary_surface_data.data(), pnrows, pncols, samples_10_grid, fill
+    );
     RegularSurface secondary = RegularSurface(
-        secondary_surface_data.data(), snrows, sncols, samples_10_grid, fill);
+        secondary_surface_data.data(), snrows, sncols, samples_10_grid, fill
+    );
 
     test_successful_align_call(primary, secondary, expected.data(), false);
 }
 
-TEST_F(SurfaceAlignmentTest, IntersectingSurfaces)
-{
+TEST_F(SurfaceAlignmentTest, IntersectingSurfaces) {
     static constexpr std::size_t pnrows = 3;
     static constexpr std::size_t pncols = 2;
 
@@ -781,19 +777,24 @@ TEST_F(SurfaceAlignmentTest, IntersectingSurfaces)
     };
 
     RegularSurface primary = RegularSurface(
-        primary_surface_data.data(), pnrows, pncols, samples_10_grid, fill);
+        primary_surface_data.data(), pnrows, pncols, samples_10_grid, fill
+    );
     RegularSurface secondary = RegularSurface(
-        secondary_surface_data.data(), snrows, sncols, other_grid, fill);
+        secondary_surface_data.data(), snrows, sncols, other_grid, fill
+    );
 
-    std::vector< float> data(primary.size());
+    std::vector<float> data(primary.size());
     RegularSurface aligned = RegularSurface(
-        data.data(), pnrows, pncols, samples_10_grid, fill);
+        data.data(), pnrows, pncols, samples_10_grid, fill
+    );
     bool primary_is_top;
 
     EXPECT_THAT(
         [&]() { cppapi::align_surfaces(primary, secondary, aligned, &primary_is_top); },
         testing::ThrowsMessage<std::runtime_error>(
-            testing::HasSubstr("Surfaces intersect at primary surface point (2, 0)")));
+            testing::HasSubstr("Surfaces intersect at primary surface point (2, 0)")
+        )
+    );
 }
 
 void inplace_subtraction(float* buffer_A, const float* buffer_B, std::size_t nsamples) noexcept(true) {

@@ -44,9 +44,10 @@ public:
      * @param zero_index_sample_position Sample position (in annotated
      * coordinates of samples axis) at index 0
      */
-    float sample_position_at(int index, float zero_index_sample_position) const noexcept{
+    float sample_position_at(int index, float zero_index_sample_position) const noexcept {
         return zero_index_sample_position + this->stepsize() * index;
     }
+
 protected:
     /**
      * @param stepsize Distance between sequential samples
@@ -251,6 +252,7 @@ public:
         std::size_t reference_sample_number = std::round((reference - zero_sample_offset) / this->stepsize());
         return reference_sample_number - top_sample_number;
     }
+
 private:
     /**
      * In resampled data reference points by definition fall onto samples. Thus
@@ -263,7 +265,6 @@ private:
     float zero_sample_offset(float reference) const {
         return fmod_with_tolerance(reference, this->stepsize());
     }
-
 };
 
 /**
@@ -300,7 +301,7 @@ public:
      * Position of sample (in annotated coordinates of samples axis) at provided
      * index, given that top sample is at position 0
      */
-    float sample_position_at(std::size_t index) const noexcept{
+    float sample_position_at(std::size_t index) const noexcept {
         return this->blueprint()->sample_position_at(index, this->top_sample_position());
     }
 
@@ -353,8 +354,7 @@ public:
           m_data_begin(data_begin),
           m_data_end(data_end),
           m_top_margin(top_margin),
-          m_bottom_margin(bottom_margin)
-          {}
+          m_bottom_margin(bottom_margin) {}
 
     void reinitialize(
         float reference,

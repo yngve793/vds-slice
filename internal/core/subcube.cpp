@@ -3,9 +3,9 @@
 #include <stdexcept>
 
 #include "axis.hpp"
+#include "ctypes.h"
 #include "exceptions.hpp"
 #include "metadatahandle.hpp"
-#include "ctypes.h"
 #include "utils.hpp"
 
 namespace {
@@ -14,8 +14,8 @@ int lineno_annotation_to_voxel(
     int lineno,
     Axis const& axis
 ) {
-    float min    = axis.min();
-    float max    = axis.max();
+    float min = axis.min();
+    float max = axis.max();
     float stepsize = axis.stepsize();
 
     float voxelline = (lineno - min) / stepsize;
@@ -73,20 +73,19 @@ int to_voxel(
 } /* namespace */
 
 SubCube::SubCube(MetadataHandle const& metadata) {
-    auto const& iline  = metadata.iline();
-    auto const& xline  = metadata.xline();
+    auto const& iline = metadata.iline();
+    auto const& xline = metadata.xline();
     auto const& sample = metadata.sample();
 
-    this->bounds.upper[iline.dimension() ] = iline.nsamples();
-    this->bounds.upper[xline.dimension() ] = xline.nsamples();
+    this->bounds.upper[iline.dimension()] = iline.nsamples();
+    this->bounds.upper[xline.dimension()] = xline.nsamples();
     this->bounds.upper[sample.dimension()] = sample.nsamples();
 }
 
-
 void SubCube::constrain(
     MetadataHandle const& metadata,
-    std::vector< Bound > const& bounds
-) noexcept (false) {
+    std::vector<Bound> const& bounds
+) noexcept(false) {
     for (auto const& bound : bounds) {
         auto direction = Direction(bound.name);
         auto system = direction.coordinate_system();
@@ -95,14 +94,14 @@ void SubCube::constrain(
         auto lower = ::to_voxel(axis, bound.lower, system);
         auto upper = ::to_voxel(axis, bound.upper, system);
 
-        this->bounds.lower[ axis.dimension() ] = lower;
-        this->bounds.upper[ axis.dimension() ] = upper + 1; // inclusive
+        this->bounds.lower[axis.dimension()] = lower;
+        this->bounds.upper[axis.dimension()] = upper + 1; // inclusive
     }
 }
 
 void SubCube::set_slice(
-    Axis const&                  axis,
-    int const                    lineno,
+    Axis const& axis,
+    int const lineno,
     enum coordinate_system const coordinate_system
 ) {
     int voxelline = ::to_voxel(axis, lineno, coordinate_system);

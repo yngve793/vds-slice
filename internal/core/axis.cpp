@@ -1,19 +1,17 @@
 #include "axis.hpp"
 
-#include <stdexcept>
 #include "exceptions.hpp"
+#include <stdexcept>
 
+#include "utils.hpp"
 #include <OpenVDS/IJKCoordinateTransformer.h>
 #include <OpenVDS/KnownMetadata.h>
-#include "utils.hpp"
-
 
 Axis::Axis(
-    OpenVDS::VolumeDataLayout const * const layout,
-    int const                               dimension
+    OpenVDS::VolumeDataLayout const* const layout,
+    int const dimension
 ) : m_dimension(dimension),
-    m_axis_descriptor(layout->GetAxisDescriptor(dimension))
-{}
+    m_axis_descriptor(layout->GetAxisDescriptor(dimension)) {}
 
 float Axis::min() const noexcept(true) {
     return this->m_axis_descriptor.GetCoordinateMin();
@@ -35,7 +33,7 @@ int Axis::dimension() const noexcept(true) {
     return this->m_dimension;
 }
 
-float Axis::stepsize() const noexcept (true) {
+float Axis::stepsize() const noexcept(true) {
     return (this->max() - this->min()) / (this->nsamples() - 1);
 }
 
@@ -44,12 +42,12 @@ std::string Axis::name() const noexcept(true) {
 }
 
 bool Axis::inrange(float coordinate) const noexcept(true) {
-    return this->min() <= coordinate && this->max() >=  coordinate;
+    return this->min() <= coordinate && this->max() >= coordinate;
 }
 
 bool Axis::inrange_with_margin(float coordinate) const noexcept(true) {
     return (this->min() - 0.5 * this->stepsize()) <= coordinate &&
-           (this->max() + 0.5 * this->stepsize()) >  coordinate;
+           (this->max() + 0.5 * this->stepsize()) > coordinate;
 }
 
 float Axis::to_sample_position(float coordinate) noexcept(false) {
@@ -63,7 +61,8 @@ void Axis::assert_equal(Axis const& other) noexcept(false) {
             "Axis: " + this->name() +
             ": Mismatch in number of samples: " +
             utils::to_string_with_precision(this->nsamples()) +
-            " != " + utils::to_string_with_precision(other.nsamples()));
+            " != " + utils::to_string_with_precision(other.nsamples())
+        );
     }
 
     if (this->min() != other.min()) {
@@ -71,7 +70,8 @@ void Axis::assert_equal(Axis const& other) noexcept(false) {
             "Axis: " + this->name() +
             ": Mismatch in min value: " +
             utils::to_string_with_precision(this->min()) +
-            " != " + utils::to_string_with_precision(other.min()));
+            " != " + utils::to_string_with_precision(other.min())
+        );
     }
 
     if (this->max() != other.max()) {
@@ -79,7 +79,8 @@ void Axis::assert_equal(Axis const& other) noexcept(false) {
             "Axis: " + this->name() +
             ": Mismatch in max value: " +
             utils::to_string_with_precision(this->max()) +
-            " != " + utils::to_string_with_precision(other.max()));
+            " != " + utils::to_string_with_precision(other.max())
+        );
     }
 
     // Stepsize is a data integrity check.
@@ -89,7 +90,8 @@ void Axis::assert_equal(Axis const& other) noexcept(false) {
             "Axis: " + this->name() +
             ": Mismatch in stepsize: " +
             std::to_string(this->stepsize()) +
-            " != " + std::to_string(other.stepsize()));
+            " != " + std::to_string(other.stepsize())
+        );
     }
 
     if (this->unit() != other.unit()) {
@@ -97,7 +99,8 @@ void Axis::assert_equal(Axis const& other) noexcept(false) {
             "Axis: " + this->name() +
             ": Mismatch in unit: " +
             this->unit() +
-            " != " + other.unit());
+            " != " + other.unit()
+        );
     }
 
     // Ignore order of dimensions
@@ -107,6 +110,7 @@ void Axis::assert_equal(Axis const& other) noexcept(false) {
             "Axis: " + this->name() +
             ": Mismatch in name: " +
             this->name() +
-            " != " + other.name());
+            " != " + other.name()
+        );
     }
 }

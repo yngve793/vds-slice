@@ -25,6 +25,7 @@ enum coordinate_system Direction::coordinate_system() const noexcept(false) {
 }
 
 std::string Direction::to_string() const noexcept(false) {
+    // clang-format off
     switch (this->name()) {
         case I:         return std::string( OpenVDS::KnownAxisNames::I()         );
         case J:         return std::string( OpenVDS::KnownAxisNames::J()         );
@@ -38,13 +39,14 @@ std::string Direction::to_string() const noexcept(false) {
             throw std::runtime_error("Unhandled axis");
         }
     }
+    // clang-format on
 }
 
 enum axis_name Direction::name() const noexcept(true) {
     return this->m_axis_name;
 }
 
-bool Direction::is_iline() const noexcept (true) {
+bool Direction::is_iline() const noexcept(true) {
     switch (this->name()) {
         case I: // fallthrough
         case INLINE:
@@ -54,7 +56,7 @@ bool Direction::is_iline() const noexcept (true) {
     }
 }
 
-bool Direction::is_xline() const noexcept (true) {
+bool Direction::is_xline() const noexcept(true) {
     switch (this->name()) {
         case J: // fallthrough
         case CROSSLINE:
@@ -64,7 +66,7 @@ bool Direction::is_xline() const noexcept (true) {
     }
 }
 
-bool Direction::is_sample() const noexcept (true) {
+bool Direction::is_sample() const noexcept(true) {
     switch (this->name()) {
         case K:     // fallthrough
         case DEPTH: // fallthrough

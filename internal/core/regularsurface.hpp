@@ -8,17 +8,17 @@ struct Point {
     double y;
 };
 
-struct AffineTransformation : private std::array< std::array< double, 3>, 2 > {
-    using base_type = std::array< std::array< double, 3 >, 2 >;
+struct AffineTransformation : private std::array<std::array<double, 3>, 2> {
+    using base_type = std::array<std::array<double, 3>, 2>;
 
     explicit AffineTransformation(base_type x) : base_type(std::move(x)) {}
 
-    Point operator*(Point p) const noexcept (true);
+    Point operator*(Point p) const noexcept(true);
 
     friend bool operator==(
         AffineTransformation const& left,
         AffineTransformation const& right
-    ) noexcept (true);
+    ) noexcept(true);
 
     static AffineTransformation from_rotation(
         double xori,
@@ -26,7 +26,7 @@ struct AffineTransformation : private std::array< std::array< double, 3>, 2 > {
         double xinc,
         double yinc,
         double rot
-    ) noexcept (true);
+    ) noexcept(true);
 
     /* Make inverse transformation to the one created from rotation */
     static AffineTransformation inverse_from_rotation(
@@ -35,7 +35,7 @@ struct AffineTransformation : private std::array< std::array< double, 3>, 2 > {
         double xinc,
         double yinc,
         double rot
-    )noexcept (true);
+    ) noexcept(true);
 };
 
 /**
@@ -47,19 +47,17 @@ struct AffineTransformation : private std::array< std::array< double, 3>, 2 > {
  * to achieve here due to floating point errors and plane data coming from other
  * systems. So it is up to the user to assure grid's properties are as desired.
  */
-struct Grid
-{
+struct Grid {
     Grid(
         double xori,
         double yori,
         double xinc,
         double yinc,
         double rot
-    ): m_transformation(
-        AffineTransformation::from_rotation(xori, yori, xinc, yinc, rot)),
-       m_inverse_transformation(
-        AffineTransformation::inverse_from_rotation(xori, yori, xinc, yinc, rot))
-    {}
+    ) : m_transformation(AffineTransformation::from_rotation(xori, yori, xinc, yinc, rot)),
+        m_inverse_transformation(
+            AffineTransformation::inverse_from_rotation(xori, yori, xinc, yinc, rot)
+        ) {}
 
     /**
      * Compares grids for equality using equality of their affine
@@ -77,8 +75,7 @@ struct Grid
     AffineTransformation m_inverse_transformation;
 };
 
-struct BoundedGrid : public Grid
-{
+struct BoundedGrid : public Grid {
     BoundedGrid(
         Grid grid,
         std::size_t nrows,
@@ -89,7 +86,7 @@ struct BoundedGrid : public Grid
     Point to_cdp(
         std::size_t const row,
         std::size_t const col
-    ) const noexcept (false);
+    ) const noexcept(false);
 
     Point to_cdp(
         std::size_t i
@@ -98,20 +95,20 @@ struct BoundedGrid : public Grid
     /* World coordinates -> grid position */
     Point from_cdp(
         Point point
-    ) const noexcept (false);
+    ) const noexcept(false);
 
     bool operator==(const BoundedGrid& other) const noexcept(true);
 
-    std::size_t nrows() const noexcept (true) { return this->m_nrows; };
-    std::size_t ncols() const noexcept (true) { return this->m_ncols; };
-    std::size_t size()  const noexcept (true) { return this->ncols() * this->nrows(); };
+    std::size_t nrows() const noexcept(true) { return this->m_nrows; };
+    std::size_t ncols() const noexcept(true) { return this->m_ncols; };
+    std::size_t size() const noexcept(true) { return this->ncols() * this->nrows(); };
 
-    std::size_t row(std::size_t i) const noexcept (false);
-    std::size_t col(std::size_t i) const noexcept (false);
+    std::size_t row(std::size_t i) const noexcept(false);
+    std::size_t col(std::size_t i) const noexcept(false);
 
 private:
-    std::size_t  m_nrows;
-    std::size_t  m_ncols;
+    std::size_t m_nrows;
+    std::size_t m_ncols;
 };
 
 std::pair<std::size_t, std::size_t> as_pair(std::size_t row, std::size_t col);
@@ -131,7 +128,7 @@ std::pair<std::size_t, std::size_t> as_pair(std::size_t row, std::size_t col);
  *
  * [1] https://en.wikipedia.org/wiki/Affine_transformation
  */
-class RegularSurface{
+class RegularSurface {
 
 public:
     RegularSurface(
@@ -140,17 +137,15 @@ public:
         float fillvalue
     ) : m_data(data),
         m_fillvalue(fillvalue),
-        m_grid(grid)
-    {}
+        m_grid(grid) {}
 
     RegularSurface(
         float* data,
-        std::size_t  nrows,
-        std::size_t  ncols,
+        std::size_t nrows,
+        std::size_t ncols,
         Grid grid,
         float fillvalue
-    ) : RegularSurface(data, BoundedGrid(grid, nrows, ncols), fillvalue)
-    {}
+    ) : RegularSurface(data, BoundedGrid(grid, nrows, ncols), fillvalue) {}
 
     float(&operator[](std::size_t i) noexcept(false));
     const float(&operator[](std::size_t i) const noexcept(false));
@@ -158,15 +153,15 @@ public:
     float(&operator[](std::pair<std::size_t, std::size_t>) noexcept(false));
     const float(&operator[](std::pair<std::size_t, std::size_t>) const noexcept(false));
 
-    float fillvalue() const noexcept (true) { return this->m_fillvalue; };
+    float fillvalue() const noexcept(true) { return this->m_fillvalue; };
 
-    std::size_t size() const noexcept (true) { return this->m_grid.size(); };
+    std::size_t size() const noexcept(true) { return this->m_grid.size(); };
 
     BoundedGrid const& grid() const noexcept(true) { return this->m_grid; };
 
 private:
-    float*             m_data;
-    float              m_fillvalue;
+    float* m_data;
+    float m_fillvalue;
     const BoundedGrid m_grid;
 };
 
