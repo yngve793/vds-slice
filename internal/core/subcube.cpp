@@ -12,7 +12,7 @@ namespace {
 
 int lineno_annotation_to_voxel(
     int lineno,
-    Axis const& axis
+    BaseAxis const& axis
 ) {
     float min    = axis.min();
     float max    = axis.max();
@@ -34,7 +34,7 @@ int lineno_annotation_to_voxel(
 
 int lineno_index_to_voxel(
     int lineno,
-    Axis const& axis
+    BaseAxis const& axis
 ) {
     /* Line-numbers in IJK match Voxel - do bound checking and return*/
     int min = 0;
@@ -53,7 +53,7 @@ int lineno_index_to_voxel(
 }
 
 int to_voxel(
-    Axis const& axis,
+    BaseAxis const& axis,
     int const lineno,
     enum coordinate_system const system
 ) {
@@ -90,7 +90,7 @@ void SubCube::constrain(
     for (auto const& bound : bounds) {
         auto direction = Direction(bound.name);
         auto system = direction.coordinate_system();
-        auto axis = metadata.get_axis(direction);
+        const BaseAxis& axis = metadata.get_axis(direction);
 
         auto lower = ::to_voxel(axis, bound.lower, system);
         auto upper = ::to_voxel(axis, bound.upper, system);
@@ -101,7 +101,7 @@ void SubCube::constrain(
 }
 
 void SubCube::set_slice(
-    Axis const&                  axis,
+    BaseAxis const&              axis,
     int const                    lineno,
     enum coordinate_system const coordinate_system
 ) {

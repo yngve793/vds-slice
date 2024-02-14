@@ -44,7 +44,7 @@ void to_response(nlohmann::json const& metadata, response* response) {
 }
 
 nlohmann::json json_axis(
-    Axis const& axis,
+    BaseAxis const& axis,
     SubCube const& subcube
 ) {
     auto const& lower = subcube.bounds.lower;
@@ -71,7 +71,7 @@ nlohmann::json json_axis(
 nlohmann::json json_slice_geospatial(
     MetadataHandle const& metadata,
     Direction const direction,
-    Axis const& axis,
+    BaseAxis const& axis,
     int lineno,
     SubCube const& bounds
 ) {
@@ -155,9 +155,9 @@ void slice_metadata(
     nlohmann::json meta;
     meta["format"] = fmtstr(DataHandle::format());
 
-    Axis const& inline_axis = metadata.iline();
-    Axis const& crossline_axis = metadata.xline();
-    Axis const& sample_axis = metadata.sample();
+    BaseAxis const& inline_axis = metadata.iline();
+    BaseAxis const& crossline_axis = metadata.xline();
+    BaseAxis const& sample_axis = metadata.sample();
 
     SubCube bounds(metadata);
     bounds.constrain(metadata, slicebounds);
@@ -166,7 +166,7 @@ void slice_metadata(
     auto const& lower = bounds.bounds.lower;
     auto const& upper = bounds.bounds.upper;
 
-    auto json_shape = [&](Axis const &x, Axis const &y) {
+    auto json_shape = [&](BaseAxis const &x, BaseAxis const &y) {
         meta["x"] = json_axis(x, bounds);
         meta["y"] = json_axis(y, bounds);
         meta["shape"] = nlohmann::json::array({
@@ -203,7 +203,7 @@ void fence_metadata(
     MetadataHandle const& metadata = datasource.get_metadata();
 
     nlohmann::json meta;
-    Axis const& sample_axis = metadata.sample();
+    BaseAxis const& sample_axis = metadata.sample();
     meta["shape"] = nlohmann::json::array({npoints, sample_axis.nsamples() });
     meta["format"] = fmtstr(DataHandle::format());
 
@@ -226,13 +226,13 @@ void metadata(DataSource& datasource, response* out) {
 
     SubCube volume(metadata);
 
-    Axis const& inline_axis = metadata.iline();
+    BaseAxis const& inline_axis = metadata.iline();
     meta["axis"].push_back(json_axis(inline_axis, volume));
 
-    Axis const& crossline_axis = metadata.xline();
+    BaseAxis const& crossline_axis = metadata.xline();
     meta["axis"].push_back(json_axis(crossline_axis, volume));
 
-    Axis const& sample_axis = metadata.sample();
+    BaseAxis const& sample_axis = metadata.sample();
     meta["axis"].push_back(json_axis(sample_axis, volume));
 
     return to_response(meta, out);

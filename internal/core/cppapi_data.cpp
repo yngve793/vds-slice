@@ -47,7 +47,7 @@ bool equal(const char* lhs, const char* rhs) {
  *     Depth          | Depth or Sample | "m", "ft", or "usft"
  */
 void validate_vertical_axis(
-    Axis const& vertical_axis,
+    BaseAxis const& vertical_axis,
     Direction const& request
 ) noexcept (false) {
     const auto& unit = vertical_axis.unit();
@@ -137,7 +137,7 @@ void slice(
     response* out
 ) {
     MetadataHandle const& metadata = handle.get_metadata();
-    Axis const& axis = metadata.get_axis(direction);
+    BaseAxis const& axis = metadata.get_axis(direction);
 
     if (direction.is_sample()) {
         validate_vertical_axis(metadata.sample(), direction);
@@ -189,9 +189,9 @@ void fence(
             }
         }
     };
-    Axis inline_axis    = metadata.iline();
-    Axis crossline_axis = metadata.xline();
-    Axis samples_axis   = metadata.sample();
+    const BaseAxis& inline_axis    = metadata.iline();
+    const BaseAxis& crossline_axis = metadata.xline();
+    const BaseAxis& samples_axis   = metadata.sample();
     auto nsamples       = samples_axis.nsamples();
 
     for (size_t i = 0; i < npoints; i++) {
@@ -200,7 +200,7 @@ void fence(
 
         auto coordinate = transform_coordinate(x, y);
 
-        auto validate_boundary = [&] (const int voxel, Axis const& axis) {
+        auto validate_boundary = [&] (const int voxel, BaseAxis const& axis) {
             if (!axis.inrange(coordinate[voxel])) {
                 if (fillValue == nullptr) {
                     const std::string coordinate_str =
@@ -255,9 +255,9 @@ void fetch_subvolume(
     MetadataHandle const& metadata = handle.get_metadata();
     auto transform = metadata.coordinate_transformer();
 
-    auto iline  = metadata.iline ();
-    auto xline  = metadata.xline();
-    auto sample = metadata.sample();
+    const BaseAxis& iline  = metadata.iline ();
+    const BaseAxis& xline  = metadata.xline();
+    const BaseAxis& sample = metadata.sample();
 
     std::size_t const nsamples = subvolume.nsamples(from, to);
     if (nsamples == 0){
