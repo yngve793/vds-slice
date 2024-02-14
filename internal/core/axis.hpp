@@ -6,6 +6,25 @@
 
 #include <OpenVDS/OpenVDS.h>
 
+class BaseAxis {
+public:
+    virtual int nsamples() const noexcept(true) = 0;
+
+    virtual float min() const noexcept(true) = 0;
+    virtual float max() const noexcept(true) = 0;
+
+    virtual float stepsize() const noexcept(true) = 0;
+
+    virtual std::string unit() const noexcept(true) = 0;
+    virtual int dimension() const noexcept(true) = 0;
+
+    virtual std::string name() const noexcept(true) = 0;
+
+    virtual bool inrange(float coordinate) const noexcept(true) = 0;
+    virtual float to_sample_position(float coordinate) const noexcept(false) = 0;
+    virtual void assert_equal(BaseAxis const& other) noexcept(false) = 0;
+};
+
 class Axis {
 public:
     Axis(
