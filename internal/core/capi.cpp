@@ -1,7 +1,7 @@
 #include <functional>
 
-#include "ctypes.h"
 #include "capi.h"
+#include "ctypes.h"
 
 #include "cppapi.hpp"
 
@@ -13,7 +13,7 @@ void response_delete(struct response* buf) {
         return;
 
     delete[] buf->data;
-    *buf = response {};
+    *buf = response{};
 }
 
 struct Context {
@@ -25,28 +25,34 @@ Context* context_new() {
 }
 
 int context_free(Context* ctx) {
-    if (not ctx) return STATUS_OK;
+    if (not ctx)
+        return STATUS_OK;
 
     delete ctx;
     return STATUS_OK;
 }
 
 const char* errmsg(Context* ctx) {
-    if (not ctx) return nullptr;
+    if (not ctx)
+        return nullptr;
     return ctx->errmsg.c_str();
 }
 
 int handle_exception(Context* ctx, std::exception_ptr eptr) {
     try {
-        if (eptr) std::rethrow_exception(eptr);
+        if (eptr)
+            std::rethrow_exception(eptr);
     } catch (const detail::nullptr_error& e) {
-        if (ctx) ctx->errmsg = e.what();
+        if (ctx)
+            ctx->errmsg = e.what();
         return STATUS_NULLPTR_ERROR;
     } catch (const detail::bad_request& e) {
-        if (ctx) ctx->errmsg = e.what();
+        if (ctx)
+            ctx->errmsg = e.what();
         return STATUS_BAD_REQUEST;
     } catch (const std::exception& e) {
-        if (ctx) ctx->errmsg = e.what();
+        if (ctx)
+            ctx->errmsg = e.what();
         return STATUS_RUNTIME_ERROR;
     }
 
@@ -58,9 +64,10 @@ int single_datasource_new(
     const char* url,
     const char* credentials,
     DataSource** ds_out
-){
+) {
     try {
-        if (not ds_out) throw detail::nullptr_error("Invalid out pointer");
+        if (not ds_out)
+            throw detail::nullptr_error("Invalid out pointer");
 
         *ds_out = make_single_datasource(url, credentials);
         return STATUS_OK;
@@ -106,13 +113,15 @@ int double_datasource_new(
 
 int datasource_free(Context* ctx, DataSource* ds) {
     try {
-        if (not ds) return STATUS_OK;
+        if (not ds)
+            return STATUS_OK;
 
         delete ds;
 
         return STATUS_OK;
     } catch (const std::exception& e) {
-        if (ctx) ctx->errmsg = e.what();
+        if (ctx)
+            ctx->errmsg = e.what();
         return STATUS_RUNTIME_ERROR;
     }
 }
@@ -131,7 +140,8 @@ int regular_surface_new(
     RegularSurface** out
 ) {
     try {
-        if (not out) throw detail::nullptr_error("Invalid out pointer");
+        if (not out)
+            throw detail::nullptr_error("Invalid out pointer");
 
         *out = new RegularSurface(
             data,
@@ -146,13 +156,15 @@ int regular_surface_new(
 
 int regular_surface_free(Context* ctx, RegularSurface* surface) {
     try {
-        if (not surface) return STATUS_OK;
+        if (not surface)
+            return STATUS_OK;
 
         delete surface;
 
         return STATUS_OK;
     } catch (const std::exception& e) {
-        if (ctx) ctx->errmsg = e.what();
+        if (ctx)
+            ctx->errmsg = e.what();
         return STATUS_RUNTIME_ERROR;
     }
 }
@@ -214,12 +226,14 @@ int slice(
     response* out
 ) {
     try {
-        if (not out)        throw detail::nullptr_error("Invalid out pointer");
-        if (not datasource) throw detail::nullptr_error("Invalid datasource");
+        if (not out)
+            throw detail::nullptr_error("Invalid out pointer");
+        if (not datasource)
+            throw detail::nullptr_error("Invalid datasource");
 
         Direction const direction(ax);
 
-        std::vector< Bound > slice_bounds;
+        std::vector<Bound> slice_bounds;
         for (int i = 0; i < nbounds; ++i) {
             slice_bounds.push_back(*bounds);
             bounds++;
@@ -242,12 +256,14 @@ int slice_metadata(
     response* out
 ) {
     try {
-        if (not out)        throw detail::nullptr_error("Invalid out pointer");
-        if (not datasource) throw detail::nullptr_error("Invalid datasource");
+        if (not out)
+            throw detail::nullptr_error("Invalid out pointer");
+        if (not datasource)
+            throw detail::nullptr_error("Invalid datasource");
 
         Direction const direction(ax);
 
-        std::vector< Bound > slice_bounds;
+        std::vector<Bound> slice_bounds;
         for (int i = 0; i < nbounds; ++i) {
             slice_bounds.push_back(*bounds);
             bounds++;
@@ -271,8 +287,10 @@ int fence(
     response* out
 ) {
     try {
-        if (not out)        throw detail::nullptr_error("Invalid out pointer");
-        if (not datasource) throw detail::nullptr_error("Invalid datasource");
+        if (not out)
+            throw detail::nullptr_error("Invalid out pointer");
+        if (not datasource)
+            throw detail::nullptr_error("Invalid datasource");
 
         cppapi::fence(
             *datasource,
@@ -296,8 +314,10 @@ int fence_metadata(
     response* out
 ) {
     try {
-        if (not out)        throw detail::nullptr_error("Invalid out pointer");
-        if (not datasource) throw detail::nullptr_error("Invalid datasource");
+        if (not out)
+            throw detail::nullptr_error("Invalid out pointer");
+        if (not datasource)
+            throw detail::nullptr_error("Invalid datasource");
 
         cppapi::fence_metadata(*datasource, npoints, out);
         return STATUS_OK;
@@ -312,8 +332,10 @@ int metadata(
     response* out
 ) {
     try {
-        if (not out)        throw detail::nullptr_error("Invalid out pointer");
-        if (not datasource) throw detail::nullptr_error("Invalid datasource");
+        if (not out)
+            throw detail::nullptr_error("Invalid out pointer");
+        if (not datasource)
+            throw detail::nullptr_error("Invalid datasource");
 
         cppapi::metadata(*datasource, out);
         return STATUS_OK;
@@ -331,8 +353,10 @@ int fetch_subvolume(
     size_t to
 ) {
     try {
-        if (not datasource) throw detail::nullptr_error("Invalid datasource");
-        if (not subvolume)  throw detail::nullptr_error("Invalid subvolume");
+        if (not datasource)
+            throw detail::nullptr_error("Invalid datasource");
+        if (not subvolume)
+            throw detail::nullptr_error("Invalid subvolume");
 
         cppapi::fetch_subvolume(
             *datasource,
@@ -355,8 +379,10 @@ int attribute_metadata(
     response* out
 ) {
     try {
-        if (not out)        throw detail::nullptr_error("Invalid out pointer");
-        if (not datasource) throw detail::nullptr_error("Invalid datasource");
+        if (not out)
+            throw detail::nullptr_error("Invalid out pointer");
+        if (not datasource)
+            throw detail::nullptr_error("Invalid datasource");
 
         cppapi::attributes_metadata(*datasource, nrows, ncols, out);
         return STATUS_OK;
@@ -374,14 +400,18 @@ int attribute(
     float stepsize,
     size_t from,
     size_t to,
-    void*  out
+    void* out
 ) {
     try {
-        if (not out)           throw detail::nullptr_error("Invalid out pointer");
-        if (not datasource)    throw detail::nullptr_error("Invalid datasource");
-        if (not src_subvolume) throw detail::nullptr_error("Invalid subvolume");
+        if (not out)
+            throw detail::nullptr_error("Invalid out pointer");
+        if (not datasource)
+            throw detail::nullptr_error("Invalid datasource");
+        if (not src_subvolume)
+            throw detail::nullptr_error("Invalid subvolume");
 
-        if (from >= to)  throw std::runtime_error("No data to iterate over");
+        if (from >= to)
+            throw std::runtime_error("No data to iterate over");
 
         MetadataHandle const& metadata = datasource->get_metadata();
         auto const& sample = metadata.sample();
@@ -395,7 +425,7 @@ int attribute(
         void* outs[nattributes];
         for (int i = 0; i < nattributes; ++i) {
             auto offset = src_subvolume->horizontal_grid().size() * sizeof(float) * i;
-            outs[i] = static_cast< char* >(out) + offset;
+            outs[i] = static_cast<char*>(out) + offset;
         }
 
         cppapi::attributes(
@@ -421,10 +451,14 @@ int align_surfaces(
     int* primary_is_top
 ) {
     try {
-        if (not primary)        throw detail::nullptr_error("Invalid primary surface");
-        if (not secondary)      throw detail::nullptr_error("Invalid secondary surface");
-        if (not aligned)        throw detail::nullptr_error("Invalid aligned surface");
-        if (not primary_is_top) throw detail::nullptr_error("Invalid primary is top pointer");
+        if (not primary)
+            throw detail::nullptr_error("Invalid primary surface");
+        if (not secondary)
+            throw detail::nullptr_error("Invalid secondary surface");
+        if (not aligned)
+            throw detail::nullptr_error("Invalid aligned surface");
+        if (not primary_is_top)
+            throw detail::nullptr_error("Invalid primary is top pointer");
 
         bool b_primary_is_top;
 

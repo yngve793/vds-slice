@@ -4,8 +4,8 @@
 #include <OpenVDS/OpenVDS.h>
 
 #include "axis.hpp"
-#include "metadatahandle.hpp"
 #include "ctypes.h"
+#include "metadatahandle.hpp"
 
 struct SubCube {
     struct {
@@ -16,15 +16,15 @@ struct SubCube {
     SubCube(MetadataHandle const& metadata);
 
     void set_slice(
-        Axis const&                  axis,
-        int const                    lineno,
+        Axis const& axis,
+        int const lineno,
         enum coordinate_system const coordinate_system
     );
 
     void constrain(
         MetadataHandle const& metadata,
-        std::vector< Bound > const& bounds
-    ) noexcept (false);
+        std::vector<Bound> const& bounds
+    ) noexcept(false);
 };
 
 #endif /* VDS_SLICE_SUBCUBE_HPP */

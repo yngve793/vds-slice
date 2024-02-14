@@ -105,18 +105,17 @@ SurfaceBoundedSubVolume* make_subvolume(
         }
 
         if (not sample.inrange(top_depth) or
-            not sample.inrange(bottom_depth))
-        {
+            not sample.inrange(bottom_depth)) {
             auto row = horizontal_grid.row(i);
             auto col = horizontal_grid.col(i);
             throw std::runtime_error(
                 "Vertical window is out of vertical bounds at"
-                " row: " + std::to_string(row) +
+                " row: " +
+                std::to_string(row) +
                 " col:" + std::to_string(col) +
                 ". Request: [" + utils::to_string_with_precision(top_depth) +
                 ", " + utils::to_string_with_precision(bottom_depth) +
-                "]. Seismic bounds: [" + utils::to_string_with_precision(sample.min())
-                + ", " + utils::to_string_with_precision(sample.max()) + "]"
+                "]. Seismic bounds: [" + utils::to_string_with_precision(sample.min()) + ", " + utils::to_string_with_precision(sample.max()) + "]"
             );
         }
 
@@ -135,7 +134,6 @@ SurfaceBoundedSubVolume* make_subvolume(
                 --margin;
             }
             return margin;
-
         };
 
         std::int8_t top_margin = calculate_margin(Border::Top);

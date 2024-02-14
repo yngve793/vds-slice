@@ -2,6 +2,7 @@
 #define VDS_SLICE_CTYPES_H
 #include <stdlib.h>
 
+// clang-format off
 struct response {
     char*         data;
     unsigned long size;
@@ -32,6 +33,7 @@ enum binary_operator {
     MULTIPLICATION = 3,
     DIVISION       = 4,
 };
+// clang-format on
 
 enum interpolation_method {
     NEAREST,

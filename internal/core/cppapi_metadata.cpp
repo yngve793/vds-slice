@@ -2,9 +2,9 @@
 
 #include "nlohmann/json.hpp"
 
-#include <OpenVDS/OpenVDS.h>
-#include <OpenVDS/KnownMetadata.h>
 #include <OpenVDS/IJKCoordinateTransformer.h>
+#include <OpenVDS/KnownMetadata.h>
+#include <OpenVDS/OpenVDS.h>
 
 #include "axis.hpp"
 #include "boundingbox.hpp"
@@ -27,7 +27,8 @@ std::string fmtstr(OpenVDS::VolumeDataFormat format) {
      * [1] https://community.opengroup.org/osdu/platform/domain-data-mgmt-services/seismic/open-vds/-/issues/156#note_165511
      */
     switch (format) {
-        case OpenVDS::VolumeDataFormat::Format_R32: return "<f4";
+        case OpenVDS::VolumeDataFormat::Format_R32:
+            return "<f4";
         default: {
             throw std::runtime_error("unsupported VDS format type");
         }
@@ -36,7 +37,7 @@ std::string fmtstr(OpenVDS::VolumeDataFormat format) {
 
 void to_response(nlohmann::json const& metadata, response* response) {
     auto const dump = metadata.dump();
-    std::unique_ptr< char[] > tmp(new char[dump.size()]);
+    std::unique_ptr<char[]> tmp(new char[dump.size()]);
     std::copy(dump.begin(), dump.end(), tmp.get());
 
     response->data = tmp.release();
@@ -58,12 +59,12 @@ nlohmann::json json_axis(
 
     nlohmann::json doc;
     doc = {
-        { "annotation", axis.name()     },
-        { "min",        min             },
-        { "max",        max             },
-        { "samples",    samples         },
-        { "stepsize",   axis.stepsize() },
-        { "unit",       axis.unit()     },
+        {"annotation", axis.name()},
+        {"min", min},
+        {"max", max},
+        {"samples", samples},
+        {"stepsize", axis.stepsize()},
+        {"unit", axis.unit()},
     };
     return doc;
 }
@@ -77,18 +78,10 @@ nlohmann::json json_slice_geospatial(
 ) {
     auto const& transformer = metadata.coordinate_transformer();
 
-    auto const lower = transformer.VoxelIndexToIJKIndex({
-        bounds.bounds.lower[0],
-        bounds.bounds.lower[1],
-        bounds.bounds.lower[2]
-    });
+    auto const lower = transformer.VoxelIndexToIJKIndex({bounds.bounds.lower[0], bounds.bounds.lower[1], bounds.bounds.lower[2]});
 
     // The upper bound is exclusive, while we need it to be inclusive
-    auto const upper = transformer.VoxelIndexToIJKIndex({
-        bounds.bounds.upper[0] - 1,
-        bounds.bounds.upper[1] - 1,
-        bounds.bounds.upper[2] - 1
-    });
+    auto const upper = transformer.VoxelIndexToIJKIndex({bounds.bounds.upper[0] - 1, bounds.bounds.upper[1] - 1, bounds.bounds.upper[2] - 1});
 
     /** The slice bounds are given by the lower- and upper-coordinates only:
      *
@@ -115,25 +108,24 @@ nlohmann::json json_slice_geospatial(
      * Corner 1 is given by (upper.I, lower.J) and corner 3 is
      * (lower.I, upper.J).
      */
-    const std::array< OpenVDS::DoubleVector3, 4 > corners {{
-        transformer.IJKIndexToWorld({ lower[0], lower[1], 0 }),
-        transformer.IJKIndexToWorld({ upper[0], lower[1], 0 }),
-        transformer.IJKIndexToWorld({ upper[0], upper[1], 0 }),
-        transformer.IJKIndexToWorld({ lower[0], upper[1], 0 }),
+    const std::array<OpenVDS::DoubleVector3, 4> corners{{
+        transformer.IJKIndexToWorld({lower[0], lower[1], 0}),
+        transformer.IJKIndexToWorld({upper[0], lower[1], 0}),
+        transformer.IJKIndexToWorld({upper[0], upper[1], 0}),
+        transformer.IJKIndexToWorld({lower[0], upper[1], 0}),
     }};
-
 
     if (direction.is_sample()) {
         return {
-            { corners[0][0], corners[0][1] },
-            { corners[1][0], corners[1][1] },
-            { corners[2][0], corners[2][1] },
-            { corners[3][0], corners[3][1] },
+            {corners[0][0], corners[0][1]},
+            {corners[1][0], corners[1][1]},
+            {corners[2][0], corners[2][1]},
+            {corners[3][0], corners[3][1]},
         };
     } else {
         return {
-            { corners[0][0], corners[0][1] },
-            { corners[2][0], corners[2][1] }
+            {corners[0][0], corners[0][1]},
+            {corners[2][0], corners[2][1]}
         };
     }
 }
@@ -146,7 +138,7 @@ void slice_metadata(
     DataSource& datasource,
     Direction const direction,
     int lineno,
-    std::vector< Bound > const& slicebounds,
+    std::vector<Bound> const& slicebounds,
     response* out
 ) {
     MetadataHandle const& metadata = datasource.get_metadata();
@@ -166,7 +158,7 @@ void slice_metadata(
     auto const& lower = bounds.bounds.lower;
     auto const& upper = bounds.bounds.upper;
 
-    auto json_shape = [&](Axis const &x, Axis const &y) {
+    auto json_shape = [&](Axis const& x, Axis const& y) {
         meta["x"] = json_axis(x, bounds);
         meta["y"] = json_axis(y, bounds);
         meta["shape"] = nlohmann::json::array({
@@ -204,7 +196,7 @@ void fence_metadata(
 
     nlohmann::json meta;
     Axis const& sample_axis = metadata.sample();
-    meta["shape"] = nlohmann::json::array({npoints, sample_axis.nsamples() });
+    meta["shape"] = nlohmann::json::array({npoints, sample_axis.nsamples()});
     meta["format"] = fmtstr(DataHandle::format());
 
     return to_response(meta, out);
@@ -215,13 +207,13 @@ void metadata(DataSource& datasource, response* out) {
 
     nlohmann::json meta;
 
-    meta["crs"]             = metadata.crs();
-    meta["inputFileName"]   = metadata.input_filename();
+    meta["crs"] = metadata.crs();
+    meta["inputFileName"] = metadata.input_filename();
     meta["importTimeStamp"] = metadata.import_time_stamp();
 
     auto bbox = metadata.bounding_box();
-    meta["boundingBox"]["ij"]   = bbox.index();
-    meta["boundingBox"]["cdp"]  = bbox.world();
+    meta["boundingBox"]["ij"] = bbox.index();
+    meta["boundingBox"]["cdp"] = bbox.world();
     meta["boundingBox"]["ilxl"] = bbox.annotation();
 
     SubCube volume(metadata);

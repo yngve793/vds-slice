@@ -11,7 +11,7 @@ static Grid samples_10_grid = Grid(2, 0, 7.2111, 3.6056, 33.69);
 static constexpr float fill = -999.25;
 static constexpr std::size_t nrows = 3;
 static constexpr std::size_t ncols = 2;
-static std::array<float, nrows *ncols> ref_surface_data = {2, 3, 5, 7, 11, 13};
+static std::array<float, nrows * ncols> ref_surface_data = {2, 3, 5, 7, 11, 13};
 
 TEST(AffineTransformationTest, InverseProperty) {
     std::random_device rd;
@@ -35,7 +35,8 @@ TEST(AffineTransformationTest, InverseProperty) {
 
     std::printf(
         "Test runs on: xinc: %.17g, yinc: %.17g, rot: %.17g, xori: %.17g, yori: %.17g, point: (%.17g, %.17g).\n",
-        xinc, yinc, rot, xori, yori, x, y);
+        xinc, yinc, rot, xori, yori, x, y
+    );
 
     auto f = AffineTransformation::from_rotation(xori, yori, xinc, yinc, rot);
     auto f_inv = AffineTransformation::inverse_from_rotation(xori, yori, xinc, yinc, rot);
@@ -63,9 +64,7 @@ TEST(RegularSurfaceSubscriptTest, SingleIndexOutOfRange) {
     EXPECT_EQ(surface[index_upper], ref_surface_data[ref_surface_data.size() - 1])
         << "Unexpected value";
 
-    EXPECT_THAT([&]() { surface[index_above_upper]; },
-                testing::ThrowsMessage<std::runtime_error>(
-                    testing::HasSubstr("operator[]: index out of range")));
+    EXPECT_THAT([&]() { surface[index_above_upper]; }, testing::ThrowsMessage<std::runtime_error>(testing::HasSubstr("operator[]: index out of range")));
 }
 
 TEST(RegularSurfaceSubscriptTest, SingleSubscriptVersusRefValue) {
@@ -78,7 +77,7 @@ TEST(RegularSurfaceSubscriptTest, SingleSubscriptVersusRefValue) {
 }
 
 TEST(RegularSurfaceSubscriptTest, SingleUpdateValue) {
-    std::array<float, nrows *ncols> surface_data = ref_surface_data;
+    std::array<float, nrows * ncols> surface_data = ref_surface_data;
 
     RegularSurface surface =
         RegularSurface(surface_data.data(), nrows, ncols, samples_10_grid, fill);
@@ -101,17 +100,13 @@ TEST(RegularSurfaceSubscriptTest, DoubleRowOutOfRange) {
     auto upper_row = as_pair(nrows - 1, 1);
     auto above_upper_row = as_pair(upper_row.first + 1, upper_row.second);
 
-    EXPECT_EQ(surface[lower_row],
-              ref_surface_data[lower_row.first * ncols + lower_row.second])
+    EXPECT_EQ(surface[lower_row], ref_surface_data[lower_row.first * ncols + lower_row.second])
         << "Wrong row number";
 
-    EXPECT_EQ(surface[upper_row],
-              ref_surface_data[upper_row.first * ncols + upper_row.second])
+    EXPECT_EQ(surface[upper_row], ref_surface_data[upper_row.first * ncols + upper_row.second])
         << "Wrong row number";
 
-    EXPECT_THAT([&]() { surface[above_upper_row]; },
-                testing::ThrowsMessage<std::runtime_error>(
-                    testing::HasSubstr("operator[]: index out of range")));
+    EXPECT_THAT([&]() { surface[above_upper_row]; }, testing::ThrowsMessage<std::runtime_error>(testing::HasSubstr("operator[]: index out of range")));
 }
 
 TEST(RegularSurfaceSubscriptTest, DoubleColOutOfRange) {
@@ -122,21 +117,17 @@ TEST(RegularSurfaceSubscriptTest, DoubleColOutOfRange) {
     auto upper_col = as_pair(1, ncols - 1);
     auto above_upper_col = as_pair(upper_col.first, upper_col.second + 1);
 
-    EXPECT_EQ(surface[lower_col],
-              ref_surface_data[lower_col.first * ncols + lower_col.second])
+    EXPECT_EQ(surface[lower_col], ref_surface_data[lower_col.first * ncols + lower_col.second])
         << "Wrong col number";
 
-    EXPECT_EQ(surface[upper_col],
-              ref_surface_data[upper_col.first * ncols + upper_col.second])
+    EXPECT_EQ(surface[upper_col], ref_surface_data[upper_col.first * ncols + upper_col.second])
         << "Wrong col number";
 
-    EXPECT_THAT([&]() { surface[above_upper_col]; },
-                testing::ThrowsMessage<std::runtime_error>(
-                    testing::HasSubstr("operator[]: index out of range")));
+    EXPECT_THAT([&]() { surface[above_upper_col]; }, testing::ThrowsMessage<std::runtime_error>(testing::HasSubstr("operator[]: index out of range")));
 }
 
 TEST(RegularSurfaceSubscriptTest, DoubleUpdateValues) {
-    std::array<float, nrows *ncols> surface_data = ref_surface_data;
+    std::array<float, nrows * ncols> surface_data = ref_surface_data;
     RegularSurface surface =
         RegularSurface(surface_data.data(), nrows, ncols, samples_10_grid, fill);
 
@@ -148,8 +139,7 @@ TEST(RegularSurfaceSubscriptTest, DoubleUpdateValues) {
 
     for (std::size_t row = 0; row < nrows; row++) {
         for (std::size_t col = 0; col < ncols; col++) {
-            EXPECT_EQ(surface[as_pair(row, col)],
-                      ref_surface_data[row * ncols + col] * 2)
+            EXPECT_EQ(surface[as_pair(row, col)], ref_surface_data[row * ncols + col] * 2)
                 << "Unexpected value after update";
         }
     }
