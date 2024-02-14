@@ -1,10 +1,10 @@
 #include "metadatahandle.hpp"
 
-#include <stdexcept>
-#include <list>
-#include <utility>
-#include <boost/algorithm/string/join.hpp>
 #include <OpenVDS/KnownMetadata.h>
+#include <boost/algorithm/string/join.hpp>
+#include <list>
+#include <stdexcept>
+#include <utility>
 
 #include "axis.hpp"
 #include "boundingbox.hpp"
