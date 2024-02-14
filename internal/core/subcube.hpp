@@ -16,7 +16,7 @@ struct SubCube {
     SubCube(MetadataHandle const& metadata);
 
     void set_slice(
-        Axis const&                  axis,
+        BaseAxis const&              axis,
         int const                    lineno,
         enum coordinate_system const coordinate_system
     );
