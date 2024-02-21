@@ -8,6 +8,7 @@
 #include "axis.hpp"
 #include "boundingbox.hpp"
 #include "direction.hpp"
+#include "volumedatalayout.hpp"
 
 class MetadataHandle {
     friend class DoubleMetadataHandle;
@@ -60,10 +61,7 @@ private:
 
 class DoubleMetadataHandle : public MetadataHandle {
 public:
-    DoubleMetadataHandle(
-        MetadataHandle const& handle_A,
-        MetadataHandle const& handle_B
-    );
+    DoubleMetadataHandle(DoubleVolumeDataLayout const* const layout);
 
     BaseAxis& iline() const noexcept(true);
     BaseAxis& xline() const noexcept(true);
@@ -81,9 +79,13 @@ protected:
     void dimension_validation() const;
 
 private:
-    MetadataHandle const* m_handle_A;
-    MetadataHandle const* m_handle_B;
+    DoubleVolumeDataLayout const* const m_layout;
+
+    SingleAxis m_iline;
+    SingleAxis m_xline;
+    SingleAxis m_sample;
 
     void validate_metadata() const noexcept(false);
+    int get_dimension(std::vector<std::string> const& names) const;
 };
 #endif /* VDS_SLICE_METADATAHANDLE_HPP */

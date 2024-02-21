@@ -73,10 +73,10 @@ DoubleDataSource::DoubleDataSource(
     this->handle_A = make_single_datasource(url_A, credentials_A);
     this->handle_B = make_single_datasource(url_B, credentials_B);
     this->binary_operator = binary_operator;
-    this->metadata = new DoubleMetadataHandle(
-        this->handle_A->get_metadata(),
-        this->handle_B->get_metadata()
-    );
+    // this->metadata = new DoubleMetadataHandle(
+    //     this->handle_A->get_metadata(),
+    //     this->handle_B->get_metadata()
+    // );
 }
 
 DoubleDataSource::~DoubleDataSource() {

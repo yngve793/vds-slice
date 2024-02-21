@@ -181,7 +181,8 @@ DoubleDataHandle::DoubleDataHandle(OpenVDS::VDSHandle handle_a, OpenVDS::VDSHand
     , m_access_manager_b(OpenVDS::GetAccessManager(handle_b))
     , m_metadata_a(m_access_manager_a.GetVolumeDataLayout())
     , m_metadata_b(m_access_manager_b.GetVolumeDataLayout())
-    , m_metadata(DoubleMetadataHandle(m_metadata_a, m_metadata_b)) 
+    , m_layout(DoubleVolumeDataLayout(m_access_manager_a.GetVolumeDataLayout(), m_access_manager_b.GetVolumeDataLayout()))
+    , m_metadata(DoubleMetadataHandle(&m_layout))
     {}
 
 MetadataHandle const& DoubleDataHandle::get_metadata() const noexcept(true) {
