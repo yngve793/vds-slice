@@ -125,6 +125,7 @@ public:
 private:
     DataSource *handle_A;
     DataSource *handle_B;
+    DoubleDataHandle *handle;
     MetadataHandle *metadata;
     binary_function binary_operator;
 };

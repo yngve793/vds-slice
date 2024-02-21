@@ -79,7 +79,7 @@ int DoubleVolumeDataLayout::GetDimensionality() const {
     return m_layout_a->GetDimensionality();
 }
 
-OpenVDS::VolumeDataAxisDescriptor DoubleVolumeDataLayout::GetAxisDescriptor(int dimension) {
+OpenVDS::VolumeDataAxisDescriptor DoubleVolumeDataLayout::GetAxisDescriptor(int dimension) const{
 
     // OpenVDS::VolumeDataAxisDescriptor* t = &(OpenVDS::VolumeDataAxisDescriptor());
 
@@ -108,6 +108,28 @@ OpenVDS::VDSIJKGridDefinition DoubleVolumeDataLayout::GetVDSIJKGridDefinitionFro
     // - 3D array for increment vector in i,j,k direction
     // - Dimention map, i.e. order of axis
     return m_layout_a->GetVDSIJKGridDefinitionFromMetadata();
+}
+
+const char* DoubleVolumeDataLayout::GetDimensionName(int dimension) const {
+    const char* name_a = m_layout_a->GetDimensionName(dimension);
+    const char* name_b = m_layout_b->GetDimensionName(dimension);
+    if (strcmp(name_a, name_b) == 0){
+        return m_layout_a->GetDimensionName(dimension);
+    }
+    else{
+        throw detail::bad_request("Dimension name mismatch for dimension: " + std::to_string(dimension));
+    }
+}
+
+const char* DoubleVolumeDataLayout::GetDimensionUnit(int dimension) const {
+    const char* unit_a = m_layout_a->GetDimensionUnit(dimension);
+    const char* unit_b = m_layout_b->GetDimensionUnit(dimension);
+    if (strcmp(unit_a, unit_b) == 0){
+        return m_layout_a->GetDimensionUnit(dimension);
+    }
+    else{
+        throw detail::bad_request("Dimension unit mismatch for dimension: " + std::to_string(dimension));
+    }
 }
 
 float DoubleVolumeDataLayout::GetDimensionMin(int dimension) const {
