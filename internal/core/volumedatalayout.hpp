@@ -13,7 +13,7 @@ public:
         OpenVDS::VolumeDataLayout const* const layout_b
     );
 
-    OpenVDS::VolumeDataAxisDescriptor GetAxisDescriptor(int dimension);
+    // OpenVDS::VolumeDataAxisDescriptor GetAxisDescriptor(int dimension);
 
     uint64_t GetContentsHash() const {
         throw std::runtime_error("Not implemented: DoubleVolumeDataLayout::GetContentsHash");
@@ -45,9 +45,10 @@ public:
         throw std::runtime_error("Not implemented: DoubleVolumeDataLayout::GetChannelDescriptor");
     }
 
-    OpenVDS::VolumeDataAxisDescriptor GetAxisDescriptor(int dimension) const {
-        throw std::runtime_error("Not implemented: DoubleVolumeDataLayout::GetAxisDescriptor");
-    }
+    OpenVDS::VolumeDataAxisDescriptor GetAxisDescriptor(int dimension) const;
+    // {
+    //     throw std::runtime_error("Not implemented: DoubleVolumeDataLayout::GetAxisDescriptor");
+    // }
 
     OpenVDS::VolumeDataFormat GetChannelFormat(int channel) const {
         throw std::runtime_error("Not implemented: DoubleVolumeDataLayout::GetChannelFormat");
@@ -95,13 +96,9 @@ public:
 
     int GetDimensionNumSamples(int dimension) const;
 
-    const char* GetDimensionName(int dimension) const {
-        throw std::runtime_error("Not implemented: DoubleVolumeDataLayout::GetDimensionName");
-    }
+    const char* GetDimensionName(int dimension) const;
 
-    const char* GetDimensionUnit(int dimension) const {
-        throw std::runtime_error("Not implemented: DoubleVolumeDataLayout::GetDimensionUnit");
-    }
+    const char* GetDimensionUnit(int dimension) const;
 
     float GetDimensionMin(int dimension) const;
 
