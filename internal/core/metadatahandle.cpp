@@ -146,7 +146,7 @@ std::string DoubleMetadataHandle::import_time_stamp() const noexcept(false) {
 }
 
 OpenVDS::IJKCoordinateTransformer DoubleMetadataHandle::coordinate_transformer() const noexcept(false) {
-    throw std::runtime_error("Not implemented");
+    return OpenVDS::IJKCoordinateTransformer(this->m_layout);
 }
 
 void DoubleMetadataHandle::dimension_validation() const {

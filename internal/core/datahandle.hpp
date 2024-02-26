@@ -116,9 +116,12 @@ private:
     DoubleMetadataHandle m_metadata;
     SingleMetadataHandle m_metadata_a;
     SingleMetadataHandle m_metadata_b;
+    binary_function m_binary_operator;
 
     static int constexpr lod_level = 0;
     static int constexpr channel = 0;
+
+    SubCube offset_bounds(SubCube subcube, SingleMetadataHandle m_metadata_new);
 };
 
 DoubleDataHandle* make_double_datahandle(
