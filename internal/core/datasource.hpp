@@ -126,7 +126,7 @@ private:
     DataSource *handle_A;
     DataSource *handle_B;
     DoubleDataHandle *handle;
-    MetadataHandle *metadata;
+    MetadataHandle const *metadata;
     binary_function binary_operator;
 };
 

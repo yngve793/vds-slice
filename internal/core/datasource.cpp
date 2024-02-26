@@ -74,10 +74,8 @@ DoubleDataSource::DoubleDataSource(
     this->handle_B = make_single_datasource(url_B, credentials_B);
     this->binary_operator = binary_operator;
     this->handle = make_double_datahandle(url_A, credentials_A, url_B, credentials_B, binary_operator);
-    // this->metadata = new DoubleMetadataHandle(
-    //     this->handle_A->get_metadata(),
-    //     this->handle_B->get_metadata()
-    // );
+    this->metadata = &(this->handle->get_metadata());
+
 }
 
 DoubleDataSource::~DoubleDataSource() {
@@ -92,7 +90,7 @@ DoubleDataSource::~DoubleDataSource() {
 }
 
 MetadataHandle const& DoubleDataSource::get_metadata() const noexcept(true) {
-    return this->handle_A->get_metadata();
+    return (MetadataHandle const&)*(this->metadata);
 }
 
 std::int64_t DoubleDataSource::samples_buffer_size(std::size_t const nsamples) noexcept(false) {
@@ -136,11 +134,7 @@ void DoubleDataSource::read_subcube(
     std::int64_t size,
     SubCube const& subcube
 ) noexcept(false) {
-    std::vector<float> buffer_B((int)size / sizeof(float));
-    this->handle_A->read_subcube((float*)buffer, size, subcube);
-    this->handle_B->read_subcube(buffer_B.data(), size, subcube);
-
-    this->binary_operator((float*)buffer, buffer_B.data(), (int)size / sizeof(float));
+    this->handle->read_subcube((float*)buffer, size, subcube);
 }
 
 std::int64_t DoubleDataSource::traces_buffer_size(

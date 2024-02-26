@@ -40,9 +40,6 @@ DoubleVolumeDataLayout::DoubleVolumeDataLayout(
 
         if (dimension < this->GetDimensionality()) {
 
-            std::cout << dimension << " a " << m_layout_a->GetDimensionMin(dimension) << " " << m_layout_a->GetDimensionMax(dimension) << " " << m_layout_a->GetDimensionNumSamples(dimension) << std::endl;
-            std::cout << dimension << " b " << m_layout_b->GetDimensionMin(dimension) << " " << m_layout_b->GetDimensionMax(dimension) << " " << m_layout_b->GetDimensionNumSamples(dimension) << std::endl;
-
             int32_t step_size_a = (m_layout_a->GetDimensionMax(dimension) - m_layout_a->GetDimensionMin(dimension)) / (m_layout_a->GetDimensionNumSamples(dimension) - 1);
             int32_t step_size_b = (m_layout_b->GetDimensionMax(dimension) - m_layout_b->GetDimensionMin(dimension)) / (m_layout_b->GetDimensionNumSamples(dimension) - 1);
 
@@ -56,16 +53,8 @@ DoubleVolumeDataLayout::DoubleVolumeDataLayout(
                 throw detail::bad_request("Offset mismatch in axis: " + std::to_string(dimension));
             }
 
-            m_dimensionCoordinateMin[dimension] = std::max(
-                m_layout_a->GetDimensionMin(dimension),
-                m_layout_b->GetDimensionMin(dimension)
-            );
-
-            m_dimensionCoordinateMax[dimension] = std::min(
-                m_layout_a->GetDimensionMax(dimension),
-                m_layout_b->GetDimensionMax(dimension)
-            );
-
+            m_dimensionCoordinateMin[dimension] = this->GetDimensionMin(dimension);
+            m_dimensionCoordinateMax[dimension] = this->GetDimensionMax(dimension);
             m_dimensionNumSamples[dimension] = 1 + ((m_dimensionCoordinateMax[dimension] - m_dimensionCoordinateMin[dimension]) / step_size_a);
 
         } else {
@@ -79,7 +68,7 @@ int DoubleVolumeDataLayout::GetDimensionality() const {
     return m_layout_a->GetDimensionality();
 }
 
-OpenVDS::VolumeDataAxisDescriptor DoubleVolumeDataLayout::GetAxisDescriptor(int dimension) const{
+OpenVDS::VolumeDataAxisDescriptor DoubleVolumeDataLayout::GetAxisDescriptor(int dimension) const {
 
     // OpenVDS::VolumeDataAxisDescriptor* t = &(OpenVDS::VolumeDataAxisDescriptor());
 
@@ -113,10 +102,9 @@ OpenVDS::VDSIJKGridDefinition DoubleVolumeDataLayout::GetVDSIJKGridDefinitionFro
 const char* DoubleVolumeDataLayout::GetDimensionName(int dimension) const {
     const char* name_a = m_layout_a->GetDimensionName(dimension);
     const char* name_b = m_layout_b->GetDimensionName(dimension);
-    if (strcmp(name_a, name_b) == 0){
+    if (strcmp(name_a, name_b) == 0) {
         return m_layout_a->GetDimensionName(dimension);
-    }
-    else{
+    } else {
         throw detail::bad_request("Dimension name mismatch for dimension: " + std::to_string(dimension));
     }
 }
@@ -124,10 +112,9 @@ const char* DoubleVolumeDataLayout::GetDimensionName(int dimension) const {
 const char* DoubleVolumeDataLayout::GetDimensionUnit(int dimension) const {
     const char* unit_a = m_layout_a->GetDimensionUnit(dimension);
     const char* unit_b = m_layout_b->GetDimensionUnit(dimension);
-    if (strcmp(unit_a, unit_b) == 0){
+    if (strcmp(unit_a, unit_b) == 0) {
         return m_layout_a->GetDimensionUnit(dimension);
-    }
-    else{
+    } else {
         throw detail::bad_request("Dimension unit mismatch for dimension: " + std::to_string(dimension));
     }
 }
@@ -135,12 +122,11 @@ const char* DoubleVolumeDataLayout::GetDimensionUnit(int dimension) const {
 float DoubleVolumeDataLayout::GetDimensionMin(int dimension) const {
     float min_a = m_layout_a->GetDimensionMin(dimension);
     float min_b = m_layout_b->GetDimensionMin(dimension);
-    std::cout << "VolumeDataLayoutMin " << min_a << "  " << min_b << "  " << std::max(min_a, min_b) << std::endl;
     return std::max(min_a, min_b);
 }
 
 float DoubleVolumeDataLayout::GetDimensionMax(int dimension) const {
-    float min_a = m_layout_a->GetDimensionMax(dimension);
-    float min_b = m_layout_b->GetDimensionMax(dimension);
-    return std::min(min_a, min_b);
+    float max_a = m_layout_a->GetDimensionMax(dimension);
+    float max_b = m_layout_b->GetDimensionMax(dimension);
+    return std::min(max_a, max_b);
 }

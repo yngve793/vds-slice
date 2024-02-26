@@ -177,6 +177,7 @@ DoubleDataHandle* make_double_datahandle(
 DoubleDataHandle::DoubleDataHandle(OpenVDS::VDSHandle handle_a, OpenVDS::VDSHandle handle_b, binary_function binary_operator)
     : m_file_handle_a(handle_a)
     , m_file_handle_b(handle_b)
+    , m_binary_operator(binary_operator)
     , m_access_manager_a(OpenVDS::GetAccessManager(handle_a))
     , m_access_manager_b(OpenVDS::GetAccessManager(handle_b))
     , m_metadata_a(m_access_manager_a.GetVolumeDataLayout())
@@ -212,26 +213,66 @@ std::int64_t DoubleDataHandle::subcube_buffer_size(
     return size;
 }
 
+SubCube DoubleDataHandle::offset_bounds(SubCube subcube, SingleMetadataHandle m_metadata_new) {
+
+    SubCube new_subcube = std::move(subcube);
+
+    float iline_offset = (m_metadata.iline().min() - m_metadata_new.iline().min()) / m_metadata.iline().stepsize();
+    float xline_offset = (m_metadata.xline().min() - m_metadata_new.xline().min()) / m_metadata.xline().stepsize();
+    float sample_offset = (m_metadata.sample().min() - m_metadata_new.sample().min()) / m_metadata.sample().stepsize();
+
+    new_subcube.bounds.lower[m_metadata.iline().dimension()] += iline_offset;
+    new_subcube.bounds.lower[m_metadata.xline().dimension()] += xline_offset;
+    new_subcube.bounds.lower[m_metadata.sample().dimension()] += sample_offset;
+
+    new_subcube.bounds.upper[m_metadata.iline().dimension()] += iline_offset;
+    new_subcube.bounds.upper[m_metadata.xline().dimension()] += xline_offset;
+    new_subcube.bounds.upper[m_metadata.sample().dimension()] += sample_offset;
+    return new_subcube;
+}
+
 void DoubleDataHandle::read_subcube(
     void* const buffer,
     std::int64_t size,
     SubCube const& subcube
 ) noexcept(false) {
-    auto request = this->m_access_manager_a.RequestVolumeSubset(
-        buffer,
+
+    SubCube subcube_a = this->offset_bounds(subcube, m_metadata_a);
+    std::vector<char> buffer_a(size);
+
+    auto request_a = this->m_access_manager_a.RequestVolumeSubset(
+        buffer, // buffer_a.data(),
         size,
         OpenVDS::Dimensions_012,
         DoubleDataHandle::lod_level,
         DoubleDataHandle::channel,
-        subcube.bounds.lower,
-        subcube.bounds.upper,
+        subcube_a.bounds.lower,
+        subcube_a.bounds.upper,
         DoubleDataHandle::format()
     );
-    bool const success = request.get()->WaitForCompletion();
 
-    if (!success) {
+    SubCube subcube_b = this->offset_bounds(subcube, m_metadata_b);
+    std::vector<char> buffer_b(size);
+    auto request_b = this->m_access_manager_b.RequestVolumeSubset(
+        buffer_b.data(),
+        size,
+        OpenVDS::Dimensions_012,
+        DoubleDataHandle::lod_level,
+        DoubleDataHandle::channel,
+        subcube_b.bounds.lower,
+        subcube_b.bounds.upper,
+        DoubleDataHandle::format()
+    );
+
+    bool const success_a = request_a.get()->WaitForCompletion();
+    bool const success_b = request_b.get()->WaitForCompletion();
+
+    if (!success_a && !success_b) {
         throw std::runtime_error("Failed to read from VDS.");
     }
+
+    // m_binary_operator((float* const)buffer_a.data(), (float* const)buffer_b.data(), (std::size_t)size/sizeof(float));
+    m_binary_operator((float*)buffer, (float* const)buffer_b.data(), (std::size_t)size / sizeof(float));
 }
 
 std::int64_t DoubleDataHandle::traces_buffer_size(std::size_t const ntraces) noexcept(false) {
