@@ -94,6 +94,5 @@ private:
     SingleAxis m_sample;
 
     void validate_metadata() const noexcept(false);
-    int get_dimension(std::vector<std::string> const& names) const;
 };
 #endif /* VDS_SLICE_METADATAHANDLE_HPP */

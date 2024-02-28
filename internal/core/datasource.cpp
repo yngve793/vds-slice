@@ -2,6 +2,8 @@
 #include "datahandle.hpp"
 #include "iostream"
 
+#include "exceptions.hpp"
+
 SingleDataSource::SingleDataSource(const char* url, const char* credentials) {
     this->handle = make_single_datahandle(url, credentials);
 }

@@ -145,21 +145,21 @@ std::string DoubleMetadataHandle::import_time_stamp() const noexcept(false) {
     throw std::runtime_error("Not implemented");
 }
 
-int DoubleMetadataHandle::get_dimension(std::vector<std::string> const& names) const {
-    for (auto i = 0; i < this->m_layout.GetDimensionality(); i++) {
-        std::string dimension_name = this->m_layout.GetDimensionName(i);
-        if (std::find(names.begin(), names.end(), dimension_name) != names.end()) {
-            return i;
-        }
-    }
-    throw std::runtime_error(
-        "Requested axis not found under names " + boost::algorithm::join(names, ", ") +
-        " in vds file "
-    );
-}
+// int DoubleMetadataHandle::get_dimension(std::vector<std::string> const& names) const {
+//     for (auto i = 0; i < this->m_layout.GetDimensionality(); i++) {
+//         std::string dimension_name = this->m_layout.GetDimensionName(i);
+//         if (std::find(names.begin(), names.end(), dimension_name) != names.end()) {
+//             return i;
+//         }
+//     }
+//     throw std::runtime_error(
+//         "Requested axis not found under names " + boost::algorithm::join(names, ", ") +
+//         " in vds file "
+//     );
+// }
 
 OpenVDS::VolumeDataLayout const* const DoubleMetadataHandle::get_layout() const noexcept(false){
-    return &(this->m_layout);
+    return this->m_layout;
 }
 
 OpenVDS::IJKCoordinateTransformer DoubleMetadataHandle::coordinate_transformer() const noexcept(false) {
