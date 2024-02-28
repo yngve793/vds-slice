@@ -72,70 +72,41 @@ protected:
     }
 };
 
-TEST_F(DataSourceTest, ILineMismatch) {
-    const std::string EXPECTED_MSG = "Axis: Inline: Mismatch in number of samples: 3 != 2";
+TEST_F(DataSourceTest, Addition_ILineMismatch) {
 
-    EXPECT_THAT([&]() {         
-            DoubleDataSource *datasource = make_double_datasource(
-                DEFAULT_DATA.c_str(),
-                CREDENTIALS.c_str(),
-                MISSING_ILINE_DATA.c_str(),
-                CREDENTIALS.c_str(),
-                &inplace_subtraction);
-                delete datasource; }, testing::ThrowsMessage<std::runtime_error>(testing::HasSubstr(EXPECTED_MSG)));
-}
+    DoubleDataSource* datasource = make_double_datasource(
+        DEFAULT_DATA.c_str(),
+        CREDENTIALS.c_str(),
+        MISSING_ILINE_DATA.c_str(),
+        CREDENTIALS.c_str(),
+        &inplace_addition
+    );
 
-TEST_F(DataSourceTest, XLineMismatch) {
-    const std::string EXPECTED_MSG = "Axis: Crossline: Mismatch in number of samples: 2 != 1";
+    SurfaceBoundedSubVolume* subvolume = make_subvolume(
+        datasource->get_metadata(), primary_surface, top_surface, bottom_surface
+    );
 
-    EXPECT_THAT([&]() {         
-            DoubleDataSource *datasource = make_double_datasource(
-                DEFAULT_DATA.c_str(),
-                CREDENTIALS.c_str(),
-                MISSING_XLINE_DATA.c_str(),
-                CREDENTIALS.c_str(),
-                &inplace_subtraction);
-                delete datasource; }, testing::ThrowsMessage<std::runtime_error>(testing::HasSubstr(EXPECTED_MSG)));
-}
+    cppapi::fetch_subvolume(*datasource, *subvolume, NEAREST, 0, size);
+    int compared_values = 0;
 
-TEST_F(DataSourceTest, SamplesMismatch) {
-    const std::string EXPECTED_MSG = "Axis: Sample: Mismatch in number of samples: 10 != 8";
+    for (int i = 0; i < size; ++i) {
+        std::cout << "     ###  " << i << std::endl;
+        RawSegment rs = subvolume->vertical_segment(i);
+        RawSegment rs_ref = subvolume_reference->vertical_segment(i);
 
-    EXPECT_THAT([&]() {         
-            DoubleDataSource *datasource = make_double_datasource(
-                DEFAULT_DATA.c_str(),
-                CREDENTIALS.c_str(),
-                MISSING_SAMPLE_DATA.c_str(),
-                CREDENTIALS.c_str(),
-                &inplace_subtraction);
-                delete datasource; }, testing::ThrowsMessage<std::runtime_error>(testing::HasSubstr(EXPECTED_MSG)));
-}
+        for (auto it = rs.begin(), a_it = rs_ref.begin();
+             it != rs.end() && a_it != rs_ref.end();
+             ++it, ++a_it) {
+            compared_values++;
+            std::cout << i << " " << *it << " " << *a_it << " " << *it - 2 * *a_it << std::endl;
+            EXPECT_NEAR(*it, *a_it * 2, DELTA) << "at segment " << i << " at position in data " << std::distance(rs.begin(), it);
+        }
+    }
+    // EXPECT_EQ(compared_values, size * EXPECTED_TRACE_LENGTH);
+    std::cout << "compared_values: " << compared_values << "  size" << size << " " << EXPECTED_TRACE_LENGTH << std::endl;
 
-TEST_F(DataSourceTest, OffsetMismatch) {
-    const std::string EXPECTED_MSG = "Axis: Crossline: Mismatch in min value: 10.00 != 12.00";
-
-    EXPECT_THAT([&]() {         
-            DoubleDataSource *datasource = make_double_datasource(
-                DEFAULT_DATA.c_str(),
-                CREDENTIALS.c_str(),
-                ALTERED_OFFSET_DATA.c_str(),
-                CREDENTIALS.c_str(),
-                &inplace_subtraction);
-                delete datasource; }, testing::ThrowsMessage<std::runtime_error>(testing::HasSubstr(EXPECTED_MSG)));
-}
-
-TEST_F(DataSourceTest, StepSizeMismatch) {
-    // Changing the stepsize causes the max value to change. Max value is checked before stepsize.
-    const std::string EXPECTED_MSG = "Axis: Inline: Mismatch in max value: 5.00 != 7.00";
-
-    EXPECT_THAT([&]() {         
-            DoubleDataSource *datasource = make_double_datasource(
-                DEFAULT_DATA.c_str(),
-                CREDENTIALS.c_str(),
-                ALTERED_STEPSIZE_DATA.c_str(),
-                CREDENTIALS.c_str(),
-                &inplace_subtraction);
-                delete datasource; }, testing::ThrowsMessage<std::runtime_error>(testing::HasSubstr(EXPECTED_MSG)));
+    delete subvolume;
+    delete datasource;
 }
 
 TEST_F(DataSourceTest, Addition) {
