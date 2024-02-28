@@ -101,22 +101,22 @@ DoubleMetadataHandle::DoubleMetadataHandle(DoubleVolumeDataLayout const* const l
         this->dimension_validation();
       }
 
-BaseAxis& DoubleMetadataHandle::iline() const noexcept(true) {
+ BaseAxis& DoubleMetadataHandle::iline() const noexcept(true) {
     // Axis iline in handle A and B are identical by validate_metadata()
     return (BaseAxis&)this->m_iline;
 }
 
-BaseAxis& DoubleMetadataHandle::xline() const noexcept(true) {
+ BaseAxis& DoubleMetadataHandle::xline() const noexcept(true) {
     // Axis xline in handle A and B are identical by validate_metadata()
     return (BaseAxis&)this->m_xline;
 }
 
-BaseAxis& DoubleMetadataHandle::sample() const noexcept(true) {
+ BaseAxis& DoubleMetadataHandle::sample() const noexcept(true) {
     // Axis sample in handle A and B are identical by validate_metadata()
     return (BaseAxis&)this->m_sample;
 }
 
-BaseAxis& DoubleMetadataHandle::get_axis(
+ BaseAxis& DoubleMetadataHandle::get_axis(
     Direction const direction
 ) const noexcept(false) {
     if (direction.is_iline())
@@ -143,6 +143,23 @@ std::string DoubleMetadataHandle::input_filename() const noexcept(false) {
 
 std::string DoubleMetadataHandle::import_time_stamp() const noexcept(false) {
     throw std::runtime_error("Not implemented");
+}
+
+// int DoubleMetadataHandle::get_dimension(std::vector<std::string> const& names) const {
+//     for (auto i = 0; i < this->m_layout.GetDimensionality(); i++) {
+//         std::string dimension_name = this->m_layout.GetDimensionName(i);
+//         if (std::find(names.begin(), names.end(), dimension_name) != names.end()) {
+//             return i;
+//         }
+//     }
+//     throw std::runtime_error(
+//         "Requested axis not found under names " + boost::algorithm::join(names, ", ") +
+//         " in vds file "
+//     );
+// }
+
+OpenVDS::VolumeDataLayout const* const DoubleMetadataHandle::get_layout() const noexcept(false){
+    return this->m_layout;
 }
 
 OpenVDS::IJKCoordinateTransformer DoubleMetadataHandle::coordinate_transformer() const noexcept(false) {

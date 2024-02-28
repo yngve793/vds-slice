@@ -9,6 +9,7 @@
 #include "boundingbox.hpp"
 #include "direction.hpp"
 #include "volumedatalayout.hpp"
+#include "volumedatalayout.hpp"
 
 class MetadataHandle {
     friend class DoubleMetadataHandle;
@@ -23,7 +24,7 @@ public:
     virtual std::string crs() const noexcept(false) = 0;
     virtual std::string input_filename() const noexcept(false) = 0;
     virtual std::string import_time_stamp() const noexcept(false) = 0;
-
+    virtual OpenVDS::VolumeDataLayout const* const get_layout() const noexcept(false) = 0;
     virtual OpenVDS::IJKCoordinateTransformer coordinate_transformer() const noexcept(false) = 0;
 
 protected:
@@ -43,6 +44,9 @@ public:
     std::string crs() const noexcept(false);
     std::string input_filename() const noexcept(false);
     std::string import_time_stamp() const noexcept(false);
+    OpenVDS::VolumeDataLayout const* const get_layout() const noexcept(false) {
+        return this->m_layout;
+    }
 
     OpenVDS::IJKCoordinateTransformer coordinate_transformer() const noexcept(false);
 
@@ -73,7 +77,11 @@ public:
     std::string input_filename() const noexcept(false);
     std::string import_time_stamp() const noexcept(false);
 
+    OpenVDS::VolumeDataLayout const* const get_layout() const noexcept(false);
+
     OpenVDS::IJKCoordinateTransformer coordinate_transformer() const noexcept(false);
+
+    int get_dimension(std::vector<std::string> const& names) const;
 
 protected:
     void dimension_validation() const;
@@ -86,6 +94,5 @@ private:
     SingleAxis m_sample;
 
     void validate_metadata() const noexcept(false);
-    int get_dimension(std::vector<std::string> const& names) const;
 };
 #endif /* VDS_SLICE_METADATAHANDLE_HPP */
