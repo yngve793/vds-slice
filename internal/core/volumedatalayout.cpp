@@ -1,7 +1,6 @@
 #include "volumedatalayout.hpp"
 #include <OpenVDS/VolumeDataAxisDescriptor.h>
 #include <iostream>
-// #include <stdexcept>
 #include "exceptions.hpp"
 
 DoubleVolumeDataLayout::DoubleVolumeDataLayout(
@@ -28,10 +27,6 @@ DoubleVolumeDataLayout::DoubleVolumeDataLayout(
     // origin consist of three values ()
     if (vds_a.origin[0] == vds_b.origin[0] && vds_a.origin[1] == vds_b.origin[1])
 
-        // if (!(vds_a == vds_b)) {
-        //     throw std::runtime_error("The two provided data sources do not have a identical origin, increment vectors and dimension ordering");
-        // }
-
         if (m_layout_a->GetDimensionality() != m_layout_b->GetDimensionality()) {
             throw detail::bad_request("Different number of dimensions");
         }
@@ -47,15 +42,20 @@ DoubleVolumeDataLayout::DoubleVolumeDataLayout(
                 throw detail::bad_request("Step size mismatch in axis: " + std::to_string(dimension));
             }
 
+            m_dimensionStepSize[dimension] = step_size_a;
+            m_dimensionCoordinateMin[dimension] = std::max(m_layout_a->GetDimensionMin(dimension), m_layout_b->GetDimensionMin(dimension));
+            m_dimensionCoordinateMax[dimension] = std::min(m_layout_a->GetDimensionMax(dimension), m_layout_b->GetDimensionMax(dimension));
+
+            m_dimensionNumSamples[dimension] = 1 + ((m_dimensionCoordinateMax[dimension] - m_dimensionCoordinateMin[dimension]) / m_dimensionStepSize[dimension]);
+
             float offset = (m_layout_b->GetDimensionMin(dimension) - m_layout_a->GetDimensionMin(dimension)) / step_size_a;
 
             if (std::abs(std::round(offset) - offset) > 0.00001) {
                 throw detail::bad_request("Offset mismatch in axis: " + std::to_string(dimension));
             }
 
-            m_dimensionCoordinateMin[dimension] = this->GetDimensionMin(dimension);
-            m_dimensionCoordinateMax[dimension] = this->GetDimensionMax(dimension);
-            m_dimensionNumSamples[dimension] = 1 + ((m_dimensionCoordinateMax[dimension] - m_dimensionCoordinateMin[dimension]) / step_size_a);
+            m_dimensionIndexOffset_a[dimension] = (m_dimensionCoordinateMin[dimension] - m_layout_a->GetDimensionMin(dimension)) / m_dimensionStepSize[dimension];
+            m_dimensionIndexOffset_b[dimension] = (m_dimensionCoordinateMin[dimension] - m_layout_b->GetDimensionMin(dimension)) / m_dimensionStepSize[dimension];
 
         } else {
             m_dimensionNumSamples[dimension] = 1;
@@ -120,13 +120,17 @@ const char* DoubleVolumeDataLayout::GetDimensionUnit(int dimension) const {
 }
 
 float DoubleVolumeDataLayout::GetDimensionMin(int dimension) const {
-    float min_a = m_layout_a->GetDimensionMin(dimension);
-    float min_b = m_layout_b->GetDimensionMin(dimension);
-    return std::max(min_a, min_b);
+    return m_dimensionCoordinateMin[dimension];
 }
 
 float DoubleVolumeDataLayout::GetDimensionMax(int dimension) const {
-    float max_a = m_layout_a->GetDimensionMax(dimension);
-    float max_b = m_layout_b->GetDimensionMax(dimension);
-    return std::min(max_a, max_b);
+    return m_dimensionCoordinateMax[dimension];
+}
+
+float DoubleVolumeDataLayout::GetDimensionIndexOffset_a(int dimension) const {
+    return m_dimensionIndexOffset_a[dimension];
+}
+
+float DoubleVolumeDataLayout::GetDimensionIndexOffset_b(int dimension) const {
+    return m_dimensionIndexOffset_b[dimension];
 }
