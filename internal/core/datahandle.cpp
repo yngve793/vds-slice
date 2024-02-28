@@ -7,6 +7,7 @@
 
 #include "metadatahandle.hpp"
 #include "subcube.hpp"
+#include "iostream"
 
 namespace {
 
@@ -271,13 +272,13 @@ void DoubleDataHandle::read_subcube(
         throw std::runtime_error("Failed to read from VDS.");
     }
 
-    // m_binary_operator((float* const)buffer_a.data(), (float* const)buffer_b.data(), (std::size_t)size/sizeof(float));
     m_binary_operator((float*)buffer, (float* const)buffer_b.data(), (std::size_t)size / sizeof(float));
 }
 
 std::int64_t DoubleDataHandle::traces_buffer_size(std::size_t const ntraces) noexcept(false) {
-    int const dimension = this->get_metadata().sample().dimension();
-    return this->m_access_manager_a.GetVolumeTracesBufferSize(ntraces, dimension);
+    // int const dimension = this->get_metadata().sample().dimension();
+    return this->get_metadata().sample().nsamples() * ntraces * sizeof(float);
+    // return this->m_access_manager.GetVolumeTracesBufferSize(ntraces, dimension);
 }
 
 void DoubleDataHandle::read_traces(
@@ -288,23 +289,91 @@ void DoubleDataHandle::read_traces(
     enum interpolation_method const interpolation_method
 ) noexcept(false) {
     int const dimension = this->get_metadata().sample().dimension();
+    int const nsamples = this->get_metadata().sample().nsamples();
+    int const buffersize = nsamples * ntraces;
 
-    auto request = this->m_access_manager_a.RequestVolumeTraces(
-        (float*)buffer,
-        size,
+    std::cout << buffersize << std::endl;
+
+    std::size_t coordinate_size = (std::size_t)(sizeof(voxel)*ntraces/sizeof(float));
+    
+    std::vector<float> coordinates_a(coordinate_size);
+    std::vector<float> coordinates_b(coordinate_size);
+
+    memcpy(coordinates_a.data(), coordinates[0], coordinate_size*sizeof(float)); 
+    memcpy(coordinates_b.data(), coordinates[0], coordinate_size*sizeof(float)); 
+
+    for (int i = 0; i < this->m_layout.Dimensionality_Max; i++){
+        for (int v = 0; v < ntraces; v++){
+            coordinates_a[v*this->m_layout.Dimensionality_Max + i] += this->m_layout.GetDimensionIndexOffset_a(i);
+            coordinates_b[v*this->m_layout.Dimensionality_Max + i] += this->m_layout.GetDimensionIndexOffset_b(i);
+        }
+        // std::cout << this->m_layout.GetDimensionMin(i) << std::endl;
+    }
+
+    std::size_t size_a = this->m_access_manager_a.GetVolumeTracesBufferSize(ntraces, dimension);
+    std::vector<float> buffer_a((std::size_t)size_a/sizeof(float));
+    auto request_a = this->m_access_manager_a.RequestVolumeTraces(
+        buffer_a.data(),
+        size_a,
         OpenVDS::Dimensions_012,
         DoubleDataHandle::lod_level,
         DoubleDataHandle::channel,
-        coordinates,
+        (voxel*)coordinates_a.data(),
         ntraces,
         ::to_interpolation(interpolation_method),
         dimension
     );
-    bool const success = request.get()->WaitForCompletion();
 
-    if (!success) {
+    std::size_t size_b = this->m_access_manager_b.GetVolumeTracesBufferSize(ntraces, dimension);
+    std::vector<float> buffer_b((std::size_t)size_b/sizeof(float));
+    auto request_b = this->m_access_manager_b.RequestVolumeTraces(
+        buffer_b.data(),
+        size_b,
+        OpenVDS::Dimensions_012,
+        DoubleDataHandle::lod_level,
+        DoubleDataHandle::channel,
+        (voxel*)coordinates_b.data(),
+        ntraces,
+        ::to_interpolation(interpolation_method),
+        dimension
+    );
+
+
+    
+    bool const success_a = request_a.get()->WaitForCompletion();
+    bool const success_b = request_b.get()->WaitForCompletion();
+
+    if (!success_a && !success_b) {
         throw std::runtime_error("Failed to read from VDS.");
     }
+
+    //std::vector<float> res_buffer_a(buffersize);
+    float* floatBuffer = (float*)buffer;
+    std::vector<float> res_buffer_b(buffersize);
+
+    int counter = 0;
+    int traceIndex_a = this->m_metadata_a.sample().nsamples();
+    for (int i = 0; i < buffer_a.size(); i++){
+        int index = i % traceIndex_a;
+
+        if (index >= coordinates_a[dimension] && index < coordinates_a[dimension] + nsamples){
+            floatBuffer[counter] = buffer_a[i];
+            counter++;
+        }
+    }
+
+    counter = 0;
+    int traceIndex_b = this->m_metadata_b.sample().nsamples();
+    for (int i = 0; i < buffer_b.size(); i++){
+        int index = i % traceIndex_b;
+
+        if (index >= coordinates_b[dimension] && index < coordinates_b[dimension] + nsamples){
+            res_buffer_b[counter] = buffer_b[i];
+            counter++;
+        }
+    }
+
+    m_binary_operator((float*)buffer, (float* const)res_buffer_b.data(), (std::size_t)size / sizeof(float));
 }
 
 std::int64_t DoubleDataHandle::samples_buffer_size(

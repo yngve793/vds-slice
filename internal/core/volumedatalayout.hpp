@@ -104,6 +104,10 @@ public:
 
     float GetDimensionMax(int dimension) const;
 
+    float GetDimensionIndexOffset_a(int dimension) const;
+
+    float GetDimensionIndexOffset_b(int dimension) const;
+
     OpenVDS::VDSIJKGridDefinition GetVDSIJKGridDefinitionFromMetadata() const;
 
     bool IsChannelUseNoValue(int channel) const {
@@ -161,6 +165,9 @@ private:
     int32_t m_dimensionNumSamples[Dimensionality_Max];
     int32_t m_dimensionCoordinateMin[Dimensionality_Max];
     int32_t m_dimensionCoordinateMax[Dimensionality_Max];
+    int32_t m_dimensionStepSize[Dimensionality_Max];
+    int32_t m_dimensionIndexOffset_a[Dimensionality_Max];
+    int32_t m_dimensionIndexOffset_b[Dimensionality_Max];
 
     OpenVDS::VolumeDataLayout const* const m_layout_a;
     OpenVDS::VolumeDataLayout const* const m_layout_b;

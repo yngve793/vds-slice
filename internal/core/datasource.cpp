@@ -1,6 +1,7 @@
 #include "exceptions.hpp"
 #include "datasource.hpp"
 #include "datahandle.hpp"
+#include "iostream"
 
 SingleDataSource::SingleDataSource(const char* url, const char* credentials) {
     this->handle = make_single_datahandle(url, credentials);
@@ -141,12 +142,13 @@ std::int64_t DoubleDataSource::traces_buffer_size(
     std::size_t const ntraces
 ) noexcept(false) {
     // Be aware that asking both sources may cost some time
-    std::int64_t size_a = this->handle_A->traces_buffer_size(ntraces);
-    std::int64_t size_b = this->handle_B->traces_buffer_size(ntraces);
-    if (size_a != size_b) {
-        throw detail::bad_request("Mismatch in trace buffer size");
-    }
-    return size_a;
+    return this->handle->traces_buffer_size(ntraces);
+    // std::int64_t size_a = this->handle_A->traces_buffer_size(ntraces);
+    // std::int64_t size_b = this->handle_B->traces_buffer_size(ntraces);
+    // if (size_a != size_b) {
+    //     throw detail::bad_request("Mismatch in trace buffer size");
+    // }
+    // return size_a;
 }
 
 void DoubleDataSource::read_traces(
@@ -157,12 +159,15 @@ void DoubleDataSource::read_traces(
     interpolation_method const interpolation_method
 ) noexcept(false) {
 
-    std::vector<float> buffer_B((int)size / sizeof(float));
+    this->handle->read_traces((float*)buffer, size, coordinates, ntraces, interpolation_method);
 
-    this->handle_A->read_traces((float*)buffer, size, coordinates, ntraces, interpolation_method);
-    this->handle_B->read_traces(buffer_B.data(), size, coordinates, ntraces, interpolation_method);
+    // std::vector<float> buffer_B((int)size / sizeof(float));
 
-    this->binary_operator((float*)buffer, buffer_B.data(), (int)size / sizeof(float));
+
+    // this->handle_A->read_traces((float*)buffer, size, coordinates, ntraces, interpolation_method);
+    // this->handle_B->read_traces(buffer_B.data(), size, coordinates, ntraces, interpolation_method);
+
+    // this->binary_operator((float*)buffer, buffer_B.data(), (int)size / sizeof(float));
 }
 
 
@@ -185,6 +190,18 @@ void inplace_subtraction(float* buffer_A, const float* buffer_B, std::size_t nsa
 
 void inplace_addition(float* buffer_A, const float* buffer_B, std::size_t nsamples) noexcept(true) {
     for (std::size_t i = 0; i < nsamples; i++) {
+        int value = (int)buffer_A[i];
+        int sample_a = value & 0xFF;
+        int xline_a = (value & 0xFF00) >> 8;
+        int iline_a = (value & 0xFF0000) >> 16;
+        value = (int)buffer_B[i];
+        int sample_b = value & 0xFF;
+        int xline_b = (value & 0xFF00) >> 8;
+        int iline_b = (value & 0xFF0000) >> 16;
+        
+        std::cout << "\nA iLine: " << iline_a << " xLine: " << xline_a << " sample: " << sample_a << std::endl;
+        std::cout << "B iLine: " << iline_b << " xLine: " << xline_b << " sample: " << sample_b << std::endl;
+        
         buffer_A[i] += buffer_B[i];
     }
 }

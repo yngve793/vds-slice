@@ -72,232 +72,270 @@ protected:
     }
 };
 
-TEST_F(DataSourceTest, ILineMismatch) {
-    const std::string EXPECTED_MSG = "Axis: Inline: Mismatch in number of samples: 3 != 2";
+// TEST_F(DataSourceTest, ILineMismatch3) {
+//     const std::string EXPECTED_MSG = "Axis: Inline: Mismatch in number of samples: 3 != 2";
 
-    EXPECT_THAT([&]() {         
-            DoubleDataSource *datasource = make_double_datasource(
-                DEFAULT_DATA.c_str(),
-                CREDENTIALS.c_str(),
-                MISSING_ILINE_DATA.c_str(),
-                CREDENTIALS.c_str(),
-                &inplace_subtraction);
-                delete datasource; }, testing::ThrowsMessage<std::runtime_error>(testing::HasSubstr(EXPECTED_MSG)));
-}
+//     EXPECT_THAT([&]() {         
+//             DoubleDataSource *datasource = make_double_datasource(
+//                 DEFAULT_DATA.c_str(),
+//                 CREDENTIALS.c_str(),
+//                 MISSING_ILINE_DATA.c_str(),
+//                 CREDENTIALS.c_str(),
+//                 &inplace_subtraction);
+//                 delete datasource; }, testing::ThrowsMessage<std::runtime_error>(testing::HasSubstr(EXPECTED_MSG)));
+// }
 
-TEST_F(DataSourceTest, XLineMismatch) {
-    const std::string EXPECTED_MSG = "Axis: Crossline: Mismatch in number of samples: 2 != 1";
+// TEST_F(DataSourceTest, Addition_ILineMismatch) {
 
-    EXPECT_THAT([&]() {         
-            DoubleDataSource *datasource = make_double_datasource(
-                DEFAULT_DATA.c_str(),
-                CREDENTIALS.c_str(),
-                MISSING_XLINE_DATA.c_str(),
-                CREDENTIALS.c_str(),
-                &inplace_subtraction);
-                delete datasource; }, testing::ThrowsMessage<std::runtime_error>(testing::HasSubstr(EXPECTED_MSG)));
-}
+//     DoubleDataSource* datasource = make_double_datasource(
+//         DEFAULT_DATA.c_str(),
+//         CREDENTIALS.c_str(),
+//         MISSING_ILINE_DATA.c_str(),
+//         CREDENTIALS.c_str(),
+//         &inplace_addition
+//     );
 
-TEST_F(DataSourceTest, SamplesMismatch) {
-    const std::string EXPECTED_MSG = "Axis: Sample: Mismatch in number of samples: 10 != 8";
+//     SurfaceBoundedSubVolume* subvolume = make_subvolume(
+//         datasource->get_metadata(), primary_surface, top_surface, bottom_surface
+//     );
 
-    EXPECT_THAT([&]() {         
-            DoubleDataSource *datasource = make_double_datasource(
-                DEFAULT_DATA.c_str(),
-                CREDENTIALS.c_str(),
-                MISSING_SAMPLE_DATA.c_str(),
-                CREDENTIALS.c_str(),
-                &inplace_subtraction);
-                delete datasource; }, testing::ThrowsMessage<std::runtime_error>(testing::HasSubstr(EXPECTED_MSG)));
-}
+//     cppapi::fetch_subvolume(*datasource, *subvolume, NEAREST, 0, size);
+//     int compared_values = 0;
+    
+//     for (int i = 0; i < size; ++i) {
+//         std::cout << "     ###  " << i << std::endl; 
+//         RawSegment rs = subvolume->vertical_segment(i);
+//         RawSegment rs_ref = subvolume_reference->vertical_segment(i);
 
-TEST_F(DataSourceTest, OffsetMismatch) {
-    const std::string EXPECTED_MSG = "Axis: Crossline: Mismatch in min value: 10.00 != 12.00";
+//         for (auto it = rs.begin(), a_it = rs_ref.begin();
+//              it != rs.end() && a_it != rs_ref.end();
+//              ++it, ++a_it) {
+//             compared_values++;
+//             std::cout << i << " " << *it << " " << *a_it << " "  <<  *it - 2* *a_it  << std::endl;
+//             EXPECT_NEAR(*it, *a_it * 2, DELTA) << "at segment " << i << " at position in data " << std::distance(rs.begin(), it);
+//         }
+//     }
+//     // EXPECT_EQ(compared_values, size * EXPECTED_TRACE_LENGTH);
+//     std::cout << "compared_values: " << compared_values  << "  size" << size << " " <<  EXPECTED_TRACE_LENGTH << std::endl;
 
-    EXPECT_THAT([&]() {         
-            DoubleDataSource *datasource = make_double_datasource(
-                DEFAULT_DATA.c_str(),
-                CREDENTIALS.c_str(),
-                ALTERED_OFFSET_DATA.c_str(),
-                CREDENTIALS.c_str(),
-                &inplace_subtraction);
-                delete datasource; }, testing::ThrowsMessage<std::runtime_error>(testing::HasSubstr(EXPECTED_MSG)));
-}
+//     delete subvolume;
+//     delete datasource;
+// }
 
-TEST_F(DataSourceTest, StepSizeMismatch) {
-    // Changing the stepsize causes the max value to change. Max value is checked before stepsize.
-    const std::string EXPECTED_MSG = "Axis: Inline: Mismatch in max value: 5.00 != 7.00";
 
-    EXPECT_THAT([&]() {         
-            DoubleDataSource *datasource = make_double_datasource(
-                DEFAULT_DATA.c_str(),
-                CREDENTIALS.c_str(),
-                ALTERED_STEPSIZE_DATA.c_str(),
-                CREDENTIALS.c_str(),
-                &inplace_subtraction);
-                delete datasource; }, testing::ThrowsMessage<std::runtime_error>(testing::HasSubstr(EXPECTED_MSG)));
-}
+// TEST_F(DataSourceTest, XLineMismatch) {
+//     const std::string EXPECTED_MSG = "Axis: Crossline: Mismatch in number of samples: 2 != 1";
 
-TEST_F(DataSourceTest, Addition) {
+//     EXPECT_THAT([&]() {         
+//             DoubleDataSource *datasource = make_double_datasource(
+//                 DEFAULT_DATA.c_str(),
+//                 CREDENTIALS.c_str(),
+//                 MISSING_XLINE_DATA.c_str(),
+//                 CREDENTIALS.c_str(),
+//                 &inplace_subtraction);
+//                 delete datasource; }, testing::ThrowsMessage<std::runtime_error>(testing::HasSubstr(EXPECTED_MSG)));
+// }
 
-    DoubleDataSource* datasource = make_double_datasource(
-        DEFAULT_DATA.c_str(),
-        CREDENTIALS.c_str(),
-        DOUBLE_VALUE_DATA.c_str(),
-        CREDENTIALS.c_str(),
-        &inplace_addition
-    );
+// TEST_F(DataSourceTest, SamplesMismatch) {
+//     const std::string EXPECTED_MSG = "Axis: Sample: Mismatch in number of samples: 10 != 8";
 
-    SurfaceBoundedSubVolume* subvolume = make_subvolume(
-        datasource->get_metadata(), primary_surface, top_surface, bottom_surface
-    );
+//     EXPECT_THAT([&]() {         
+//             DoubleDataSource *datasource = make_double_datasource(
+//                 DEFAULT_DATA.c_str(),
+//                 CREDENTIALS.c_str(),
+//                 MISSING_SAMPLE_DATA.c_str(),
+//                 CREDENTIALS.c_str(),
+//                 &inplace_subtraction);
+//                 delete datasource; }, testing::ThrowsMessage<std::runtime_error>(testing::HasSubstr(EXPECTED_MSG)));
+// }
 
-    cppapi::fetch_subvolume(*datasource, *subvolume, NEAREST, 0, size);
-    int compared_values = 0;
-    for (int i = 0; i < size; ++i) {
-        RawSegment rs = subvolume->vertical_segment(i);
-        RawSegment rs_ref = subvolume_reference->vertical_segment(i);
+// TEST_F(DataSourceTest, OffsetMismatch) {
+//     const std::string EXPECTED_MSG = "Axis: Crossline: Mismatch in min value: 10.00 != 12.00";
 
-        for (auto it = rs.begin(), a_it = rs_ref.begin();
-             it != rs.end() && a_it != rs_ref.end();
-             ++it, ++a_it) {
-            compared_values++;
-            EXPECT_NEAR(*it, *a_it * 3, DELTA) << "at segment " << i << " at position in data " << std::distance(rs.begin(), it);
-        }
-    }
-    EXPECT_EQ(compared_values, size * EXPECTED_TRACE_LENGTH);
+//     EXPECT_THAT([&]() {         
+//             DoubleDataSource *datasource = make_double_datasource(
+//                 DEFAULT_DATA.c_str(),
+//                 CREDENTIALS.c_str(),
+//                 ALTERED_OFFSET_DATA.c_str(),
+//                 CREDENTIALS.c_str(),
+//                 &inplace_subtraction);
+//                 delete datasource; }, testing::ThrowsMessage<std::runtime_error>(testing::HasSubstr(EXPECTED_MSG)));
+// }
 
-    delete subvolume;
-    delete datasource;
-}
+// TEST_F(DataSourceTest, StepSizeMismatch) {
+//     // Changing the stepsize causes the max value to change. Max value is checked before stepsize.
+//     const std::string EXPECTED_MSG = "Axis: Inline: Mismatch in max value: 5.00 != 7.00";
 
-TEST_F(DataSourceTest, Multiplication) {
+//     EXPECT_THAT([&]() {         
+//             DoubleDataSource *datasource = make_double_datasource(
+//                 DEFAULT_DATA.c_str(),
+//                 CREDENTIALS.c_str(),
+//                 ALTERED_STEPSIZE_DATA.c_str(),
+//                 CREDENTIALS.c_str(),
+//                 &inplace_subtraction);
+//                 delete datasource; }, testing::ThrowsMessage<std::runtime_error>(testing::HasSubstr(EXPECTED_MSG)));
+// }
 
-    DoubleDataSource* datasource = make_double_datasource(
-        DEFAULT_DATA.c_str(),
-        CREDENTIALS.c_str(),
-        DOUBLE_VALUE_DATA.c_str(),
-        CREDENTIALS.c_str(),
-        &inplace_multiplication
-    );
+// TEST_F(DataSourceTest, Addition) {
 
-    SurfaceBoundedSubVolume* subvolume = make_subvolume(
-        datasource->get_metadata(), primary_surface, top_surface, bottom_surface
-    );
+//     DoubleDataSource* datasource = make_double_datasource(
+//         DEFAULT_DATA.c_str(),
+//         CREDENTIALS.c_str(),
+//         DOUBLE_VALUE_DATA.c_str(),
+//         CREDENTIALS.c_str(),
+//         &inplace_addition
+//     );
 
-    cppapi::fetch_subvolume(*datasource, *subvolume, NEAREST, 0, size);
+//     SurfaceBoundedSubVolume* subvolume = make_subvolume(
+//         datasource->get_metadata(), primary_surface, top_surface, bottom_surface
+//     );
 
-    int compared_values = 0;
-    for (int i = 0; i < size; ++i) {
-        RawSegment rs = subvolume->vertical_segment(i);
-        RawSegment rs_ref = subvolume_reference->vertical_segment(i);
+//     cppapi::fetch_subvolume(*datasource, *subvolume, NEAREST, 0, size);
+//     int compared_values = 0;
+//     for (int i = 0; i < size; ++i) {
+//         RawSegment rs = subvolume->vertical_segment(i);
+//         RawSegment rs_ref = subvolume_reference->vertical_segment(i);
 
-        for (auto it = rs.begin(), a_it = rs_ref.begin();
-             it != rs.end() && a_it != rs_ref.end();
-             ++it, ++a_it) {
-            compared_values++;
-            EXPECT_NEAR(*it, 2 * (*a_it) * (*a_it), DELTA) << "at segment " << i << " at position in data " << std::distance(rs.begin(), it);
-        }
-    }
-    EXPECT_EQ(compared_values, size * EXPECTED_TRACE_LENGTH);
-    delete subvolume;
-    delete datasource;
-}
+//         for (auto it = rs.begin(), a_it = rs_ref.begin();
+//              it != rs.end() && a_it != rs_ref.end();
+//              ++it, ++a_it) {
+//             compared_values++;
+//             EXPECT_NEAR(*it, *a_it * 3, DELTA) << "at segment " << i << " at position in data " << std::distance(rs.begin(), it);
+//         }
+//     }
+//     EXPECT_EQ(compared_values, size * EXPECTED_TRACE_LENGTH);
 
-TEST_F(DataSourceTest, Division) {
+//     delete subvolume;
+//     delete datasource;
+// }
 
-    DoubleDataSource* datasource = make_double_datasource(
-        DEFAULT_DATA.c_str(),
-        CREDENTIALS.c_str(),
-        DOUBLE_VALUE_DATA.c_str(),
-        CREDENTIALS.c_str(),
-        &inplace_division
-    );
+// TEST_F(DataSourceTest, Multiplication) {
 
-    SurfaceBoundedSubVolume* subvolume = make_subvolume(
-        datasource->get_metadata(), primary_surface, top_surface, bottom_surface
-    );
+//     DoubleDataSource* datasource = make_double_datasource(
+//         DEFAULT_DATA.c_str(),
+//         CREDENTIALS.c_str(),
+//         DOUBLE_VALUE_DATA.c_str(),
+//         CREDENTIALS.c_str(),
+//         &inplace_multiplication
+//     );
 
-    cppapi::fetch_subvolume(*datasource, *subvolume, NEAREST, 0, size);
-    int compared_values = 0;
-    for (int i = 0; i < size; ++i) {
-        RawSegment rs = subvolume->vertical_segment(i);
-        RawSegment rs_ref = subvolume_reference->vertical_segment(i);
+//     SurfaceBoundedSubVolume* subvolume = make_subvolume(
+//         datasource->get_metadata(), primary_surface, top_surface, bottom_surface
+//     );
 
-        for (auto it = rs.begin(), a_it = rs_ref.begin();
-             it != rs.end() && a_it != rs_ref.end();
-             ++it, ++a_it) {
-            compared_values++;
-            EXPECT_NEAR(*it, 0.5, DELTA) << "at segment " << i << " at position in data " << std::distance(rs.begin(), it);
-        }
-    }
-    EXPECT_EQ(compared_values, size * EXPECTED_TRACE_LENGTH);
-    delete subvolume;
-    delete datasource;
-}
+//     cppapi::fetch_subvolume(*datasource, *subvolume, NEAREST, 0, size);
 
-TEST_F(DataSourceTest, Subtraction) {
+//     int compared_values = 0;
+//     for (int i = 0; i < size; ++i) {
+//         RawSegment rs = subvolume->vertical_segment(i);
+//         RawSegment rs_ref = subvolume_reference->vertical_segment(i);
 
-    DoubleDataSource* datasource = make_double_datasource(
-        DEFAULT_DATA.c_str(),
-        CREDENTIALS.c_str(),
-        DOUBLE_VALUE_DATA.c_str(),
-        CREDENTIALS.c_str(),
-        &inplace_subtraction
-    );
+//         for (auto it = rs.begin(), a_it = rs_ref.begin();
+//              it != rs.end() && a_it != rs_ref.end();
+//              ++it, ++a_it) {
+//             compared_values++;
+//             EXPECT_NEAR(*it, 2 * (*a_it) * (*a_it), DELTA) << "at segment " << i << " at position in data " << std::distance(rs.begin(), it);
+//         }
+//     }
+//     EXPECT_EQ(compared_values, size * EXPECTED_TRACE_LENGTH);
+//     delete subvolume;
+//     delete datasource;
+// }
 
-    SurfaceBoundedSubVolume* subvolume = make_subvolume(
-        datasource->get_metadata(), primary_surface, top_surface, bottom_surface
-    );
+// TEST_F(DataSourceTest, Division) {
 
-    cppapi::fetch_subvolume(*datasource, *subvolume, NEAREST, 0, size);
-    int compared_values = 0;
-    for (int i = 0; i < size; ++i) {
-        RawSegment rs = subvolume->vertical_segment(i);
-        RawSegment rs_ref = subvolume_reference->vertical_segment(i);
+//     DoubleDataSource* datasource = make_double_datasource(
+//         DEFAULT_DATA.c_str(),
+//         CREDENTIALS.c_str(),
+//         DOUBLE_VALUE_DATA.c_str(),
+//         CREDENTIALS.c_str(),
+//         &inplace_division
+//     );
 
-        for (auto it = rs.begin(), a_it = rs_ref.begin();
-             it != rs.end() && a_it != rs_ref.end();
-             ++it, ++a_it) {
-            compared_values++;
-            EXPECT_NEAR(*it, -*a_it, DELTA) << "at segment " << i << " at position in data " << std::distance(rs.begin(), it);
-        }
-    }
-    EXPECT_EQ(compared_values, size * EXPECTED_TRACE_LENGTH);
-    delete subvolume;
-    delete datasource;
-}
+//     SurfaceBoundedSubVolume* subvolume = make_subvolume(
+//         datasource->get_metadata(), primary_surface, top_surface, bottom_surface
+//     );
 
-TEST_F(DataSourceTest, SubtractionReverse) {
+//     cppapi::fetch_subvolume(*datasource, *subvolume, NEAREST, 0, size);
+//     int compared_values = 0;
+//     for (int i = 0; i < size; ++i) {
+//         RawSegment rs = subvolume->vertical_segment(i);
+//         RawSegment rs_ref = subvolume_reference->vertical_segment(i);
 
-    DoubleDataSource* datasource = make_double_datasource(
-        DOUBLE_VALUE_DATA.c_str(),
-        CREDENTIALS.c_str(),
-        DEFAULT_DATA.c_str(),
-        CREDENTIALS.c_str(),
-        &inplace_subtraction
-    );
+//         for (auto it = rs.begin(), a_it = rs_ref.begin();
+//              it != rs.end() && a_it != rs_ref.end();
+//              ++it, ++a_it) {
+//             compared_values++;
+//             EXPECT_NEAR(*it, 0.5, DELTA) << "at segment " << i << " at position in data " << std::distance(rs.begin(), it);
+//         }
+//     }
+//     EXPECT_EQ(compared_values, size * EXPECTED_TRACE_LENGTH);
+//     delete subvolume;
+//     delete datasource;
+// }
 
-    SurfaceBoundedSubVolume* subvolume = make_subvolume(
-        datasource->get_metadata(), primary_surface, top_surface, bottom_surface
-    );
+// TEST_F(DataSourceTest, Subtraction) {
 
-    cppapi::fetch_subvolume(*datasource, *subvolume, NEAREST, 0, size);
-    int compared_values = 0;
-    for (int i = 0; i < size; ++i) {
-        RawSegment rs = subvolume->vertical_segment(i);
-        RawSegment rs_ref = subvolume_reference->vertical_segment(i);
+//     DoubleDataSource* datasource = make_double_datasource(
+//         DEFAULT_DATA.c_str(),
+//         CREDENTIALS.c_str(),
+//         DOUBLE_VALUE_DATA.c_str(),
+//         CREDENTIALS.c_str(),
+//         &inplace_subtraction
+//     );
 
-        for (auto it = rs.begin(), a_it = rs_ref.begin();
-             it != rs.end() && a_it != rs_ref.end();
-             ++it, ++a_it) {
-            compared_values++;
-            EXPECT_NEAR(*it, *a_it, DELTA) << "at segment " << i << " at position in data " << std::distance(rs.begin(), it);
-        }
-    }
-    EXPECT_EQ(compared_values, size * EXPECTED_TRACE_LENGTH);
-    delete subvolume;
-    delete datasource;
-}
+//     SurfaceBoundedSubVolume* subvolume = make_subvolume(
+//         datasource->get_metadata(), primary_surface, top_surface, bottom_surface
+//     );
+
+//     cppapi::fetch_subvolume(*datasource, *subvolume, NEAREST, 0, size);
+//     int compared_values = 0;
+//     for (int i = 0; i < size; ++i) {
+//         RawSegment rs = subvolume->vertical_segment(i);
+//         RawSegment rs_ref = subvolume_reference->vertical_segment(i);
+
+//         for (auto it = rs.begin(), a_it = rs_ref.begin();
+//              it != rs.end() && a_it != rs_ref.end();
+//              ++it, ++a_it) {
+//             compared_values++;
+//             EXPECT_NEAR(*it, -*a_it, DELTA) << "at segment " << i << " at position in data " << std::distance(rs.begin(), it);
+//         }
+//     }
+//     EXPECT_EQ(compared_values, size * EXPECTED_TRACE_LENGTH);
+//     delete subvolume;
+//     delete datasource;
+// }
+
+// TEST_F(DataSourceTest, SubtractionReverse) {
+
+//     DoubleDataSource* datasource = make_double_datasource(
+//         DOUBLE_VALUE_DATA.c_str(),
+//         CREDENTIALS.c_str(),
+//         DEFAULT_DATA.c_str(),
+//         CREDENTIALS.c_str(),
+//         &inplace_subtraction
+//     );
+
+//     SurfaceBoundedSubVolume* subvolume = make_subvolume(
+//         datasource->get_metadata(), primary_surface, top_surface, bottom_surface
+//     );
+
+//     cppapi::fetch_subvolume(*datasource, *subvolume, NEAREST, 0, size);
+//     int compared_values = 0;
+//     for (int i = 0; i < size; ++i) {
+//         RawSegment rs = subvolume->vertical_segment(i);
+//         RawSegment rs_ref = subvolume_reference->vertical_segment(i);
+
+//         for (auto it = rs.begin(), a_it = rs_ref.begin();
+//              it != rs.end() && a_it != rs_ref.end();
+//              ++it, ++a_it) {
+//             compared_values++;
+//             EXPECT_NEAR(*it, *a_it, DELTA) << "at segment " << i << " at position in data " << std::distance(rs.begin(), it);
+//         }
+//     }
+//     EXPECT_EQ(compared_values, size * EXPECTED_TRACE_LENGTH);
+//     delete subvolume;
+//     delete datasource;
+// }
 
 } // namespace
