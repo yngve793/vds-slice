@@ -83,6 +83,8 @@ public:
 private:
     SingleAxis m_axis_a;
     SingleAxis m_axis_b;
+    // int const m_dimension;
+    OpenVDS::VolumeDataAxisDescriptor m_axis_descriptor;
 };
 
 #endif /* VDS_SLICE_AXIS_HPP */

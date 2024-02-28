@@ -77,11 +77,11 @@ public:
     std::string input_filename() const noexcept(false);
     std::string import_time_stamp() const noexcept(false);
 
-    OpenVDS::VolumeDataLayout const* const get_layout() const noexcept(false) {
-        throw std::runtime_error("Not implemented");
-    }
+    OpenVDS::VolumeDataLayout const* const get_layout() const noexcept(false);
 
     OpenVDS::IJKCoordinateTransformer coordinate_transformer() const noexcept(false);
+
+    int get_dimension(std::vector<std::string> const& names) const;
 
 protected:
     void dimension_validation() const;

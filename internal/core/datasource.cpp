@@ -1,4 +1,3 @@
-#include "exceptions.hpp"
 #include "datasource.hpp"
 #include "datahandle.hpp"
 #include "iostream"
@@ -169,8 +168,6 @@ void DoubleDataSource::read_traces(
 
     // this->binary_operator((float*)buffer, buffer_B.data(), (int)size / sizeof(float));
 }
-
-
 
 DoubleDataSource* make_double_datasource(
     const char* url_A,
