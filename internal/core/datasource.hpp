@@ -134,9 +134,10 @@ public:
     ) noexcept(false);
 
 private:
-    DataSource* handle_A;
-    DataSource* handle_B;
-    MetadataHandle* metadata;
+    DataSource *handle_A;
+    DataSource *handle_B;
+    DoubleDataHandle *handle;
+    MetadataHandle const *metadata;
     binary_function binary_operator;
 };
 

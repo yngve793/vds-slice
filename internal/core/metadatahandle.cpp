@@ -66,6 +66,10 @@ std::string SingleMetadataHandle::import_time_stamp() const noexcept(false) {
     return this->m_layout->GetMetadataString(time_stamp.GetCategory(), time_stamp.GetName());
 }
 
+OpenVDS::VolumeDataLayout const* const SingleMetadataHandle::get_layout() const noexcept(false) {
+    return this->m_layout;
+}
+
 OpenVDS::IJKCoordinateTransformer SingleMetadataHandle::coordinate_transformer() const noexcept(false) {
     return OpenVDS::IJKCoordinateTransformer(this->m_layout);
 }
@@ -92,28 +96,27 @@ int SingleMetadataHandle::get_dimension(std::vector<std::string> const& names) c
     );
 }
 
-DoubleMetadataHandle::DoubleMetadataHandle(
-    MetadataHandle const& handle_A,
-    MetadataHandle const& handle_B
-)
-    : m_handle_A(&handle_A),
-      m_handle_B(&handle_B) {
-    this->validate_metadata();
+DoubleMetadataHandle::DoubleMetadataHandle(DoubleVolumeDataLayout const* const layout)
+    : m_layout(layout),
+      m_iline(Axis(layout, get_dimension({std::string(OpenVDS::KnownAxisNames::Inline())}))),
+      m_xline(Axis(layout, get_dimension({std::string(OpenVDS::KnownAxisNames::Crossline())}))),
+      m_sample(Axis(layout, get_dimension({std::string(OpenVDS::KnownAxisNames::Sample()), std::string(OpenVDS::KnownAxisNames::Depth()), std::string(OpenVDS::KnownAxisNames::Time())}))) {
+    this->dimension_validation();
 }
 
 Axis DoubleMetadataHandle::iline() const noexcept(true) {
     // Axis iline in handle A and B are identical by validate_metadata()
-    return this->m_handle_A->iline();
+    return this->m_iline;
 }
 
 Axis DoubleMetadataHandle::xline() const noexcept(true) {
     // Axis xline in handle A and B are identical by validate_metadata()
-    return this->m_handle_A->xline();
+    return this->m_xline;
 }
 
 Axis DoubleMetadataHandle::sample() const noexcept(true) {
     // Axis sample in handle A and B are identical by validate_metadata()
-    return this->m_handle_A->sample();
+    return this->m_sample;
 }
 
 Axis DoubleMetadataHandle::get_axis(
@@ -145,18 +148,48 @@ std::string DoubleMetadataHandle::import_time_stamp() const noexcept(false) {
     throw std::runtime_error("Not implemented");
 }
 
+// int DoubleMetadataHandle::get_dimension(std::vector<std::string> const& names) const {
+//     for (auto i = 0; i < this->m_layout.GetDimensionality(); i++) {
+//         std::string dimension_name = this->m_layout.GetDimensionName(i);
+//         if (std::find(names.begin(), names.end(), dimension_name) != names.end()) {
+//             return i;
+//         }
+//     }
+//     throw std::runtime_error(
+//         "Requested axis not found under names " + boost::algorithm::join(names, ", ") +
+//         " in vds file "
+//     );
+// }
+
+OpenVDS::VolumeDataLayout const* const DoubleMetadataHandle::get_layout() const noexcept(false) {
+    return this->m_layout;
+}
+
 OpenVDS::IJKCoordinateTransformer DoubleMetadataHandle::coordinate_transformer() const noexcept(false) {
-    throw std::runtime_error("Not implemented");
+    return OpenVDS::IJKCoordinateTransformer(this->m_layout);
 }
 
 void DoubleMetadataHandle::dimension_validation() const {
-    this->m_handle_A->dimension_validation();
-    this->m_handle_B->dimension_validation();
+    // this->m_handle_A->dimension_validation();
+    // this->m_handle_B->dimension_validation();
 }
 
 void DoubleMetadataHandle::validate_metadata() const noexcept(false) {
     this->dimension_validation();
-    this->m_handle_A->iline().assert_equal(this->m_handle_B->iline());
-    this->m_handle_A->xline().assert_equal(this->m_handle_B->xline());
-    this->m_handle_A->sample().assert_equal(this->m_handle_B->sample());
+    // this->m_handle_A->iline().assert_equal(this->m_handle_B->iline());
+    // this->m_handle_A->xline().assert_equal(this->m_handle_B->xline());
+    // this->m_handle_A->sample().assert_equal(this->m_handle_B->sample());
+}
+
+int DoubleMetadataHandle::get_dimension(std::vector<std::string> const& names) const {
+    for (auto i = 0; i < this->m_layout->GetDimensionality(); i++) {
+        std::string dimension_name = this->m_layout->GetDimensionName(i);
+        if (std::find(names.begin(), names.end(), dimension_name) != names.end()) {
+            return i;
+        }
+    }
+    throw std::runtime_error(
+        "Requested axis not found under names " + boost::algorithm::join(names, ", ") +
+        " in vds file "
+    );
 }

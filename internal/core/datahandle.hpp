@@ -111,12 +111,16 @@ private:
     OpenVDS::ScopedVDSHandle m_file_handle_b;
     OpenVDS::VolumeDataAccessManager m_access_manager_a;
     OpenVDS::VolumeDataAccessManager m_access_manager_b;
+    DoubleVolumeDataLayout m_layout;
     DoubleMetadataHandle m_metadata;
     SingleMetadataHandle m_metadata_a;
     SingleMetadataHandle m_metadata_b;
+    binary_function m_binary_operator;
 
     static int constexpr lod_level = 0;
     static int constexpr channel = 0;
+
+    SubCube offset_bounds(SubCube subcube, SingleMetadataHandle m_metadata_new);
 };
 
 DoubleDataHandle* make_double_datahandle(
