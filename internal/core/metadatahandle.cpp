@@ -101,22 +101,22 @@ DoubleMetadataHandle::DoubleMetadataHandle(DoubleVolumeDataLayout const* const l
         this->dimension_validation();
       }
 
-BaseAxis& DoubleMetadataHandle::iline() const noexcept(true) {
+ BaseAxis& DoubleMetadataHandle::iline() const noexcept(true) {
     // Axis iline in handle A and B are identical by validate_metadata()
     return (BaseAxis&)this->m_iline;
 }
 
-BaseAxis& DoubleMetadataHandle::xline() const noexcept(true) {
+ BaseAxis& DoubleMetadataHandle::xline() const noexcept(true) {
     // Axis xline in handle A and B are identical by validate_metadata()
     return (BaseAxis&)this->m_xline;
 }
 
-BaseAxis& DoubleMetadataHandle::sample() const noexcept(true) {
+ BaseAxis& DoubleMetadataHandle::sample() const noexcept(true) {
     // Axis sample in handle A and B are identical by validate_metadata()
     return (BaseAxis&)this->m_sample;
 }
 
-BaseAxis& DoubleMetadataHandle::get_axis(
+ BaseAxis& DoubleMetadataHandle::get_axis(
     Direction const direction
 ) const noexcept(false) {
     if (direction.is_iline())

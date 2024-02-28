@@ -9,6 +9,7 @@
 #include "boundingbox.hpp"
 #include "direction.hpp"
 #include "volumedatalayout.hpp"
+#include "volumedatalayout.hpp"
 
 class MetadataHandle {
     friend class DoubleMetadataHandle;
