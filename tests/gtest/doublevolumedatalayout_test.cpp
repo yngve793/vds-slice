@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "nlohmann/json.hpp"
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
@@ -14,14 +15,67 @@ const std::string SHIFT_M4_DATA = "file://shift_minus4_8x3_cube.vds";
 const std::string CREDENTIALS = "";
 
 class DoubleVolumeDataLayoutTest : public ::testing::Test {
-protected:
-    DoubleDataSource* datasource;
-
-    void SetUp() override {}
-
-    void TearDown() override {}
 };
 
+TEST_F(DoubleVolumeDataLayoutTest, Single_Metadata) {
+
+    SingleDataSource* datasource = make_single_datasource(
+        REGULAR_DATA.c_str(),
+        CREDENTIALS.c_str()
+    );
+
+    struct response response_data;
+    const std::vector<float> coordinates{0, 0, 1, 1, 2, 2, 3, 3};
+    const coordinate_system c_system = coordinate_system::INDEX;
+    const int coordinate_size = int(coordinates.size() / 2);
+    const enum interpolation_method interpolation = NEAREST;
+    const float fill = -999.25;
+
+    cppapi::metadata(*datasource, &response_data);
+
+    delete datasource;
+}
+
+TEST_F(DoubleVolumeDataLayoutTest, Addition_Metadata) {
+
+    DoubleDataSource* datasource = make_double_datasource(
+        SHIFT_4_DATA.c_str(),
+        CREDENTIALS.c_str(),
+        REGULAR_DATA.c_str(),
+        CREDENTIALS.c_str(),
+        &inplace_addition
+    );
+
+    struct response response_data;
+    const std::vector<float> coordinates{0, 0, 1, 1, 2, 2, 3, 3};
+    const coordinate_system c_system = coordinate_system::INDEX;
+    const int coordinate_size = int(coordinates.size() / 2);
+    const enum interpolation_method interpolation = NEAREST;
+    const float fill = -999.25;
+
+    cppapi::metadata(*datasource, &response_data);
+
+    nlohmann::json meta = nlohmann::json::parse(response_data.data);
+
+    nlohmann::json expected;
+    expected["crs"] = "\"utmXX\"; \"utmXX\"";
+    expected["inputFileName"] = "shift_4_8x3_cube.segy; regular_8x3_cube.segy";
+    expected["importTimeStamp"] = "2024-02-28T11:26:20.634Z; 2024-02-28T11:26:19.493Z";
+    expected["boundingBox"]["cdp"] = {{2.0, 0.0}, {29.0, 18.0}, {17.0, 36.0}, {-10.0, 18.0}};
+    expected["boundingBox"]["ij"] = {{0.0, 0.0}, {3.0, 0.0}, {3.0, 3.0}, {0.0, 3.0}};
+    expected["boundingBox"]["ilxl"] = {{15, 10}, {24, 10}, {24, 16}, {15, 16}};
+    expected["axis"][0] = {{"annotation", "Inline"}, {"max", 24.0f}, {"min", 15.0f}, {"samples", 4}, {"stepsize", 3.0f}, {"unit", "unitless"}};
+    expected["axis"][1] = {{"annotation", "Crossline"}, {"max", 16.0f}, {"min", 10.0f}, {"samples", 4}, {"stepsize", 2.0f}, {"unit", "unitless"}};
+    expected["axis"][2] = {{"annotation", "Sample"}, {"max", 32.0f}, {"min", 20.0f}, {"samples", 4}, {"stepsize", 4.0f}, {"unit", "ms"}};
+
+    EXPECT_EQ(meta["crs"], expected["crs"]);
+    EXPECT_EQ(meta["inputFileName"], expected["inputFileName"]);
+    EXPECT_EQ(meta["importTimeStamp"], expected["importTimeStamp"]);
+    EXPECT_EQ(meta["boundingBox"], expected["boundingBox"]);
+    EXPECT_EQ(meta["axis"], expected["axis"]);
+
+    delete datasource;
+}
 
 TEST_F(DoubleVolumeDataLayoutTest, Addition_Offset_reverse_Fence) {
 
@@ -75,7 +129,6 @@ TEST_F(DoubleVolumeDataLayoutTest, Addition_Offset_reverse_Fence) {
 
     delete datasource;
 }
-
 
 TEST_F(DoubleVolumeDataLayoutTest, Addition_Offset_Fence) {
 
@@ -235,6 +288,5 @@ TEST_F(DoubleVolumeDataLayoutTest, Addition_Offset_reverse_Slice) {
     // delete subvolume;
     delete datasource;
 }
-
 
 } // namespace
