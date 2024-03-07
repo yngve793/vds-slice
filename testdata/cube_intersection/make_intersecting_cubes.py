@@ -54,6 +54,16 @@ def create_intersecting_data(path, samples, ilines, xlines):
 
                 f.trace[tr] = samples + \
                     ((iline_value * 2**(16)) + (xline_value * 2**(8)))
+                value = samples + ((iline_value * 2**(16)) +
+                                   (xline_value * 2**(8)))
+                print()
+                print("Index", iline_index, xline_index)
+                print(iline_value, xline_value, samples)
+                print("      value", value)
+                print((value & 0xFF0000)/2**16)
+                print((value & 0xFF00)/2**8)
+                print(value & 0xFF)
+
                 tr += 1
 
         f.bin.update(tsort=segyio.TraceSortingFormat.INLINE_SORTING)
@@ -86,4 +96,9 @@ if __name__ == "__main__":
         name = p["path"]
         subprocess.run(["SEGYImport", "--url", "file://.", "--vdsfile",
                        name+".vds", name+".segy", "--crs-wkt=\"utmXX\""])
-        subprocess.run(["rm", name+".segy"])
+        # subprocess.run(["rm", name+".segy"])
+
+
+# VDSCopy "regular_8x3_cube.vds"  "azureSAS://onevdstest.blob.core.windows.net/testdata/cube_intersection/regular_8x3_cube"  --compression-method=None -d "Suffix=?$SAS"
+# VDSCopy "shift_4_8x3_cube.vds"  "azureSAS://onevdstest.blob.core.windows.net/testdata/cube_intersection/shift_4_8x3_cube"  --compression-method=None -d "Suffix=?$SAS"
+# VDSCopy "shift_minus4_8x3_cube.vds"  "azureSAS://onevdstest.blob.core.windows.net/testdata/cube_intersection/shift_minus4_8x3_cube"  --compression-method=None -d "Suffix=?$SAS"

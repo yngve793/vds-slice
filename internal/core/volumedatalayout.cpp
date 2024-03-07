@@ -92,6 +92,9 @@ int DoubleVolumeDataLayout::GetDimensionNumSamples(int dimension) const {
 
 OpenVDS::VDSIJKGridDefinition DoubleVolumeDataLayout::GetVDSIJKGridDefinitionFromMetadata() const {
 
+    auto grid_definition_a = m_layout_a->GetVDSIJKGridDefinitionFromMetadata();
+    auto grid_definition_b = m_layout_b->GetVDSIJKGridDefinitionFromMetadata();
+
     // OpenVDS::VDSIJKGridDefinition contains:
     // - 3D origin position for the grid
     // - 3D array for increment vector in i,j,k direction

@@ -8,6 +8,7 @@
 
 #include "metadatahandle.hpp"
 #include "subcube.hpp"
+#include<functional>
 
 using voxel = float[OpenVDS::Dimensionality_Max];
 using binary_function = std::function<void(float *, const float *, std::size_t)>;
