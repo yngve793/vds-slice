@@ -7,6 +7,7 @@
 
 #include "metadatahandle.hpp"
 #include "subcube.hpp"
+#include "iostream"
 
 namespace {
 
@@ -387,19 +388,52 @@ void DoubleDataHandle::read_samples(
     std::size_t const nsamples,
     enum interpolation_method const interpolation_method
 ) noexcept(false) {
-    auto request = this->m_access_manager_a.RequestVolumeSamples(
+
+    std::size_t samples_size = (std::size_t)(sizeof(voxel) * nsamples / sizeof(float));
+
+    std::vector<float> samples_a((std::size_t)(sizeof(voxel) * nsamples));
+    std::vector<float> samples_b((std::size_t)(sizeof(voxel) * nsamples));
+
+    memcpy(samples_a.data(), samples[0], samples_size * sizeof(float));
+    memcpy(samples_b.data(), samples[0], samples_size * sizeof(float));
+
+    for (int i = 0; i < this->m_layout.Dimensionality_Max; i++) {
+        for (int v = 0; v < nsamples; v++) {
+            samples_a[v * this->m_layout.Dimensionality_Max + i] += this->m_layout.GetDimensionIndexOffset_a(i);
+            samples_b[v * this->m_layout.Dimensionality_Max + i] += this->m_layout.GetDimensionIndexOffset_b(i);
+        }
+    }
+
+    auto request_a = this->m_access_manager_a.RequestVolumeSamples(
         (float*)buffer,
         size,
         OpenVDS::Dimensions_012,
         DoubleDataHandle::lod_level,
         DoubleDataHandle::channel,
-        samples,
+        (voxel*)samples_a.data(),
         nsamples,
         ::to_interpolation(interpolation_method)
     );
 
-    bool const success = request.get()->WaitForCompletion();
-    if (!success) {
+    std::vector<float> buffer_b((std::size_t)size / sizeof(float));
+
+    auto request_b = this->m_access_manager_b.RequestVolumeSamples(
+        buffer_b.data(),
+        size,
+        OpenVDS::Dimensions_012,
+        DoubleDataHandle::lod_level,
+        DoubleDataHandle::channel,
+        (voxel*)samples_b.data(),
+        nsamples,
+        ::to_interpolation(interpolation_method)
+    );
+
+    bool const success_a = request_a.get()->WaitForCompletion();
+    bool const success_b = request_b.get()->WaitForCompletion();
+
+    if (!success_a && !success_b) {
         throw std::runtime_error("Failed to read from VDS.");
     }
+
+    m_binary_operator((float*)buffer, (float* const)buffer_b.data(), (std::size_t)size / sizeof(float));
 }
