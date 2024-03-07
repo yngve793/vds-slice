@@ -112,12 +112,8 @@ void DoubleDataSource::read_samples(
     interpolation_method const interpolation_method
 ) noexcept(false) {
 
-    std::vector<float> buffer_B(nsamples);
+    return this->handle->read_samples(buffer, size, samples, nsamples, interpolation_method);
 
-    this->handle_A->read_samples((float*)buffer, size, samples, nsamples, interpolation_method);
-    this->handle_B->read_samples(buffer_B.data(), size, samples, nsamples, interpolation_method);
-
-    this->binary_operator((float*)buffer, buffer_B.data(), nsamples);
 }
 
 std::int64_t DoubleDataSource::subcube_buffer_size(SubCube const& subcube) noexcept(false) {
