@@ -11,6 +11,7 @@ add_executable(cppcoretests
   datasource_test.cpp
   regularsurface_test.cpp
   subvolume_test.cpp
+  doublevolumedatalayout_test.cpp
 )
 
 target_link_libraries(cppcoretests
