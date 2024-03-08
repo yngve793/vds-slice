@@ -89,6 +89,5 @@ private:
     Axis m_xline;
     Axis m_sample;
 
-    void validate_metadata() const noexcept(false);
 };
 #endif /* VDS_SLICE_METADATAHANDLE_HPP */

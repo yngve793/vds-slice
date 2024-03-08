@@ -174,13 +174,6 @@ void DoubleMetadataHandle::dimension_validation() const {
     // this->m_handle_B->dimension_validation();
 }
 
-void DoubleMetadataHandle::validate_metadata() const noexcept(false) {
-    this->dimension_validation();
-    // this->m_handle_A->iline().assert_equal(this->m_handle_B->iline());
-    // this->m_handle_A->xline().assert_equal(this->m_handle_B->xline());
-    // this->m_handle_A->sample().assert_equal(this->m_handle_B->sample());
-}
-
 int DoubleMetadataHandle::get_dimension(std::vector<std::string> const& names) const {
     for (auto i = 0; i < this->m_layout->GetDimensionality(); i++) {
         std::string dimension_name = this->m_layout->GetDimensionName(i);
