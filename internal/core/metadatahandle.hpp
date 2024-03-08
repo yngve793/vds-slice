@@ -61,7 +61,7 @@ private:
 
 class DoubleMetadataHandle : public MetadataHandle {
 public:
-    DoubleMetadataHandle(DoubleVolumeDataLayout const* const layout);
+    DoubleMetadataHandle(DoubleVolumeDataLayout const* const layout, SingleMetadataHandle const* const m_metadata_a, SingleMetadataHandle const* const m_metadata_b);
 
     Axis iline() const noexcept(true);
     Axis xline() const noexcept(true);
@@ -84,10 +84,12 @@ protected:
 
 private:
     DoubleVolumeDataLayout const* const m_layout;
+    SingleMetadataHandle const* const m_metadata_a;
+    SingleMetadataHandle const* const m_metadata_b;
 
-    SingleAxis m_iline;
-    SingleAxis m_xline;
-    SingleAxis m_sample;
+    Axis m_iline;
+    Axis m_xline;
+    Axis m_sample;
 
     void validate_metadata() const noexcept(false);
 };
