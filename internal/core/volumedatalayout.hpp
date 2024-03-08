@@ -124,6 +124,14 @@ public:
         throw std::runtime_error("Not implemented: DoubleVolumeDataLayout::GetChannelIntegerOffset");
     }
 
+    OpenVDS::VolumeDataLayout const* const GetLayoutA() {
+        return this->m_layout_a;
+    }
+
+    OpenVDS::VolumeDataLayout const* const GetLayoutB() {
+        return this->m_layout_b;
+    }
+
     // MetadataReadAccess
     void GetMetadataBLOB(const char* category, const char* name, const void** data, size_t* size) const { throw std::runtime_error("Not implemented"); }
     bool IsMetadataIntAvailable(const char* category, const char* name) const { throw std::runtime_error("Not implemented"); }           ///< Returns true if a metadata int with the given category and name is available
@@ -156,7 +164,10 @@ public:
     OpenVDS::DoubleVector3 GetMetadataDoubleVector3(const char* category, const char* name) const { throw std::runtime_error("Not implemented"); } ///< Returns the metadata DoubleVector3 with the given category and name
     OpenVDS::DoubleVector4 GetMetadataDoubleVector4(const char* category, const char* name) const { throw std::runtime_error("Not implemented"); } ///< Returns the metadata DoubleVector4 with the given category and name
 
-    const char* GetMetadataString(const char* category, const char* name) const { throw std::runtime_error("Not implemented"); }
+    const char* GetMetadataString(const char* category, const char* name) const {
+        return "";
+        // throw std::runtime_error("Not implemented");
+    }
     OpenVDS::MetadataKeyRange GetMetadataKeys() const { throw std::runtime_error("Not implemented"); }
 
 private:
