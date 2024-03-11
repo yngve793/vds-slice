@@ -38,6 +38,19 @@ class DoubleVolumeDataLayoutTest : public ::testing::Test {
         expected_intersect_metadata["axis"][1] = {{"annotation", "Crossline"}, {"max", 16.0f}, {"min", 10.0f}, {"samples", 4}, {"stepsize", 2.0f}, {"unit", "unitless"}};
         expected_intersect_metadata["axis"][2] = {{"annotation", "Sample"}, {"max", 128.0f}, {"min", 20.0f}, {"samples", 28}, {"stepsize", 4.0f}, {"unit", "ms"}};
 
+        iline_array = std::vector<int>(8);
+        xline_array = std::vector<int>(8);
+        sample_array = std::vector<int>(32);
+
+        for (int i = 0; i < iline_array.size(); i++) {
+            iline_array[i] = 3 + i * 3;
+            xline_array[i] = 2 + i * 2;
+        }
+
+        for (int i = 0; i < sample_array.size(); i++) {
+            sample_array[i] = 4 + i * 4;
+        }
+
         single_datasource = make_single_datasource(
             REGULAR_DATA.c_str(),
             CREDENTIALS.c_str()
@@ -69,9 +82,40 @@ class DoubleVolumeDataLayoutTest : public ::testing::Test {
 public:
     nlohmann::json expected_intersect_metadata;
 
+    std::vector<int> iline_array;
+    std::vector<int> xline_array;
+    std::vector<int> sample_array;
+
+    std::vector<Bound> slice_bounds;
+
     SingleDataSource* single_datasource;
     DoubleDataSource* double_datasource;
     DoubleDataSource* double_reverse_datasource;
+
+    void check_slice(struct response response_data, int low[], int high[], float factor) {
+        std::size_t nr_of_values = (std::size_t)(response_data.size / sizeof(float));
+
+        EXPECT_EQ(nr_of_values, (high[0] - low[0]) * (high[1] - low[1]) * (high[2] - low[2]));
+
+        int counter = 0;
+        for (int il = low[0]; il < high[0]; ++il) {
+            for (int xl = low[1]; xl < high[1]; ++xl) {
+                for (int s = low[2]; s < high[2]; s++) {
+                    int value = int(*(float*)&response_data.data[counter * sizeof(float)] / factor) + 0.5f;
+                    int sample = value & 0xFF;
+                    int xline = value & 0xFF00;
+                    int iline = value & 0xFF0000;
+                    iline = iline >> 16;
+                    xline = xline >> 8;
+
+                    EXPECT_EQ(iline, iline_array[il]);
+                    EXPECT_EQ(xline, xline_array[xl]);
+                    EXPECT_EQ(sample, sample_array[s]);
+                    counter += 1;
+                }
+            }
+        }
+    }
 };
 
 TEST_F(DoubleVolumeDataLayoutTest, Single_Metadata) {
@@ -119,7 +163,160 @@ TEST_F(DoubleVolumeDataLayoutTest, Reverse_Addition_Metadata) {
     EXPECT_EQ(metadata["inputFileName"], "shift_4_8x3_cube.segy; regular_8x3_cube.segy");
     EXPECT_EQ(metadata["boundingBox"], expected_intersect_metadata["boundingBox"]);
     EXPECT_EQ(metadata["axis"], expected_intersect_metadata["axis"]);
+}
 
+TEST_F(DoubleVolumeDataLayoutTest, Single_Slice) {
+
+    Direction const direction(axis_name::TIME);
+    int lineno = 24;
+
+    struct response response_data;
+    cppapi::slice(
+        *single_datasource,
+        direction,
+        lineno,
+        slice_bounds,
+        &response_data
+    );
+
+    check_slice(response_data, (int[]){0, 0, 5}, (int[]){8, 8, 6}, 1);
+}
+
+TEST_F(DoubleVolumeDataLayoutTest, Single_Slice_Time) {
+
+    Direction const direction(axis_name::TIME);
+    int lineno = 24;
+
+    struct response response_data;
+    cppapi::slice(
+        *single_datasource,
+        direction,
+        lineno,
+        slice_bounds,
+        &response_data
+    );
+
+    check_slice(response_data, (int[]){0, 0, 5}, (int[]){8, 8, 6}, 1);
+}
+
+TEST_F(DoubleVolumeDataLayoutTest, Single_Slice_K) {
+
+    Direction const direction(axis_name::K);
+    int lineno = 5;
+
+    struct response response_data;
+    cppapi::slice(
+        *single_datasource,
+        direction,
+        lineno,
+        slice_bounds,
+        &response_data
+    );
+
+    check_slice(response_data, (int[]){0, 0, 5}, (int[]){8, 8, 6}, 1);
+}
+
+TEST_F(DoubleVolumeDataLayoutTest, Addition_Offset_Slice_TIME) {
+
+    Direction const direction(axis_name::TIME);
+    int lineno = 24;
+
+    struct response response_data;
+    cppapi::slice(
+        *double_datasource,
+        direction,
+        lineno,
+        slice_bounds,
+        &response_data
+    );
+
+    check_slice(response_data, (int[]){4, 4, 5}, (int[]){8, 8, 6}, 2);
+}
+
+TEST_F(DoubleVolumeDataLayoutTest, Addition_Offset_Slice_K) {
+
+    Direction const direction(axis_name::K);
+    int lineno = 5;
+
+    struct response response_data;
+
+    cppapi::slice(
+        *double_datasource,
+        direction,
+        lineno,
+        slice_bounds,
+        &response_data
+    );
+
+    check_slice(response_data, (int[]){4, 4, 9}, (int[]){8, 8, 10}, 2);
+}
+
+TEST_F(DoubleVolumeDataLayoutTest, Addition_Offset_Reverse_Slice_TIME) {
+
+    Direction const direction(axis_name::TIME);
+    int lineno = 24;
+
+    struct response response_data;
+    cppapi::slice(
+        *double_reverse_datasource,
+        direction,
+        lineno,
+        slice_bounds,
+        &response_data
+    );
+
+    check_slice(response_data, (int[]){4, 4, 5}, (int[]){8, 8, 6}, 2);
+}
+
+TEST_F(DoubleVolumeDataLayoutTest, Addition_Offset_Reverse_Slice_K) {
+
+    Direction const direction(axis_name::K);
+    int lineno = 5;
+
+    struct response response_data;
+    cppapi::slice(
+        *double_reverse_datasource,
+        direction,
+        lineno,
+        slice_bounds,
+        &response_data
+    );
+
+    check_slice(response_data, (int[]){4, 4, 9}, (int[]){8, 8, 10}, 2);
+}
+
+TEST_F(DoubleVolumeDataLayoutTest, Addition_Offset_Slice_INLINE) {
+
+    Direction const direction(axis_name::INLINE);
+    int lineno = 15;
+
+    struct response response_data;
+    cppapi::slice(
+        *double_datasource,
+        direction,
+        lineno,
+        slice_bounds,
+        &response_data
+    );
+
+    check_slice(response_data, (int[]){4, 4, 4}, (int[]){5, 8, 32}, 2);
+}
+
+TEST_F(DoubleVolumeDataLayoutTest, Addition_Offset_Slice_CROSSLINE) {
+
+    Direction const direction(axis_name::CROSSLINE);
+    int lineno = 14;
+
+    struct response response_data;
+    cppapi::slice(
+        *double_datasource,
+        direction,
+        lineno,
+        slice_bounds,
+        &response_data
+    );
+
+    check_slice(response_data, (int[]){4, 6, 4}, (int[]){8, 7, 32}, 2);
 }
 
 } // namespace
