@@ -115,6 +115,31 @@ public:
             }
         }
     }
+
+    void check_fence(struct response response_data, std::vector<float> coordinates, int low[], int high[], float factor) {
+        std::size_t nr_of_values = (std::size_t)(response_data.size / sizeof(float));
+        std::size_t nr_of_traces = (std::size_t)(coordinates.size() / 2);
+
+        EXPECT_EQ(nr_of_values, nr_of_traces * (high[2] - low[2]));
+
+        int counter = 0;
+        for (int t = 0; t < nr_of_traces; t++) {
+            int ic = coordinates[2 * t];
+            int xc = coordinates[(2 * t) + 1];
+            for (int s = low[2]; s < high[2]; ++s) {
+                int value = int((*(float*)&response_data.data[counter * sizeof(float)] / factor) + 0.5f);
+                int sample = value & 0xFF;
+                int xline = (value & 0xFF00) >> 8;
+                int iline = (value & 0xFF0000) >> 16;
+
+                EXPECT_EQ(iline, iline_array[ic]);
+                EXPECT_EQ(xline, xline_array[xc]);
+                EXPECT_EQ(sample, sample_array[s]);
+
+                counter += 1;
+            }
+        }
+    }
 };
 
 TEST_F(DoubleVolumeDataLayoutTest, Single_Metadata) {
@@ -332,6 +357,240 @@ TEST_F(DoubleVolumeDataLayoutTest, Addition_Offset_Slice_CROSSLINE) {
     int low[3] = {4, 6, 4};
     int high[3] = {8, 7, 32};
     check_slice(response_data, low, high, 2);
+}
+
+TEST_F(DoubleVolumeDataLayoutTest, Single_Fence_INDEX) {
+
+    struct response response_data;
+    const std::vector<float> coordinates{0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7};
+    const coordinate_system c_system = coordinate_system::INDEX;
+    const int coordinate_size = int(coordinates.size() / 2);
+    const enum interpolation_method interpolation = NEAREST;
+    const float fill = -999.25;
+
+    cppapi::fence(
+        *single_datasource,
+        c_system,
+        coordinates.data(),
+        coordinate_size,
+        interpolation,
+        &fill,
+        &response_data
+    );
+
+    int low[3] = {0, 0, 0};
+    int high[3] = {8, 8, 32};
+    check_fence(response_data, coordinates, low, high, 1);
+}
+
+TEST_F(DoubleVolumeDataLayoutTest, Single_Fence_ANNOTATION) {
+
+    struct response response_data;
+    const std::vector<float> coordinates{3, 2, 6, 4, 9, 6, 12, 8, 15, 10, 18, 12, 21, 14, 24, 16};
+    const std::vector<float> check_coordinates{0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7};
+
+    const coordinate_system c_system = coordinate_system::ANNOTATION;
+    const int coordinate_size = int(coordinates.size() / 2);
+    const enum interpolation_method interpolation = NEAREST;
+    const float fill = -999.25;
+
+    cppapi::fence(
+        *single_datasource,
+        c_system,
+        coordinates.data(),
+        coordinate_size,
+        interpolation,
+        &fill,
+        &response_data
+    );
+
+    int low[3] = {0, 0, 0};
+    int high[3] = {8, 8, 32};
+    check_fence(response_data, check_coordinates, low, high, 1);
+}
+
+TEST_F(DoubleVolumeDataLayoutTest, Single_Fence_CDP) {
+
+    struct response response_data;
+    const std::vector<float> coordinates{2, 0, 7, 12, 12, 24, 17, 36, 22, 48, 27, 60, 32, 72, 37, 84};
+    const std::vector<float> check_coordinates{0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7};
+
+    const coordinate_system c_system = coordinate_system::CDP;
+    const int coordinate_size = int(coordinates.size() / 2);
+    const enum interpolation_method interpolation = NEAREST;
+    const float fill = -999.25;
+
+    cppapi::fence(
+        *single_datasource,
+        c_system,
+        coordinates.data(),
+        coordinate_size,
+        interpolation,
+        &fill,
+        &response_data
+    );
+
+    int low[3] = {0, 0, 0};
+    int high[3] = {8, 8, 32};
+    check_fence(response_data, check_coordinates, low, high, 1);
+}
+
+TEST_F(DoubleVolumeDataLayoutTest, Double_Fence_INDEX) {
+
+    struct response response_data;
+    const std::vector<float> coordinates{0, 0, 1, 1, 2, 2, 3, 3};
+    const std::vector<float> check_coordinates{4, 4, 5, 5, 6, 6, 7, 7};
+
+    const coordinate_system c_system = coordinate_system::INDEX;
+    const int coordinate_size = int(coordinates.size() / 2);
+    const enum interpolation_method interpolation = NEAREST;
+    const float fill = -999.25;
+
+    cppapi::fence(
+        *double_datasource,
+        c_system,
+        coordinates.data(),
+        coordinate_size,
+        interpolation,
+        &fill,
+        &response_data
+    );
+
+    int low[3] = {4, 4, 4};
+    int high[3] = {8, 8, 32};
+    check_fence(response_data, check_coordinates, low, high, 2);
+}
+
+TEST_F(DoubleVolumeDataLayoutTest, Double_Fence_ANNOTATION) {
+
+    struct response response_data;
+
+    const std::vector<float> coordinates{15, 10, 18, 12, 21, 14, 24, 16};
+    const std::vector<float> check_coordinates{4, 4, 5, 5, 6, 6, 7, 7};
+
+    const coordinate_system c_system = coordinate_system::ANNOTATION;
+    const int coordinate_size = int(coordinates.size() / 2);
+    const enum interpolation_method interpolation = NEAREST;
+    const float fill = -999.25;
+
+    cppapi::fence(
+        *double_datasource,
+        c_system,
+        coordinates.data(),
+        coordinate_size,
+        interpolation,
+        &fill,
+        &response_data
+    );
+
+    int low[3] = {4, 4, 4};
+    int high[3] = {8, 8, 32};
+    check_fence(response_data, check_coordinates, low, high, 2);
+}
+
+TEST_F(DoubleVolumeDataLayoutTest, Double_Fence_CDP) {
+
+    struct response response_data;
+    const std::vector<float> coordinates{22, 48, 27, 60, 32, 72, 37, 84};
+    const std::vector<float> check_coordinates{4, 4, 5, 5, 6, 6, 7, 7};
+
+    const coordinate_system c_system = coordinate_system::CDP;
+    const int coordinate_size = int(coordinates.size() / 2);
+    const enum interpolation_method interpolation = NEAREST;
+    const float fill = -999.25;
+
+    cppapi::fence(
+        *double_datasource,
+        c_system,
+        coordinates.data(),
+        coordinate_size,
+        interpolation,
+        &fill,
+        &response_data
+    );
+
+    int low[3] = {4, 4, 4};
+    int high[3] = {8, 8, 32};
+    check_fence(response_data, check_coordinates, low, high, 2);
+}
+
+TEST_F(DoubleVolumeDataLayoutTest, Double_Reverse_Fence_INDEX) {
+
+    struct response response_data;
+    const std::vector<float> coordinates{0, 0, 1, 1, 2, 2, 3, 3};
+    const std::vector<float> check_coordinates{4, 4, 5, 5, 6, 6, 7, 7};
+
+    const coordinate_system c_system = coordinate_system::INDEX;
+    const int coordinate_size = int(coordinates.size() / 2);
+    const enum interpolation_method interpolation = NEAREST;
+    const float fill = -999.25;
+
+    cppapi::fence(
+        *double_reverse_datasource,
+        c_system,
+        coordinates.data(),
+        coordinate_size,
+        interpolation,
+        &fill,
+        &response_data
+    );
+
+    int low[3] = {4, 4, 4};
+    int high[3] = {8, 8, 32};
+    check_fence(response_data, check_coordinates, low, high, 2);
+}
+
+TEST_F(DoubleVolumeDataLayoutTest, Double_Reverse_Fence_ANNOTATION) {
+
+    struct response response_data;
+
+    const std::vector<float> coordinates{15, 10, 18, 12, 21, 14, 24, 16};
+    const std::vector<float> check_coordinates{4, 4, 5, 5, 6, 6, 7, 7};
+
+    const coordinate_system c_system = coordinate_system::ANNOTATION;
+    const int coordinate_size = int(coordinates.size() / 2);
+    const enum interpolation_method interpolation = NEAREST;
+    const float fill = -999.25;
+
+    cppapi::fence(
+        *double_reverse_datasource,
+        c_system,
+        coordinates.data(),
+        coordinate_size,
+        interpolation,
+        &fill,
+        &response_data
+    );
+
+    int low[3] = {4, 4, 4};
+    int high[3] = {8, 8, 32};
+    check_fence(response_data, check_coordinates, low, high, 2);
+}
+
+TEST_F(DoubleVolumeDataLayoutTest, Double_Reverse_Fence_CDP) {
+
+    struct response response_data;
+    const std::vector<float> coordinates{22, 48, 27, 60, 32, 72, 37, 84};
+    const std::vector<float> check_coordinates{4, 4, 5, 5, 6, 6, 7, 7};
+
+    const coordinate_system c_system = coordinate_system::CDP;
+    const int coordinate_size = int(coordinates.size() / 2);
+    const enum interpolation_method interpolation = NEAREST;
+    const float fill = -999.25;
+
+    cppapi::fence(
+        *double_reverse_datasource,
+        c_system,
+        coordinates.data(),
+        coordinate_size,
+        interpolation,
+        &fill,
+        &response_data
+    );
+
+    int low[3] = {4, 4, 4};
+    int high[3] = {8, 8, 32};
+    check_fence(response_data, check_coordinates, low, high, 2);
 }
 
 } // namespace
