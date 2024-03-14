@@ -138,7 +138,8 @@ public:
 private:
     DataSource* handle_A;
     DataSource* handle_B;
-    MetadataHandle* metadata;
+    DoubleDataHandle* handle;
+    const MetadataHandle* metadata;
     binary_function binary_operator;
 };
 
