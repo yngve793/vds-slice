@@ -91,6 +91,8 @@ public:
     DoubleDataSource* double_datasource;
     DoubleDataSource* double_reverse_datasource;
 
+    static constexpr float fill = -999.25;
+
     void check_slice(struct response response_data, int low[], int high[], float factor) {
         std::size_t nr_of_values = (std::size_t)(response_data.size / sizeof(float));
 
@@ -136,6 +138,47 @@ public:
                 EXPECT_EQ(xline, xline_array[xc]);
                 EXPECT_EQ(sample, sample_array[s]);
 
+                counter += 1;
+            }
+        }
+    }
+
+    Grid get_grid(DataSource* datasource) {
+
+        const MetadataHandle* metadata = &(datasource->get_metadata());
+        const OpenVDS::DoubleMatrix4x4 ijkToWorldTransform = metadata->coordinate_transformer().IJKToWorldTransform();
+
+        double xori = ijkToWorldTransform.data[3][0];
+        double yori = ijkToWorldTransform.data[3][1];
+        double xinc = norm(ijkToWorldTransform.data[0]);
+        double yinc = norm(ijkToWorldTransform.data[1]);
+        double rot = std::atan(ijkToWorldTransform.data[0][1] / ijkToWorldTransform.data[0][0]) / M_PI * 180;
+
+        return Grid(xori, yori, xinc, yinc, rot);
+    }
+
+    void check_attribute(SurfaceBoundedSubVolume& subvolume, int low[], int high[], float factor) {
+
+        std::size_t nr_of_values = subvolume.nsamples(0, (high[0] - low[0]) * (high[1] - low[1]));
+        EXPECT_EQ(nr_of_values, (high[0] - low[0]) * (high[1] - low[1]) * (high[2] - low[2]));
+
+        int counter = 0;
+        for (int il = low[0]; il < high[0]; ++il) {
+            for (int xl = low[1]; xl < high[1]; ++xl) {
+                RawSegment rs = subvolume.vertical_segment(counter);
+                int s = low[2];
+                for (auto it = rs.begin(); it != rs.end(); ++it) {
+                    int value = int(*it / factor + 0.5f);
+                    int sample = value & 0xFF;
+                    int xline = (value & 0xFF00) >> 8;
+                    int iline = (value & 0xFF0000) >> 16;
+
+                    EXPECT_EQ(iline, iline_array[il]);
+                    EXPECT_EQ(xline, xline_array[xl]);
+                    EXPECT_EQ(sample, sample_array[s]);
+                    s += 1;
+                }
+                EXPECT_EQ(s, high[2]);
                 counter += 1;
             }
         }
@@ -591,6 +634,81 @@ TEST_F(DoubleVolumeDataLayoutTest, Double_Reverse_Fence_CDP) {
     int low[3] = {4, 4, 4};
     int high[3] = {8, 8, 32};
     check_fence(response_data, check_coordinates, low, high, 2);
+}
+
+TEST_F(DoubleVolumeDataLayoutTest, Single_Attribute) {
+
+    DataSource* datasource = single_datasource;
+    Grid grid = get_grid(datasource);
+    const MetadataHandle* metadata = &(datasource->get_metadata());
+
+    std::size_t nrows = metadata->iline().nsamples();
+    std::size_t ncols = metadata->xline().nsamples();
+    static std::vector<float> top_surface_data(nrows * ncols, 28.0f);
+    static std::vector<float> pri_surface_data(nrows * ncols, 36.0f);
+    static std::vector<float> bot_surface_data(nrows * ncols, 52.0f);
+    RegularSurface pri_surface = RegularSurface(pri_surface_data.data(), nrows, ncols, grid, fill);
+    RegularSurface top_surface = RegularSurface(top_surface_data.data(), nrows, ncols, grid, fill);
+    RegularSurface bot_surface = RegularSurface(bot_surface_data.data(), nrows, ncols, grid, fill);
+    SurfaceBoundedSubVolume* subvolume = make_subvolume(datasource->get_metadata(), pri_surface, top_surface, bot_surface);
+
+    cppapi::fetch_subvolume(*single_datasource, *subvolume, NEAREST, 0, nrows * ncols);
+
+    int low[3] = {0, 0, 4};
+    int high[3] = {8, 8, 15};
+    check_attribute(*subvolume, low, high, 1);
+
+    delete subvolume;
+}
+
+TEST_F(DoubleVolumeDataLayoutTest, Double_Attribute) {
+
+    DataSource* datasource = double_datasource;
+    Grid grid = get_grid(datasource);
+    const MetadataHandle* metadata = &(datasource->get_metadata());
+
+    std::size_t nrows = metadata->iline().nsamples();
+    std::size_t ncols = metadata->xline().nsamples();
+    static std::vector<float> top_surface_data(nrows * ncols, 28.0f);
+    static std::vector<float> pri_surface_data(nrows * ncols, 36.0f);
+    static std::vector<float> bot_surface_data(nrows * ncols, 52.0f);
+    RegularSurface pri_surface = RegularSurface(pri_surface_data.data(), nrows, ncols, grid, fill);
+    RegularSurface top_surface = RegularSurface(top_surface_data.data(), nrows, ncols, grid, fill);
+    RegularSurface bot_surface = RegularSurface(bot_surface_data.data(), nrows, ncols, grid, fill);
+    SurfaceBoundedSubVolume* subvolume = make_subvolume(datasource->get_metadata(), pri_surface, top_surface, bot_surface);
+
+    cppapi::fetch_subvolume(*datasource, *subvolume, NEAREST, 0, nrows * ncols);
+
+    int low[3] = {4, 4, 4};
+    int high[3] = {8, 8, 15};
+    check_attribute(*subvolume, low, high, 2);
+
+    delete subvolume;
+}
+
+TEST_F(DoubleVolumeDataLayoutTest, Double_Reverse_Attribute) {
+
+    DataSource* datasource = double_reverse_datasource;
+    Grid grid = get_grid(datasource);
+    const MetadataHandle* metadata = &(datasource->get_metadata());
+
+    std::size_t nrows = metadata->iline().nsamples();
+    std::size_t ncols = metadata->xline().nsamples();
+    static std::vector<float> top_surface_data(nrows * ncols, 28.0f);
+    static std::vector<float> pri_surface_data(nrows * ncols, 36.0f);
+    static std::vector<float> bot_surface_data(nrows * ncols, 52.0f);
+    RegularSurface pri_surface = RegularSurface(pri_surface_data.data(), nrows, ncols, grid, fill);
+    RegularSurface top_surface = RegularSurface(top_surface_data.data(), nrows, ncols, grid, fill);
+    RegularSurface bot_surface = RegularSurface(bot_surface_data.data(), nrows, ncols, grid, fill);
+    SurfaceBoundedSubVolume* subvolume = make_subvolume(datasource->get_metadata(), pri_surface, top_surface, bot_surface);
+
+    cppapi::fetch_subvolume(*datasource, *subvolume, NEAREST, 0, nrows * ncols);
+
+    int low[3] = {4, 4, 4};
+    int high[3] = {8, 8, 15};
+    check_attribute(*subvolume, low, high, 2);
+
+    delete subvolume;
 }
 
 } // namespace
