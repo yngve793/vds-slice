@@ -66,6 +66,10 @@ std::string SingleMetadataHandle::import_time_stamp() const noexcept(false) {
     return this->m_layout->GetMetadataString(time_stamp.GetCategory(), time_stamp.GetName());
 }
 
+OpenVDS::VolumeDataLayout const* const SingleMetadataHandle::get_layout() const noexcept(false) {
+    return this->m_layout;
+}
+
 OpenVDS::IJKCoordinateTransformer SingleMetadataHandle::coordinate_transformer() const noexcept(false) {
     return OpenVDS::IJKCoordinateTransformer(this->m_layout);
 }
@@ -142,6 +146,10 @@ std::string DoubleMetadataHandle::input_filename() const noexcept(false) {
 }
 
 std::string DoubleMetadataHandle::import_time_stamp() const noexcept(false) {
+    throw std::runtime_error("Not implemented");
+}
+
+OpenVDS::VolumeDataLayout const* const DoubleMetadataHandle::get_layout() const noexcept(false) {
     throw std::runtime_error("Not implemented");
 }
 
