@@ -14,6 +14,9 @@ add_library(cppcore
   regularsurface.cpp
   subcube.cpp
   subvolume.cpp
+  pffft/pffft.c
+  pffft/pffft_double.c
+  pffft/pffft_common.c
 )
 
 target_include_directories(cppcore
