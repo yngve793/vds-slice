@@ -14,10 +14,14 @@ add_library(cppcore
   regularsurface.cpp
   subcube.cpp
   subvolume.cpp
-  pffft/pffft.c
-  pffft/pffft_double.c
-  pffft/pffft_common.c
+
+  convolutions.cpp
+  pffft.c
+  pffft_double.c
+  pffft_common.c
 )
+
+add_subdirectory(pffft)
 
 target_include_directories(cppcore
   PUBLIC ${CMAKE_SOURCE_DIR}/internal/core

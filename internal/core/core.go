@@ -289,6 +289,8 @@ func GetAttributeType(attribute string) (int, error) {
 		return C.SUMPOS, nil
 	case "sumneg":
 		return C.SUMNEG, nil
+	case "phase":
+		return C.PHASE, nil
 	case "":
 		fallthrough
 	default:

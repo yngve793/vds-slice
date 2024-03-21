@@ -8,9 +8,11 @@ FetchContent_MakeAvailable(googletest)
 
 add_executable(cppcoretests
   cppapi_test.cpp
+  convolutions_test.cpp
   datasource_test.cpp
   regularsurface_test.cpp
   subvolume_test.cpp
+  phase_test.cpp
 )
 
 target_link_libraries(cppcoretests

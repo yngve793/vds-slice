@@ -13,6 +13,10 @@
 #include "direction.hpp"
 #include "exceptions.hpp"
 #include "metadatahandle.hpp"
+// #include "convolutions.hpp"
+// #include "pffft/pffft.h"
+// #include "pffft/pffft_double.h"
+// // #include "pffft/pffft_common.h"
 
 namespace {
 

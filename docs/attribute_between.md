@@ -39,6 +39,9 @@ var         | Variance
 sd          | Standard deviation
 sumpos      | Sum of positive samples
 sumneg      | Sum of negative samples
+phase       | Instantaneous phase in radian at surface position
+envelope    | Instantaneous envelope magnitude at surface position
+hilbert     | Hilbert transform imaginary value at surface position
 
 
 ## Response

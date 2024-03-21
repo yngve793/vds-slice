@@ -159,6 +159,13 @@ public:
     float compute(ResampledSegment const & segment) noexcept (false) override;
 };
 
+class Phase final : public AttributeMap {
+public:
+    Phase(void* dst, std::size_t size) : AttributeMap(dst, size) {}
+
+    float compute(ResampledSegment const & segment) noexcept (false) override;
+};
+
 void calc_attributes(
     SurfaceBoundedSubVolume const& src_subvolume,
     ResampledSegmentBlueprint const* dst_segment_blueprint,
