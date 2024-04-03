@@ -120,7 +120,7 @@ private:
     static int constexpr lod_level = 0;
     static int constexpr channel = 0;
 
-    SubCube offset_bounds(SubCube subcube, SingleMetadataHandle metadata);
+    SubCube offset_bounds(const SubCube subcube, SingleMetadataHandle metadata);
 };
 
 DoubleDataHandle* make_double_datahandle(
