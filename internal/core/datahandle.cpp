@@ -220,13 +220,20 @@ std::int64_t DoubleDataHandle::subcube_buffer_size(
     return size;
 }
 
-SubCube DoubleDataHandle::offset_bounds(SubCube subcube, SingleMetadataHandle metadata) {
+/// @brief Shift the provided subcube to match the intersection of the two initial cubes.
+/// @param subcube Subcube contains vectors lower and upper of length 6. Lower defines start index
+/// for each of the 6 dimensions while upper defines end index for the intersection of cube_a and cube_b.
+/// @param metadata Metadata for cube_x (one of the intersecting cubes)
+/// @return Subcube of intersection of cube_a and cube_b in cube_x.
+SubCube DoubleDataHandle::offset_bounds(const SubCube subcube, SingleMetadataHandle metadata_cube_x) {
 
+    // Create a copy
     SubCube new_subcube = std::move(subcube);
 
-    float iline_offset = (m_metadata.iline().min() - metadata.iline().min()) / m_metadata.iline().stepsize();
-    float xline_offset = (m_metadata.xline().min() - metadata.xline().min()) / m_metadata.xline().stepsize();
-    float sample_offset = (m_metadata.sample().min() - metadata.sample().min()) / m_metadata.sample().stepsize();
+    // Calculate the number of steps to offset the subcube in the three dimensions.
+    float iline_offset = (m_metadata.iline().min() - metadata_cube_x.iline().min()) / m_metadata.iline().stepsize();
+    float xline_offset = (m_metadata.xline().min() - metadata_cube_x.xline().min()) / m_metadata.xline().stepsize();
+    float sample_offset = (m_metadata.sample().min() - metadata_cube_x.sample().min()) / m_metadata.sample().stepsize();
 
     new_subcube.bounds.lower[m_metadata.iline().dimension()] += iline_offset;
     new_subcube.bounds.lower[m_metadata.xline().dimension()] += xline_offset;
