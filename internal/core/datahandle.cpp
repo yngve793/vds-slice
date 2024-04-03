@@ -300,7 +300,7 @@ void DoubleDataHandle::read_traces(
     std::size_t const ntraces,
     enum interpolation_method const interpolation_method
 ) noexcept(false) {
-    int const dimension = this->get_metadata().sample().dimension();
+    int const dimension_sample = this->get_metadata().sample().dimension();
     int const nsamples = this->get_metadata().sample().nsamples();
     int const buffersize = nsamples * ntraces;
 
@@ -319,7 +319,7 @@ void DoubleDataHandle::read_traces(
         }
     }
 
-    std::size_t size_a = this->m_access_manager_a.GetVolumeTracesBufferSize(ntraces, dimension);
+    std::size_t size_a = this->m_access_manager_a.GetVolumeTracesBufferSize(ntraces, dimension_sample);
     std::vector<float> buffer_a((std::size_t)size_a / sizeof(float));
     auto request_a = this->m_access_manager_a.RequestVolumeTraces(
         buffer_a.data(),
@@ -330,10 +330,10 @@ void DoubleDataHandle::read_traces(
         (voxel*)coordinates_a.data(),
         ntraces,
         ::to_interpolation(interpolation_method),
-        dimension
+        dimension_sample
     );
 
-    std::size_t size_b = this->m_access_manager_b.GetVolumeTracesBufferSize(ntraces, dimension);
+    std::size_t size_b = this->m_access_manager_b.GetVolumeTracesBufferSize(ntraces, dimension_sample);
     std::vector<float> buffer_b((std::size_t)size_b / sizeof(float));
     auto request_b = this->m_access_manager_b.RequestVolumeTraces(
         buffer_b.data(),
@@ -344,7 +344,7 @@ void DoubleDataHandle::read_traces(
         (voxel*)coordinates_b.data(),
         ntraces,
         ::to_interpolation(interpolation_method),
-        dimension
+        dimension_sample
     );
 
     bool const success_a = request_a.get()->WaitForCompletion();
@@ -362,7 +362,7 @@ void DoubleDataHandle::read_traces(
     for (int i = 0; i < buffer_a.size(); i++) {
         int index = i % traceIndex_a;
 
-        if (index >= coordinates_a[dimension] && index < coordinates_a[dimension] + nsamples) {
+        if (index >= coordinates_a[dimension_sample] && index < coordinates_a[dimension_sample] + nsamples) {
             floatBuffer[counter] = buffer_a[i];
             counter++;
         }
@@ -373,7 +373,7 @@ void DoubleDataHandle::read_traces(
     for (int i = 0; i < buffer_b.size(); i++) {
         int index = i % traceIndex_b;
 
-        if (index >= coordinates_b[dimension] && index < coordinates_b[dimension] + nsamples) {
+        if (index >= coordinates_b[dimension_sample] && index < coordinates_b[dimension_sample] + nsamples) {
             res_buffer_b[counter] = buffer_b[i];
             counter++;
         }
