@@ -146,11 +146,15 @@ public:
     Grid get_grid(DataSource* datasource) {
 
         const MetadataHandle* metadata = &(datasource->get_metadata());
-        OpenVDS::VolumeDataLayout const* const layout = metadata->get_layout();
-        OpenVDS::VDSIJKGridDefinition grid_def = layout->GetVDSIJKGridDefinitionFromMetadata();
-        std::vector<double> iUnitStep = {grid_def.iUnitStep.X, grid_def.iUnitStep.Y};
-        std::vector<double> jUnitStep = {grid_def.jUnitStep.X, grid_def.jUnitStep.Y};
-        return Grid(grid_def.origin.X, grid_def.origin.Y, norm(iUnitStep), norm(jUnitStep), 33.69);
+        const OpenVDS::DoubleMatrix4x4 ijkToWorldTransform = metadata->coordinate_transformer().IJKToWorldTransform();
+
+        double xori = ijkToWorldTransform.data[3][0];
+        double yori = ijkToWorldTransform.data[3][1];
+        double xinc = norm(ijkToWorldTransform.data[0]);
+        double yinc = norm(ijkToWorldTransform.data[1]);
+        double rot = std::atan(ijkToWorldTransform.data[0][1] / ijkToWorldTransform.data[0][0]) / M_PI * 180;
+
+        return Grid(xori, yori, xinc, yinc, rot);
     }
 
     void check_attribute(SurfaceBoundedSubVolume& subvolume, int low[], int high[], float factor) {
