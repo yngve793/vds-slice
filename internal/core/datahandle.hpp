@@ -3,7 +3,7 @@
 
 #include <memory>
 #include <string>
-#include<functional>
+#include <functional>
 
 #include <OpenVDS/OpenVDS.h>
 
