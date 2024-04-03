@@ -23,7 +23,7 @@ public:
     virtual std::string crs() const noexcept(false) = 0;
     virtual std::string input_filename() const noexcept(false) = 0;
     virtual std::string import_time_stamp() const noexcept(false) = 0;
-    virtual OpenVDS::VolumeDataLayout const* const get_layout() const noexcept(false) = 0;
+
     virtual OpenVDS::IJKCoordinateTransformer coordinate_transformer() const noexcept(false) = 0;
 
 protected:
@@ -43,7 +43,7 @@ public:
     std::string crs() const noexcept(false);
     std::string input_filename() const noexcept(false);
     std::string import_time_stamp() const noexcept(false);
-    OpenVDS::VolumeDataLayout const* const get_layout() const noexcept(false);
+
     OpenVDS::IJKCoordinateTransformer coordinate_transformer() const noexcept(false);
 
 protected:
@@ -72,7 +72,7 @@ public:
     std::string crs() const noexcept(false);
     std::string input_filename() const noexcept(false);
     std::string import_time_stamp() const noexcept(false);
-    OpenVDS::VolumeDataLayout const* const get_layout() const noexcept(false);
+
     OpenVDS::IJKCoordinateTransformer coordinate_transformer() const noexcept(false);
 
 protected:

@@ -66,10 +66,6 @@ std::string SingleMetadataHandle::import_time_stamp() const noexcept(false) {
     return this->m_layout->GetMetadataString(time_stamp.GetCategory(), time_stamp.GetName());
 }
 
-OpenVDS::VolumeDataLayout const* const SingleMetadataHandle::get_layout() const noexcept(false) {
-    return this->m_layout;
-}
-
 OpenVDS::IJKCoordinateTransformer SingleMetadataHandle::coordinate_transformer() const noexcept(false) {
     return OpenVDS::IJKCoordinateTransformer(this->m_layout);
 }
@@ -154,10 +150,6 @@ std::string DoubleMetadataHandle::import_time_stamp() const noexcept(false) {
     return this->m_metadata_a->import_time_stamp() + "; " + this->m_metadata_b->import_time_stamp();
 }
 
-
-OpenVDS::VolumeDataLayout const* const DoubleMetadataHandle::get_layout() const noexcept(false) {
-    return this->m_layout;
-}
 
 OpenVDS::IJKCoordinateTransformer DoubleMetadataHandle::coordinate_transformer() const noexcept(false) {
     return OpenVDS::IJKCoordinateTransformer(this->m_layout);
