@@ -17,10 +17,10 @@ const std::string SHIFT_4_DATA = "file://shift_4_8x3_cube.vds";
 
 const std::string CREDENTIALS = "";
 
-double norm(const std::vector<double>& vec) {
+double norm(const OpenVDS::Vector<double, 4UL>& vec) {
     double sum = 0.0;
-    for (double component : vec) {
-        sum += std::pow(component, 2);
+    for (int i = 0; i < 4; i++){
+        sum += std::pow(vec[i], 2);
     }
     return std::sqrt(sum);
 }
