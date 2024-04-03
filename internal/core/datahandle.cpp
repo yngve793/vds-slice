@@ -169,11 +169,15 @@ DoubleDataHandle* make_double_datahandle(
     const char* credentials_b,
     binary_function binary_operator
 ) noexcept(false) {
-    OpenVDS::Error error;
-    auto handle_a = OpenVDS::Open(url_a, credentials_a, error);
-    auto handle_b = OpenVDS::Open(url_b, credentials_b, error);
-    if (error.code != 0) {
-        throw std::runtime_error("Could not open VDS: " + error.string);
+    OpenVDS::Error error_a;
+    auto handle_a = OpenVDS::Open(url_a, credentials_a, error_a);
+    if (error_a.code != 0) {
+        throw std::runtime_error("Could not open VDS: " + error_a.string);
+    }
+    OpenVDS::Error error_b;
+    auto handle_b = OpenVDS::Open(url_b, credentials_b, error_b);
+    if (error_b.code != 0) {
+        throw std::runtime_error("Could not open VDS: " + error_b.string);
     }
     return new DoubleDataHandle(std::move(handle_a), std::move(handle_b), binary_operator);
 }
