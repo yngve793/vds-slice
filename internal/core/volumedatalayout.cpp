@@ -22,11 +22,8 @@ DoubleVolumeDataLayout::DoubleVolumeDataLayout(
     if (vds_a.kUnitStep != vds_b.kUnitStep)
         throw std::runtime_error("Mismatch in kUnitStep");
 
-    if (vds_a.origin[0] == vds_b.origin[0] && vds_a.origin[1] == vds_b.origin[1])
-
-        if (m_layout_a->GetDimensionality() != m_layout_b->GetDimensionality()) {
-            throw detail::bad_request("Different number of dimensions");
-        }
+    if (m_layout_a->GetDimensionality() != m_layout_b->GetDimensionality())
+        throw detail::bad_request("Different number of dimensions");
 
     for (int32_t dimension = 0; dimension < Dimensionality_Max; dimension++) {
 
@@ -39,20 +36,19 @@ DoubleVolumeDataLayout::DoubleVolumeDataLayout(
             else if (strcmp(this->GetDimensionName(dimension), "Sample") == 0)
                 m_sample_index = dimension;
 
-            int32_t step_size_a = (m_layout_a->GetDimensionMax(dimension) - m_layout_a->GetDimensionMin(dimension)) / (m_layout_a->GetDimensionNumSamples(dimension) - 1);
+            m_dimensionStepSize[dimension] = (m_layout_a->GetDimensionMax(dimension) - m_layout_a->GetDimensionMin(dimension)) / (m_layout_a->GetDimensionNumSamples(dimension) - 1);
             int32_t step_size_b = (m_layout_b->GetDimensionMax(dimension) - m_layout_b->GetDimensionMin(dimension)) / (m_layout_b->GetDimensionNumSamples(dimension) - 1);
 
-            if (step_size_a != step_size_b) {
+            if (m_dimensionStepSize[dimension] != step_size_b) {
                 throw detail::bad_request("Step size mismatch in axis: " + std::to_string(dimension));
             }
 
-            m_dimensionStepSize[dimension] = step_size_a;
             m_dimensionCoordinateMin[dimension] = std::max(m_layout_a->GetDimensionMin(dimension), m_layout_b->GetDimensionMin(dimension));
             m_dimensionCoordinateMax[dimension] = std::min(m_layout_a->GetDimensionMax(dimension), m_layout_b->GetDimensionMax(dimension));
 
             m_dimensionNumSamples[dimension] = 1 + ((m_dimensionCoordinateMax[dimension] - m_dimensionCoordinateMin[dimension]) / m_dimensionStepSize[dimension]);
 
-            float offset = (m_layout_b->GetDimensionMin(dimension) - m_layout_a->GetDimensionMin(dimension)) / step_size_a;
+            float offset = (m_layout_b->GetDimensionMin(dimension) - m_layout_a->GetDimensionMin(dimension)) / m_dimensionStepSize[dimension];
 
             if (std::abs(std::round(offset) - offset) > 0.00001) {
                 throw detail::bad_request("Offset mismatch in axis: " + std::to_string(dimension));
@@ -65,6 +61,27 @@ DoubleVolumeDataLayout::DoubleVolumeDataLayout(
             m_dimensionNumSamples[dimension] = 1;
         }
     }
+
+    float vds_a_origin_x =
+        vds_a.origin.X -
+        (vds_a.iUnitStep.X / m_dimensionStepSize[m_iline_index] * m_layout_a->GetDimensionMin(m_iline_index)) -
+        (vds_a.jUnitStep.X / m_dimensionStepSize[m_xline_index] * m_layout_a->GetDimensionMin(m_xline_index));
+    float vds_a_origin_y =
+        vds_a.origin.Y -
+        (vds_a.iUnitStep.Y / m_dimensionStepSize[m_iline_index] * m_layout_a->GetDimensionMin(m_iline_index)) -
+        (vds_a.jUnitStep.Y / m_dimensionStepSize[m_xline_index] * m_layout_a->GetDimensionMin(m_xline_index));
+
+    float vds_b_origin_x =
+        vds_b.origin.X -
+        (vds_b.iUnitStep.X / m_dimensionStepSize[m_iline_index] * m_layout_b->GetDimensionMin(m_iline_index)) -
+        (vds_b.jUnitStep.X / m_dimensionStepSize[m_xline_index] * m_layout_b->GetDimensionMin(m_xline_index));
+    float vds_b_origin_y =
+        vds_b.origin.Y -
+        (vds_b.iUnitStep.Y / m_dimensionStepSize[m_iline_index] * m_layout_b->GetDimensionMin(m_iline_index)) -
+        (vds_b.jUnitStep.Y / m_dimensionStepSize[m_xline_index] * m_layout_b->GetDimensionMin(m_xline_index));
+
+    if (std::abs(vds_a_origin_x - vds_b_origin_x) > 0.0001 || std::abs(vds_a_origin_y - vds_b_origin_y) > 0.0001)
+        throw std::runtime_error("Mismatch in origin position");
 }
 
 int DoubleVolumeDataLayout::GetDimensionality() const {
