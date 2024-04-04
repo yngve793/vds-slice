@@ -107,15 +107,9 @@ int DoubleVolumeDataLayout::GetDimensionNumSamples(int dimension) const {
     return m_dimensionNumSamples[dimension];
 }
 
+/// @brief Calculate the IJKGridDefinition for the intersection of cube A and B
+/// @return IJKGridDefinition for cube (A \cap B)
 OpenVDS::VDSIJKGridDefinition DoubleVolumeDataLayout::GetVDSIJKGridDefinitionFromMetadata() const {
-
-    OpenVDS::VDSIJKGridDefinition grid_definition_a = m_layout_a->GetVDSIJKGridDefinitionFromMetadata();
-    OpenVDS::VDSIJKGridDefinition double_grid_definition;
-
-    double_grid_definition.dimensionMap = grid_definition_a.dimensionMap;
-    double_grid_definition.iUnitStep = grid_definition_a.iUnitStep;
-    double_grid_definition.jUnitStep = grid_definition_a.jUnitStep;
-    double_grid_definition.kUnitStep = grid_definition_a.kUnitStep;
 
     OpenVDS::DoubleVector2 meta_origin = m_layout_a->GetMetadataDoubleVector2("SurveyCoordinateSystem", "Origin");
     OpenVDS::DoubleVector2 in_line_spacing = m_layout_a->GetMetadataDoubleVector2("SurveyCoordinateSystem", "InlineSpacing");
@@ -123,7 +117,17 @@ OpenVDS::VDSIJKGridDefinition DoubleVolumeDataLayout::GetVDSIJKGridDefinitionFro
 
     OpenVDS::DoubleVector2 iline_vector = {in_line_spacing.X * (this->m_dimensionCoordinateMin[m_iline_index]), in_line_spacing.Y * (this->m_dimensionCoordinateMin[m_iline_index])};
     OpenVDS::DoubleVector2 xline_vector = {cross_line_spacing.X * (this->m_dimensionCoordinateMin[m_xline_index]), cross_line_spacing.Y * (this->m_dimensionCoordinateMin[m_xline_index])};
+    OpenVDS::VDSIJKGridDefinition grid_definition_a = m_layout_a->GetVDSIJKGridDefinitionFromMetadata();
 
+    OpenVDS::VDSIJKGridDefinition double_grid_definition;
+
+    // By the constructor check the following values are identical in A and B
+    double_grid_definition.dimensionMap = grid_definition_a.dimensionMap;
+    double_grid_definition.iUnitStep = grid_definition_a.iUnitStep;
+    double_grid_definition.jUnitStep = grid_definition_a.jUnitStep;
+    double_grid_definition.kUnitStep = grid_definition_a.kUnitStep;
+
+    // Calculate the new origin
     double_grid_definition.origin.X = meta_origin.X + iline_vector.X + xline_vector.X;
     double_grid_definition.origin.Y = meta_origin.Y + iline_vector.Y + xline_vector.Y;
     double_grid_definition.origin.Z = -this->m_dimensionCoordinateMin[m_sample_index];
