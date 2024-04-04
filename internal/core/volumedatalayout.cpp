@@ -48,8 +48,8 @@ DoubleVolumeDataLayout::DoubleVolumeDataLayout(
 
             m_dimensionNumSamples[dimension] = 1 + ((m_dimensionCoordinateMax[dimension] - m_dimensionCoordinateMin[dimension]) / m_dimensionStepSize[dimension]);
 
+            // Verify that the offset is an integer number of samples
             float offset = (m_layout_b->GetDimensionMin(dimension) - m_layout_a->GetDimensionMin(dimension)) / m_dimensionStepSize[dimension];
-
             if (std::abs(std::round(offset) - offset) > 0.00001) {
                 throw detail::bad_request("Offset mismatch in axis: " + std::to_string(dimension));
             }
