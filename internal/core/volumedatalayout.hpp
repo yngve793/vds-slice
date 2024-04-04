@@ -1,5 +1,5 @@
-#ifndef VDL_VOLUME_DATA_LAYOUT_HPP
-#define VDL_VOLUME_DATA_LAYOUT_HPP
+#ifndef VDL_SLICE_VOLUME_DATA_LAYOUT_HPP
+#define VDL_SLICE_VOLUME_DATA_LAYOUT_HPP
 
 #include "exceptions.hpp"
 #include <OpenVDS/OpenVDS.h>
@@ -184,4 +184,4 @@ private:
     OpenVDS::VolumeDataLayout const* const m_layout_b;
 };
 
-#endif /* VDL_VOLUME_DATA_LAYOUT_HPP */
+#endif /* VDL_SLICE_VOLUME_DATA_LAYOUT_HPP */
