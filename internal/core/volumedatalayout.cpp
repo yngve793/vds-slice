@@ -90,9 +90,6 @@ int DoubleVolumeDataLayout::GetDimensionality() const {
 }
 
 OpenVDS::VolumeDataAxisDescriptor DoubleVolumeDataLayout::GetAxisDescriptor(int dimension) const {
-
-    // OpenVDS::VolumeDataAxisDescriptor* t = &(OpenVDS::VolumeDataAxisDescriptor());
-
     return OpenVDS::VolumeDataAxisDescriptor(
         GetDimensionNumSamples(dimension),
         GetDimensionName(dimension),
@@ -105,7 +102,6 @@ OpenVDS::VolumeDataAxisDescriptor DoubleVolumeDataLayout::GetAxisDescriptor(int 
 int DoubleVolumeDataLayout::GetDimensionNumSamples(int dimension) const {
 
     if (dimension < 0 || dimension >= Dimensionality_Max) {
-        int dimMax = Dimensionality_Max;
         throw std::runtime_error("Not valid dimension");
     }
     return m_dimensionNumSamples[dimension];
