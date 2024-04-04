@@ -29,6 +29,11 @@ DoubleVolumeDataLayout::DoubleVolumeDataLayout(
 
         if (dimension < this->GetDimensionality()) {
 
+            const char* name_a = m_layout_a->GetDimensionName(dimension);
+            const char* name_b = m_layout_b->GetDimensionName(dimension);
+            if (strcmp(name_a, name_b) != 0)
+                throw detail::bad_request("Dimension name mismatch for dimension: " + std::to_string(dimension));
+
             if (strcmp(this->GetDimensionName(dimension), "Inline") == 0)
                 m_iline_index = dimension;
             else if (strcmp(this->GetDimensionName(dimension), "Crossline") == 0)
@@ -136,23 +141,13 @@ OpenVDS::VDSIJKGridDefinition DoubleVolumeDataLayout::GetVDSIJKGridDefinitionFro
 }
 
 const char* DoubleVolumeDataLayout::GetDimensionName(int dimension) const {
-    const char* name_a = m_layout_a->GetDimensionName(dimension);
-    const char* name_b = m_layout_b->GetDimensionName(dimension);
-    if (strcmp(name_a, name_b) == 0) {
-        return m_layout_a->GetDimensionName(dimension);
-    } else {
-        throw detail::bad_request("Dimension name mismatch for dimension: " + std::to_string(dimension));
-    }
+    // Constructor ensures that the name in `dimension` are identical for m_layout_a and m_layout_b.
+    return m_layout_a->GetDimensionName(dimension);
 }
 
 const char* DoubleVolumeDataLayout::GetDimensionUnit(int dimension) const {
-    const char* unit_a = m_layout_a->GetDimensionUnit(dimension);
-    const char* unit_b = m_layout_b->GetDimensionUnit(dimension);
-    if (strcmp(unit_a, unit_b) == 0) {
-        return m_layout_a->GetDimensionUnit(dimension);
-    } else {
-        throw detail::bad_request("Dimension unit mismatch for dimension: " + std::to_string(dimension));
-    }
+    // Constructor ensures that the unit in `dimension` are identical for m_layout_a and m_layout_b.
+    return m_layout_a->GetDimensionUnit(dimension);
 }
 
 float DoubleVolumeDataLayout::GetDimensionMin(int dimension) const {
@@ -163,10 +158,16 @@ float DoubleVolumeDataLayout::GetDimensionMax(int dimension) const {
     return m_dimensionCoordinateMax[dimension];
 }
 
-float DoubleVolumeDataLayout::GetDimensionIndexOffset_a(int dimension) const {
+/// @brief Get the offset to (A \cap B) for cube A in given dimension
+/// @param dimension The provided dimension
+/// @return Calculated offset
+int DoubleVolumeDataLayout::GetDimensionIndexOffset_a(int dimension) const {
     return m_dimensionIndexOffset_a[dimension];
 }
 
-float DoubleVolumeDataLayout::GetDimensionIndexOffset_b(int dimension) const {
+/// @brief Get the offset to (A \cap B) for cube B in given dimension
+/// @param dimension The provided dimension
+/// @return Calculated offset
+int DoubleVolumeDataLayout::GetDimensionIndexOffset_b(int dimension) const {
     return m_dimensionIndexOffset_b[dimension];
 }
