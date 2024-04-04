@@ -100,9 +100,9 @@ public:
 
     float GetDimensionMax(int dimension) const;
 
-    float GetDimensionIndexOffset_a(int dimension) const;
+    int GetDimensionIndexOffset_a(int dimension) const;
 
-    float GetDimensionIndexOffset_b(int dimension) const;
+    int GetDimensionIndexOffset_b(int dimension) const;
 
     OpenVDS::VDSIJKGridDefinition GetVDSIJKGridDefinitionFromMetadata() const;
 
