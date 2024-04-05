@@ -312,8 +312,8 @@ void DoubleDataHandle::read_traces(
     memcpy(coordinates_a.data(), coordinates[0], coordinate_size * sizeof(float));
     memcpy(coordinates_b.data(), coordinates[0], coordinate_size * sizeof(float));
 
-    for (int i = 0; i < this->m_layout.Dimensionality_Max; i++) {
-        for (int v = 0; v < ntraces; v++) {
+    for (int v = 0; v < ntraces; v++) {
+        for (int i = 0; i < this->m_layout.Dimensionality_Max; i++) {
             coordinates_a[v * this->m_layout.Dimensionality_Max + i] += this->m_layout.GetDimensionIndexOffset_a(i);
             coordinates_b[v * this->m_layout.Dimensionality_Max + i] += this->m_layout.GetDimensionIndexOffset_b(i);
         }
@@ -410,8 +410,8 @@ void DoubleDataHandle::read_samples(
     memcpy(samples_a.data(), samples[0], samples_size * sizeof(float));
     memcpy(samples_b.data(), samples[0], samples_size * sizeof(float));
 
-    for (int i = 0; i < this->m_layout.Dimensionality_Max; i++) {
-        for (int v = 0; v < nsamples; v++) {
+    for (int v = 0; v < nsamples; v++) {
+        for (int i = 0; i < this->m_layout.Dimensionality_Max; i++) {
             samples_a[v * this->m_layout.Dimensionality_Max + i] += this->m_layout.GetDimensionIndexOffset_a(i);
             samples_b[v * this->m_layout.Dimensionality_Max + i] += this->m_layout.GetDimensionIndexOffset_b(i);
         }
