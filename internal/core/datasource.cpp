@@ -70,8 +70,6 @@ DoubleDataSource::DoubleDataSource(
     const char* url_B, const char* credentials_B,
     binary_function binary_operator
 ) {
-    this->handle_A = make_single_datasource(url_A, credentials_A);
-    this->handle_B = make_single_datasource(url_B, credentials_B);
     this->binary_operator = binary_operator;
     this->handle = make_double_datahandle(url_A, credentials_A, url_B, credentials_B, binary_operator);
     this->metadata = &(this->handle->get_metadata());
@@ -79,14 +77,6 @@ DoubleDataSource::DoubleDataSource(
 }
 
 DoubleDataSource::~DoubleDataSource() {
-    if (this->handle_A != NULL) {
-        delete (this->handle_A);
-        this->handle_A = NULL;
-    }
-    if (this->handle_B != NULL) {
-        delete (this->handle_B);
-        this->handle_B = NULL;
-    }
     if (this->handle != NULL) {
         delete (this->handle);
         this->handle = NULL;
