@@ -300,9 +300,7 @@ void DoubleDataHandle::read_traces(
     std::size_t const ntraces,
     enum interpolation_method const interpolation_method
 ) noexcept(false) {
-    int const dimension_sample = this->get_metadata().sample().dimension();
-    // int const nsamples = this->get_metadata().sample().nsamples();
-    // int const buffersize = nsamples * ntraces;
+    int const sample_dimension_index = this->get_metadata().sample().dimension();
 
     std::size_t coordinate_size = (std::size_t)(sizeof(voxel) * ntraces / sizeof(float));
 
@@ -319,7 +317,7 @@ void DoubleDataHandle::read_traces(
         }
     }
 
-    std::size_t size_a = this->m_access_manager_a.GetVolumeTracesBufferSize(ntraces, dimension_sample);
+    std::size_t size_a = this->m_access_manager_a.GetVolumeTracesBufferSize(ntraces, sample_dimension_index);
     std::vector<float> buffer_a((std::size_t)size_a / sizeof(float));
     auto request_a = this->m_access_manager_a.RequestVolumeTraces(
         buffer_a.data(),
@@ -330,10 +328,10 @@ void DoubleDataHandle::read_traces(
         (voxel*)coordinates_a.data(),
         ntraces,
         ::to_interpolation(interpolation_method),
-        dimension_sample
+        sample_dimension_index
     );
 
-    std::size_t size_b = this->m_access_manager_b.GetVolumeTracesBufferSize(ntraces, dimension_sample);
+    std::size_t size_b = this->m_access_manager_b.GetVolumeTracesBufferSize(ntraces, sample_dimension_index);
     std::vector<float> buffer_b((std::size_t)size_b / sizeof(float));
     auto request_b = this->m_access_manager_b.RequestVolumeTraces(
         buffer_b.data(),
@@ -344,7 +342,7 @@ void DoubleDataHandle::read_traces(
         (voxel*)coordinates_b.data(),
         ntraces,
         ::to_interpolation(interpolation_method),
-        dimension_sample
+        sample_dimension_index
     );
 
     bool const success_a = request_a.get()->WaitForCompletion();
