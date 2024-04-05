@@ -121,6 +121,12 @@ private:
     static int constexpr channel = 0;
 
     SubCube offset_bounds(const SubCube subcube, SingleMetadataHandle metadata);
+    void extract_part_of_trace(
+        std::vector<float> coordinates,
+        std::vector<float> source_traces,
+        int source_trace_length,
+        float* target_buffer
+    );
 };
 
 DoubleDataHandle* make_double_datahandle(

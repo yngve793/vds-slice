@@ -301,8 +301,8 @@ void DoubleDataHandle::read_traces(
     enum interpolation_method const interpolation_method
 ) noexcept(false) {
     int const dimension_sample = this->get_metadata().sample().dimension();
-    int const nsamples = this->get_metadata().sample().nsamples();
-    int const buffersize = nsamples * ntraces;
+    // int const nsamples = this->get_metadata().sample().nsamples();
+    // int const buffersize = nsamples * ntraces;
 
     std::size_t coordinate_size = (std::size_t)(sizeof(voxel) * ntraces / sizeof(float));
 
@@ -355,31 +355,34 @@ void DoubleDataHandle::read_traces(
     }
 
     float* floatBuffer = (float*)buffer;
-    std::vector<float> res_buffer_b(buffersize);
+    this->extract_part_of_trace(coordinates_a, buffer_a, this->m_metadata_a.sample().nsamples(), floatBuffer);
 
-    int counter = 0;
-    int traceIndex_a = this->m_metadata_a.sample().nsamples();
-    for (int i = 0; i < buffer_a.size(); i++) {
-        int index = i % traceIndex_a;
-
-        if (index >= coordinates_a[dimension_sample] && index < coordinates_a[dimension_sample] + nsamples) {
-            floatBuffer[counter] = buffer_a[i];
-            counter++;
-        }
-    }
-
-    counter = 0;
-    int traceIndex_b = this->m_metadata_b.sample().nsamples();
-    for (int i = 0; i < buffer_b.size(); i++) {
-        int index = i % traceIndex_b;
-
-        if (index >= coordinates_b[dimension_sample] && index < coordinates_b[dimension_sample] + nsamples) {
-            res_buffer_b[counter] = buffer_b[i];
-            counter++;
-        }
-    }
+    std::vector<float> res_buffer_b(this->get_metadata().sample().nsamples() * ntraces);
+    this->extract_part_of_trace(coordinates_b, buffer_b, this->m_metadata_b.sample().nsamples(), res_buffer_b.data());
 
     m_binary_operator((float*)buffer, (float* const)res_buffer_b.data(), (std::size_t)size / sizeof(float));
+}
+
+void DoubleDataHandle::extract_part_of_trace(
+    std::vector<float> coordinates,
+    std::vector<float> source_traces,
+    int source_trace_length,
+    float* target_buffer
+) {
+    int counter = 0;
+    int const dimension_sample = this->get_metadata().sample().dimension();
+    int const nsamples_in_intersection = this->get_metadata().sample().nsamples();
+    for (int i = 0; i < source_traces.size(); i++) {
+        int index_current_trace = i % source_trace_length;
+
+        if (
+            index_current_trace >= coordinates[dimension_sample] &&
+            index_current_trace < coordinates[dimension_sample] + nsamples_in_intersection
+        ) {
+            target_buffer[counter] = source_traces[i];
+            counter++;
+        }
+    }
 }
 
 std::int64_t DoubleDataHandle::samples_buffer_size(
