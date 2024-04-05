@@ -282,7 +282,7 @@ void DoubleDataHandle::read_subcube(
     bool const success_a = request_a.get()->WaitForCompletion();
     bool const success_b = request_b.get()->WaitForCompletion();
 
-    if (!success_a && !success_b) {
+    if (!success_a || !success_b) {
         throw std::runtime_error("Failed to read from VDS.");
     }
 
@@ -350,7 +350,7 @@ void DoubleDataHandle::read_traces(
     bool const success_a = request_a.get()->WaitForCompletion();
     bool const success_b = request_b.get()->WaitForCompletion();
 
-    if (!success_a && !success_b) {
+    if (!success_a || !success_b) {
         throw std::runtime_error("Failed to read from VDS.");
     }
 
@@ -441,7 +441,7 @@ void DoubleDataHandle::read_samples(
     bool const success_a = request_a.get()->WaitForCompletion();
     bool const success_b = request_b.get()->WaitForCompletion();
 
-    if (!success_a && !success_b) {
+    if (!success_a || !success_b) {
         throw std::runtime_error("Failed to read from VDS.");
     }
 
