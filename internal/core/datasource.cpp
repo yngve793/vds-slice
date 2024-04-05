@@ -87,6 +87,10 @@ DoubleDataSource::~DoubleDataSource() {
         delete (this->handle_B);
         this->handle_B = NULL;
     }
+    if (this->handle != NULL) {
+        delete (this->handle);
+        this->handle = NULL;
+    }
 }
 
 MetadataHandle const& DoubleDataSource::get_metadata() const noexcept(true) {
