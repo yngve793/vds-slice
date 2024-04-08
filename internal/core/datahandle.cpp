@@ -302,7 +302,7 @@ void DoubleDataHandle::read_traces(
 ) noexcept(false) {
     int const sample_dimension_index = this->get_metadata().sample().dimension();
 
-    std::size_t coordinate_size = (std::size_t)(sizeof(voxel) * ntraces / sizeof(float));
+    std::size_t coordinate_size = OpenVDS::Dimensionality_Max * ntraces;
 
     std::vector<float> coordinates_a(coordinate_size);
     std::vector<float> coordinates_b(coordinate_size);
