@@ -10,6 +10,8 @@
 #include "direction.hpp"
 #include "volumedatalayout.hpp"
 
+using voxel = float[OpenVDS::Dimensionality_Max];
+
 class MetadataHandle {
     friend class DoubleMetadataHandle;
 
@@ -61,7 +63,7 @@ private:
 
 class DoubleMetadataHandle : public MetadataHandle {
 public:
-    DoubleMetadataHandle(DoubleVolumeDataLayout const* const layout, SingleMetadataHandle const* const m_metadata_a, SingleMetadataHandle const* const m_metadata_b);
+    DoubleMetadataHandle(OpenVDS::VolumeDataLayout const* const layout_a, OpenVDS::VolumeDataLayout const* const layout_b, SingleMetadataHandle const* const m_metadata_a, SingleMetadataHandle const* const m_metadata_b);
 
     Axis iline() const noexcept(true);
     Axis xline() const noexcept(true);
@@ -75,11 +77,14 @@ public:
 
     OpenVDS::IJKCoordinateTransformer coordinate_transformer() const noexcept(false);
 
+    void OffsetSamplesA(voxel const* samples, std::size_t const nsamples, std::vector<float>* samples_a) noexcept(true);
+    void OffsetSamplesB(voxel const* samples, std::size_t const nsamples, std::vector<float>* samples_b) noexcept(true);
+
 protected:
     void dimension_validation() const;
 
 private:
-    DoubleVolumeDataLayout const* const m_layout;
+    DoubleVolumeDataLayout const m_layout;
     SingleMetadataHandle const* const m_metadata_a;
     SingleMetadataHandle const* const m_metadata_b;
 
