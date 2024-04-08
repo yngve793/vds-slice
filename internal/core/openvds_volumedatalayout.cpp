@@ -1,4 +1,4 @@
-#include "volumedatalayout.hpp"
+#include "openvds_volumedatalayout.hpp"
 #include <OpenVDS/VolumeDataAxisDescriptor.h>
 
 DoubleVolumeDataLayout::DoubleVolumeDataLayout(
