@@ -308,6 +308,55 @@ TEST_F(DoubleVolumeDataLayoutTest, Addition_Offset_Slice_TIME) {
     check_slice(response_data, low, high, 2);
 }
 
+
+struct SliceTest{
+    char*       data;
+    int         lineno;
+    Direction const direction;
+};
+
+
+// TEST_F(DoubleVolumeDataLayoutTest, Addition_Offset_Slice_Invalid_TIME) {
+
+//     Direction const direction(axis_name::TIME);
+
+//     const SliceTest t1("test", 23, axis_name::TIME);
+//     // t1.lineno = 24;
+
+//     struct response response_data;
+
+//     EXPECT_THAT([&]() {
+//         cppapi::slice(
+//             *double_datasource,
+//             direction,
+//             16,
+//             slice_bounds,
+//             &response_data
+//         );
+//     }, testing::ThrowsMessage<std::runtime_error>(testing::HasSubstr("Invalid lineno: 16, valid range: [20.00:128.00:4.00]")));
+
+
+//     EXPECT_THAT([&]() {
+//         cppapi::slice(
+//             *double_datasource,
+//             direction,
+//             132,
+//             slice_bounds,
+//             &response_data
+//         );
+//     }, testing::ThrowsMessage<std::runtime_error>(testing::HasSubstr("Invalid lineno: 132, valid range: [20.00:128.00:4.00]")));
+
+//     EXPECT_THAT([&]() {
+//         cppapi::slice(
+//             *double_datasource,
+//             direction,
+//             21,
+//             slice_bounds,
+//             &response_data
+//         );
+//     }, testing::ThrowsMessage<std::runtime_error>(testing::HasSubstr("Invalid lineno: 21, valid range: [20.00:128.00:4.00]")));
+// }
+
 TEST_F(DoubleVolumeDataLayoutTest, Addition_Offset_Slice_K) {
 
     Direction const direction(axis_name::K);
