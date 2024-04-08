@@ -8,7 +8,7 @@
 #include "axis.hpp"
 #include "boundingbox.hpp"
 #include "direction.hpp"
-#include "volumedatalayout.hpp"
+#include "openvds_volumedatalayout.hpp"
 
 class MetadataHandle {
     friend class DoubleMetadataHandle;
