@@ -50,12 +50,12 @@ class DoubleVolumeDataLayoutTest : public ::testing::Test {
             sample_array[i] = 4 + i * 4;
         }
 
-        single_datasource = make_single_datasource(
+        single_datahandle = make_single_datahandle(
             REGULAR_DATA.c_str(),
             CREDENTIALS.c_str()
         );
 
-        double_datasource = make_double_datasource(
+        double_datahandle = make_double_datahandle(
             REGULAR_DATA.c_str(),
             CREDENTIALS.c_str(),
             SHIFT_4_DATA.c_str(),
@@ -63,7 +63,7 @@ class DoubleVolumeDataLayoutTest : public ::testing::Test {
             &inplace_addition
         );
 
-        double_reverse_datasource = make_double_datasource(
+        double_reverse_datahandle = make_double_datahandle(
             SHIFT_4_DATA.c_str(),
             CREDENTIALS.c_str(),
             REGULAR_DATA.c_str(),
@@ -73,9 +73,9 @@ class DoubleVolumeDataLayoutTest : public ::testing::Test {
     }
 
     void TearDown() override {
-        delete single_datasource;
-        delete double_datasource;
-        delete double_reverse_datasource;
+        delete single_datahandle;
+        delete double_datahandle;
+        delete double_reverse_datahandle;
     }
 
 public:
@@ -87,9 +87,9 @@ public:
 
     std::vector<Bound> slice_bounds;
 
-    SingleDataSource* single_datasource;
-    DoubleDataSource* double_datasource;
-    DoubleDataSource* double_reverse_datasource;
+    SingleDataHandle* single_datahandle;
+    DoubleDataHandle* double_datahandle;
+    DoubleDataHandle* double_reverse_datahandle;
 
     static constexpr float fill = -999.25;
 
@@ -143,9 +143,9 @@ public:
         }
     }
 
-    Grid get_grid(DataSource* datasource) {
+    Grid get_grid(DataHandle* datahandle) {
 
-        const MetadataHandle* metadata = &(datasource->get_metadata());
+        const MetadataHandle* metadata = &(datahandle->get_metadata());
         const OpenVDS::DoubleMatrix4x4 ijkToWorldTransform = metadata->coordinate_transformer().IJKToWorldTransform();
 
         double xori = ijkToWorldTransform.data[3][0];
@@ -199,7 +199,7 @@ TEST_F(DoubleVolumeDataLayoutTest, Single_Metadata) {
     expected["axis"][2] = {{"annotation", "Sample"}, {"max", 128.0f}, {"min", 4.0f}, {"samples", 32}, {"stepsize", 4.0f}, {"unit", "ms"}};
 
     struct response response_data;
-    cppapi::metadata(*single_datasource, &response_data);
+    cppapi::metadata(*single_datahandle, &response_data);
     nlohmann::json metadata = nlohmann::json::parse(response_data.data);
 
     EXPECT_EQ(metadata["crs"], expected["crs"]);
@@ -211,7 +211,7 @@ TEST_F(DoubleVolumeDataLayoutTest, Single_Metadata) {
 TEST_F(DoubleVolumeDataLayoutTest, Addition_Metadata) {
 
     struct response response_data;
-    cppapi::metadata(*double_datasource, &response_data);
+    cppapi::metadata(*double_datahandle, &response_data);
     nlohmann::json metadata = nlohmann::json::parse(response_data.data);
 
     EXPECT_EQ(metadata["crs"], this->expected_intersect_metadata["crs"]);
@@ -223,7 +223,7 @@ TEST_F(DoubleVolumeDataLayoutTest, Addition_Metadata) {
 TEST_F(DoubleVolumeDataLayoutTest, Reverse_Addition_Metadata) {
 
     struct response response_data;
-    cppapi::metadata(*double_reverse_datasource, &response_data);
+    cppapi::metadata(*double_reverse_datahandle, &response_data);
     nlohmann::json metadata = nlohmann::json::parse(response_data.data);
 
     EXPECT_EQ(metadata["crs"], this->expected_intersect_metadata["crs"]);
@@ -239,7 +239,7 @@ TEST_F(DoubleVolumeDataLayoutTest, Single_Slice) {
 
     struct response response_data;
     cppapi::slice(
-        *single_datasource,
+        *single_datahandle,
         direction,
         lineno,
         slice_bounds,
@@ -258,7 +258,7 @@ TEST_F(DoubleVolumeDataLayoutTest, Single_Slice_Time) {
 
     struct response response_data;
     cppapi::slice(
-        *single_datasource,
+        *single_datahandle,
         direction,
         lineno,
         slice_bounds,
@@ -277,7 +277,7 @@ TEST_F(DoubleVolumeDataLayoutTest, Single_Slice_K) {
 
     struct response response_data;
     cppapi::slice(
-        *single_datasource,
+        *single_datahandle,
         direction,
         lineno,
         slice_bounds,
@@ -296,7 +296,7 @@ TEST_F(DoubleVolumeDataLayoutTest, Addition_Offset_Slice_TIME) {
 
     struct response response_data;
     cppapi::slice(
-        *double_datasource,
+        *double_datahandle,
         direction,
         lineno,
         slice_bounds,
@@ -327,7 +327,7 @@ struct SliceTest{
 
 //     EXPECT_THAT([&]() {
 //         cppapi::slice(
-//             *double_datasource,
+//             *double_datahandle,
 //             direction,
 //             16,
 //             slice_bounds,
@@ -338,7 +338,7 @@ struct SliceTest{
 
 //     EXPECT_THAT([&]() {
 //         cppapi::slice(
-//             *double_datasource,
+//             *double_datahandle,
 //             direction,
 //             132,
 //             slice_bounds,
@@ -348,7 +348,7 @@ struct SliceTest{
 
 //     EXPECT_THAT([&]() {
 //         cppapi::slice(
-//             *double_datasource,
+//             *double_datahandle,
 //             direction,
 //             21,
 //             slice_bounds,
@@ -365,7 +365,7 @@ TEST_F(DoubleVolumeDataLayoutTest, Addition_Offset_Slice_K) {
     struct response response_data;
 
     cppapi::slice(
-        *double_datasource,
+        *double_datahandle,
         direction,
         lineno,
         slice_bounds,
@@ -383,7 +383,7 @@ TEST_F(DoubleVolumeDataLayoutTest, Addition_Offset_Reverse_Slice_TIME) {
 
     struct response response_data;
     cppapi::slice(
-        *double_reverse_datasource,
+        *double_reverse_datahandle,
         direction,
         lineno,
         slice_bounds,
@@ -401,7 +401,7 @@ TEST_F(DoubleVolumeDataLayoutTest, Addition_Offset_Reverse_Slice_K) {
 
     struct response response_data;
     cppapi::slice(
-        *double_reverse_datasource,
+        *double_reverse_datahandle,
         direction,
         lineno,
         slice_bounds,
@@ -420,7 +420,7 @@ TEST_F(DoubleVolumeDataLayoutTest, Addition_Offset_Slice_INLINE) {
 
     struct response response_data;
     cppapi::slice(
-        *double_datasource,
+        *double_datahandle,
         direction,
         lineno,
         slice_bounds,
@@ -439,7 +439,7 @@ TEST_F(DoubleVolumeDataLayoutTest, Addition_Offset_Slice_CROSSLINE) {
 
     struct response response_data;
     cppapi::slice(
-        *double_datasource,
+        *double_datahandle,
         direction,
         lineno,
         slice_bounds,
@@ -461,7 +461,7 @@ TEST_F(DoubleVolumeDataLayoutTest, Single_Fence_INDEX) {
     const float fill = -999.25;
 
     cppapi::fence(
-        *single_datasource,
+        *single_datahandle,
         c_system,
         coordinates.data(),
         coordinate_size,
@@ -487,7 +487,7 @@ TEST_F(DoubleVolumeDataLayoutTest, Single_Fence_ANNOTATION) {
     const float fill = -999.25;
 
     cppapi::fence(
-        *single_datasource,
+        *single_datahandle,
         c_system,
         coordinates.data(),
         coordinate_size,
@@ -513,7 +513,7 @@ TEST_F(DoubleVolumeDataLayoutTest, Single_Fence_CDP) {
     const float fill = -999.25;
 
     cppapi::fence(
-        *single_datasource,
+        *single_datahandle,
         c_system,
         coordinates.data(),
         coordinate_size,
@@ -539,7 +539,7 @@ TEST_F(DoubleVolumeDataLayoutTest, Double_Fence_INDEX) {
     const float fill = -999.25;
 
     cppapi::fence(
-        *double_datasource,
+        *double_datahandle,
         c_system,
         coordinates.data(),
         coordinate_size,
@@ -566,7 +566,7 @@ TEST_F(DoubleVolumeDataLayoutTest, Double_Fence_ANNOTATION) {
     const float fill = -999.25;
 
     cppapi::fence(
-        *double_datasource,
+        *double_datahandle,
         c_system,
         coordinates.data(),
         coordinate_size,
@@ -592,7 +592,7 @@ TEST_F(DoubleVolumeDataLayoutTest, Double_Fence_CDP) {
     const float fill = -999.25;
 
     cppapi::fence(
-        *double_datasource,
+        *double_datahandle,
         c_system,
         coordinates.data(),
         coordinate_size,
@@ -618,7 +618,7 @@ TEST_F(DoubleVolumeDataLayoutTest, Double_Reverse_Fence_INDEX) {
     const float fill = -999.25;
 
     cppapi::fence(
-        *double_reverse_datasource,
+        *double_reverse_datahandle,
         c_system,
         coordinates.data(),
         coordinate_size,
@@ -645,7 +645,7 @@ TEST_F(DoubleVolumeDataLayoutTest, Double_Reverse_Fence_ANNOTATION) {
     const float fill = -999.25;
 
     cppapi::fence(
-        *double_reverse_datasource,
+        *double_reverse_datahandle,
         c_system,
         coordinates.data(),
         coordinate_size,
@@ -671,7 +671,7 @@ TEST_F(DoubleVolumeDataLayoutTest, Double_Reverse_Fence_CDP) {
     const float fill = -999.25;
 
     cppapi::fence(
-        *double_reverse_datasource,
+        *double_reverse_datahandle,
         c_system,
         coordinates.data(),
         coordinate_size,
@@ -687,9 +687,9 @@ TEST_F(DoubleVolumeDataLayoutTest, Double_Reverse_Fence_CDP) {
 
 TEST_F(DoubleVolumeDataLayoutTest, Single_Attribute) {
 
-    DataSource* datasource = single_datasource;
-    Grid grid = get_grid(datasource);
-    const MetadataHandle* metadata = &(datasource->get_metadata());
+    DataHandle* datahandle = single_datahandle;
+    Grid grid = get_grid(datahandle);
+    const MetadataHandle* metadata = &(datahandle->get_metadata());
 
     std::size_t nrows = metadata->iline().nsamples();
     std::size_t ncols = metadata->xline().nsamples();
@@ -699,9 +699,9 @@ TEST_F(DoubleVolumeDataLayoutTest, Single_Attribute) {
     RegularSurface pri_surface = RegularSurface(pri_surface_data.data(), nrows, ncols, grid, fill);
     RegularSurface top_surface = RegularSurface(top_surface_data.data(), nrows, ncols, grid, fill);
     RegularSurface bot_surface = RegularSurface(bot_surface_data.data(), nrows, ncols, grid, fill);
-    SurfaceBoundedSubVolume* subvolume = make_subvolume(datasource->get_metadata(), pri_surface, top_surface, bot_surface);
+    SurfaceBoundedSubVolume* subvolume = make_subvolume(datahandle->get_metadata(), pri_surface, top_surface, bot_surface);
 
-    cppapi::fetch_subvolume(*single_datasource, *subvolume, NEAREST, 0, nrows * ncols);
+    cppapi::fetch_subvolume(*single_datahandle, *subvolume, NEAREST, 0, nrows * ncols);
 
     int low[3] = {0, 0, 4};
     int high[3] = {8, 8, 15};
@@ -712,9 +712,9 @@ TEST_F(DoubleVolumeDataLayoutTest, Single_Attribute) {
 
 TEST_F(DoubleVolumeDataLayoutTest, Double_Attribute) {
 
-    DataSource* datasource = double_datasource;
-    Grid grid = get_grid(datasource);
-    const MetadataHandle* metadata = &(datasource->get_metadata());
+    DataHandle* datahandle = double_datahandle;
+    Grid grid = get_grid(datahandle);
+    const MetadataHandle* metadata = &(datahandle->get_metadata());
 
     std::size_t nrows = metadata->iline().nsamples();
     std::size_t ncols = metadata->xline().nsamples();
@@ -724,9 +724,9 @@ TEST_F(DoubleVolumeDataLayoutTest, Double_Attribute) {
     RegularSurface pri_surface = RegularSurface(pri_surface_data.data(), nrows, ncols, grid, fill);
     RegularSurface top_surface = RegularSurface(top_surface_data.data(), nrows, ncols, grid, fill);
     RegularSurface bot_surface = RegularSurface(bot_surface_data.data(), nrows, ncols, grid, fill);
-    SurfaceBoundedSubVolume* subvolume = make_subvolume(datasource->get_metadata(), pri_surface, top_surface, bot_surface);
+    SurfaceBoundedSubVolume* subvolume = make_subvolume(datahandle->get_metadata(), pri_surface, top_surface, bot_surface);
 
-    cppapi::fetch_subvolume(*datasource, *subvolume, NEAREST, 0, nrows * ncols);
+    cppapi::fetch_subvolume(*datahandle, *subvolume, NEAREST, 0, nrows * ncols);
 
     int low[3] = {4, 4, 4};
     int high[3] = {8, 8, 15};
@@ -737,9 +737,9 @@ TEST_F(DoubleVolumeDataLayoutTest, Double_Attribute) {
 
 TEST_F(DoubleVolumeDataLayoutTest, Double_Reverse_Attribute) {
 
-    DataSource* datasource = double_reverse_datasource;
-    Grid grid = get_grid(datasource);
-    const MetadataHandle* metadata = &(datasource->get_metadata());
+    DataHandle* datahandle = double_reverse_datahandle;
+    Grid grid = get_grid(datahandle);
+    const MetadataHandle* metadata = &(datahandle->get_metadata());
 
     std::size_t nrows = metadata->iline().nsamples();
     std::size_t ncols = metadata->xline().nsamples();
@@ -749,9 +749,9 @@ TEST_F(DoubleVolumeDataLayoutTest, Double_Reverse_Attribute) {
     RegularSurface pri_surface = RegularSurface(pri_surface_data.data(), nrows, ncols, grid, fill);
     RegularSurface top_surface = RegularSurface(top_surface_data.data(), nrows, ncols, grid, fill);
     RegularSurface bot_surface = RegularSurface(bot_surface_data.data(), nrows, ncols, grid, fill);
-    SurfaceBoundedSubVolume* subvolume = make_subvolume(datasource->get_metadata(), pri_surface, top_surface, bot_surface);
+    SurfaceBoundedSubVolume* subvolume = make_subvolume(datahandle->get_metadata(), pri_surface, top_surface, bot_surface);
 
-    cppapi::fetch_subvolume(*datasource, *subvolume, NEAREST, 0, nrows * ncols);
+    cppapi::fetch_subvolume(*datahandle, *subvolume, NEAREST, 0, nrows * ncols);
 
     int low[3] = {4, 4, 4};
     int high[3] = {8, 8, 15};
