@@ -92,8 +92,13 @@ int SingleMetadataHandle::get_dimension(std::vector<std::string> const& names) c
     );
 }
 
-DoubleMetadataHandle::DoubleMetadataHandle(DoubleVolumeDataLayout const* const layout)
+DoubleMetadataHandle::DoubleMetadataHandle(
+    DoubleVolumeDataLayout const* const layout,
+    SingleMetadataHandle const* const m_metadata_a,
+    SingleMetadataHandle const* const m_metadata_b)
     : m_layout(layout),
+      m_metadata_a(m_metadata_a),
+      m_metadata_b(m_metadata_b),
       m_iline(Axis(layout, get_dimension({std::string(OpenVDS::KnownAxisNames::Inline())}))),
       m_xline(Axis(layout, get_dimension({std::string(OpenVDS::KnownAxisNames::Crossline())}))),
       m_sample(Axis(layout, get_dimension({std::string(OpenVDS::KnownAxisNames::Sample()), std::string(OpenVDS::KnownAxisNames::Depth()), std::string(OpenVDS::KnownAxisNames::Time())}))) {
@@ -126,19 +131,23 @@ Axis DoubleMetadataHandle::get_axis(
 }
 
 BoundingBox DoubleMetadataHandle::bounding_box() const noexcept(false) {
-    throw std::runtime_error("Not implemented");
+    return BoundingBox(
+        this->iline().nsamples(),
+        this->xline().nsamples(),
+        this->coordinate_transformer()
+    );
 }
 
 std::string DoubleMetadataHandle::crs() const noexcept(false) {
-    throw std::runtime_error("Not implemented");
+    return this->m_metadata_a->crs() + "; " + this->m_metadata_b->crs();
 }
 
 std::string DoubleMetadataHandle::input_filename() const noexcept(false) {
-    throw std::runtime_error("Not implemented");
+    return this->m_metadata_a->input_filename() + "; " + this->m_metadata_b->input_filename();
 }
 
 std::string DoubleMetadataHandle::import_time_stamp() const noexcept(false) {
-    throw std::runtime_error("Not implemented");
+    return this->m_metadata_a->import_time_stamp() + "; " + this->m_metadata_b->import_time_stamp();
 }
 
 OpenVDS::IJKCoordinateTransformer DoubleMetadataHandle::coordinate_transformer() const noexcept(false) {
