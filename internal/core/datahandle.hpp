@@ -47,6 +47,8 @@ public:
         std::size_t const ntraces,
         enum interpolation_method const interpolation_method
     ) noexcept(false) = 0;
+
+    static OpenVDS::VolumeDataFormat format() noexcept(true);
 };
 
 
@@ -55,8 +57,6 @@ class SingleDataHandle : public DataHandle {
     friend SingleDataHandle* make_single_datahandle(const char* url,const char* credentials);
 public:
     MetadataHandle const& get_metadata() const noexcept(true);
-
-    static OpenVDS::VolumeDataFormat format() noexcept(true);
 
     std::int64_t subcube_buffer_size(SubCube const& subcube) noexcept(false);
 
@@ -112,8 +112,6 @@ class DoubleDataHandle : public DataHandle{
 
 public:
     MetadataHandle const& get_metadata() const noexcept(true);
-
-    static OpenVDS::VolumeDataFormat format() noexcept(true);
 
     std::int64_t subcube_buffer_size(SubCube const& subcube) noexcept(false);
 

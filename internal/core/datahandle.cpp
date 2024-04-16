@@ -30,6 +30,15 @@ OpenVDS::InterpolationMethod to_interpolation(interpolation_method interpolation
 
 } /* namespace */
 
+OpenVDS::VolumeDataFormat DataHandle::format() noexcept(true) {
+    /*
+     * We always want to request data in OpenVDS::VolumeDataFormat::Format_R32
+     * format for slice. For fence documentation says: "The traces/samples are
+     * always in 32-bit floating point format."
+     */
+    return OpenVDS::VolumeDataFormat::Format_R32;
+}
+
 SingleDataHandle* make_single_datahandle(
     const char* url,
     const char* credentials
@@ -50,15 +59,6 @@ SingleDataHandle::SingleDataHandle(OpenVDS::VDSHandle handle)
 
 MetadataHandle const& SingleDataHandle::get_metadata() const noexcept (true) {
     return this->m_metadata;
-}
-
-OpenVDS::VolumeDataFormat SingleDataHandle::format() noexcept (true) {
-    /*
-     * We always want to request data in OpenVDS::VolumeDataFormat::Format_R32
-     * format for slice. For fence documentation says: "The traces/samples are
-     * always in 32-bit floating point format."
-     */
-    return OpenVDS::VolumeDataFormat::Format_R32;
 }
 
 std::int64_t SingleDataHandle::subcube_buffer_size(
@@ -197,14 +197,6 @@ MetadataHandle const& DoubleDataHandle::get_metadata() const noexcept(true) {
     return this->m_metadata;
 }
 
-OpenVDS::VolumeDataFormat DoubleDataHandle::format() noexcept(true) {
-    /*
-     * We always want to request data in OpenVDS::VolumeDataFormat::Format_R32
-     * format for slice. For fence documentation says: "The traces/samples are
-     * always in 32-bit floating point format."
-     */
-    return OpenVDS::VolumeDataFormat::Format_R32;
-}
 
 std::int64_t DoubleDataHandle::subcube_buffer_size(
     SubCube const& subcube
