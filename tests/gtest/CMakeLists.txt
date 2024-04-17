@@ -29,6 +29,7 @@ configure_file(../../testdata/10_samples/10_miss_stepsize.vds . COPYONLY)
 
 configure_file(../../testdata/cube_intersection/regular_8x3_cube.vds . COPYONLY)
 configure_file(../../testdata/cube_intersection/shift_4_8x3_cube.vds . COPYONLY)
+configure_file(../../testdata/cube_intersection/big_shift_8_32x3_cube.vds . COPYONLY)
 
 include(GoogleTest)
 gtest_discover_tests(cppcoretests)
