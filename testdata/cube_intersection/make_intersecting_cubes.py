@@ -30,14 +30,6 @@ def create_intersecting_data(path, samples, ilines, xlines):
         (index_origin_in_annotated[0] * annotated_to_cdp_inline_step +
          index_origin_in_annotated[1] * annotated_to_cdp_xline_step)
 
-    print()
-    print("FileName: ", path)
-    print("annotated_to_CPD_inline_step", annotated_to_cdp_inline_step)
-    print("annotated_to_CPD_xline_step", annotated_to_cdp_xline_step)
-    print("annotated_origin", annotated_origin)
-    print("index_origin_in_annotated", index_origin_in_annotated)
-    print("index_origin_in_CDP", index_origin_in_cdp)
-
     with segyio.create(path + ".segy", spec) as f:
         tr = 0
 
@@ -56,16 +48,16 @@ def create_intersecting_data(path, samples, ilines, xlines):
                     segyio.su.delrt: samples[0],
                 }
 
-                f.trace[tr] = samples + \
-                    ((iline_value * 2**(16)) + (xline_value * 2**(8)))
+                f.trace[tr] = np.float32(samples) + \
+                    np.float32((iline_value * 2**(16)) + (xline_value * 2**(8)))
                 tr += 1
 
         f.bin.update(tsort=segyio.TraceSortingFormat.INLINE_SORTING)
 
 
 if __name__ == "__main__":
-    base_range_8 = np.arange(1, 8+1)
-    base_range_32 = np.arange(1, 32+1)
+    base_range_8 = np.arange(1, 8+1, dtype=np.int32)
+    base_range_32 = np.arange(1, 32+1, dtype=np.int32)
 
     parameters = [
         {"path": "regular_8x3_cube",
@@ -75,7 +67,11 @@ if __name__ == "__main__":
         {"path": "shift_4_8x3_cube",
          "samples": (4+base_range_32)*4,
          "ilines": (4+base_range_8)*3,
-         "xlines": (4+base_range_8)*2}
+         "xlines": (4+base_range_8)*2},
+        {"path": "big_shift_8_32x3_cube",
+         "samples": (8+base_range_32)*4,
+         "ilines": (8+base_range_32)*3,
+         "xlines": (8+base_range_32)*2}
     ]
 
     for p in parameters:
