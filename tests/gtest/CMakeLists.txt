@@ -11,6 +11,7 @@ add_executable(cppcoretests
   datahandle_test.cpp
   datahandle_fence_test.cpp
   datahandle_metadata_test.cpp
+  datahandle_slice_test.cpp
   regularsurface_test.cpp
   subvolume_test.cpp
 )
