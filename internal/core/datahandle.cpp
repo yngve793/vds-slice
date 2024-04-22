@@ -199,11 +199,11 @@ std::int64_t DoubleDataHandle::subcube_buffer_size(
     return size;
 }
 
-/// @brief Shift the provided subcube to match the intersection of the two initial cubes.
+/// @brief Shift coordinates the provided subcube to match the intersection with the single cube x.
 /// @param subcube Subcube contains vectors lower and upper of length 6. Lower defines start index
 /// for each of the 6 dimensions while upper defines end index for the intersection of cube_a and cube_b.
-/// @param metadata Metadata for cube_x (one of the intersecting cubes)
-/// @return Subcube of intersection of cube_a and cube_b in cube_x.
+/// @param SingleMetadataHandle Metadata for cube_x (one of the intersecting cubes)
+/// @return subcube data in coordinate system of cube_x
 SubCube DoubleDataHandle::offset_bounds(const SubCube subcube, SingleMetadataHandle metadata_cube_x) {
 
     // Create a copy
@@ -323,6 +323,9 @@ void DoubleDataHandle::read_traces(
         throw std::runtime_error("Failed to read from VDS.");
     }
 
+    // Function read_traces calls extract whole traces out of corresponding files.
+    //  However it could happen that data files are not fully aligned in their sample dimensions.
+    //  That creates a need to extract from each trace data that make up the intersection.
     float* floatBuffer = (float*)buffer;
     this->extract_part_of_trace(coordinates_a, buffer_a, this->m_metadata_a.sample().nsamples(), floatBuffer);
 
@@ -339,14 +342,14 @@ void DoubleDataHandle::extract_part_of_trace(
     float* target_buffer
 ) {
     int counter = 0;
-    int const dimension_sample = this->get_metadata().sample().dimension();
+    int const sample_dimension_index = this->get_metadata().sample().dimension();
     int const nsamples_in_intersection = this->get_metadata().sample().nsamples();
     for (int i = 0; i < source_traces.size(); i++) {
         int index_current_trace = i % source_trace_length;
 
         if (
-            index_current_trace >= coordinates[dimension_sample] &&
-            index_current_trace < coordinates[dimension_sample] + nsamples_in_intersection
+            index_current_trace >= coordinates[sample_dimension_index] &&
+            index_current_trace < coordinates[sample_dimension_index] + nsamples_in_intersection
         ) {
             target_buffer[counter] = source_traces[i];
             counter++;
