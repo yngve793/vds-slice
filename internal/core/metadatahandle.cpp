@@ -141,7 +141,11 @@ BoundingBox DoubleMetadataHandle::bounding_box() const noexcept(false) {
 }
 
 std::string DoubleMetadataHandle::crs() const noexcept(false) {
-    return this->m_metadata_a->crs() + "; " + this->m_metadata_b->crs();
+
+    if (this->m_metadata_a->crs().compare(this->m_metadata_b->crs()) != 0) {
+        throw detail::bad_request("Coordinate reference system (CRS) mismatch: " + this->m_metadata_a->crs() + " versus " + this->m_metadata_b->crs());
+    }
+    return this->m_metadata_a->crs();
 }
 
 std::string DoubleMetadataHandle::input_filename() const noexcept(false) {
