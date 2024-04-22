@@ -26,6 +26,7 @@ def create_intersecting_data(path, samples, ilines, xlines):
     index_origin_in_annotated = np.array([spec.ilines[0], spec.xlines[0]])
 
     # Calculate index origin in CDP
+    # This value appears in the VDSInfo output and is calculated for verification
     index_origin_in_cdp = annotated_origin_in_cdp + \
         (index_origin_in_annotated[0] * annotated_to_cdp_inline_step +
          index_origin_in_annotated[1] * annotated_to_cdp_xline_step)
