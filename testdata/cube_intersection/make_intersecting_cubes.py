@@ -80,5 +80,5 @@ if __name__ == "__main__":
         create_intersecting_data(**p)
         name = p["path"]
         subprocess.run(["SEGYImport", "--url", "file://.", "--vdsfile",
-                       name+".vds", name+".segy", "--crs-wkt=\"utmXX\""])
+                       name+".vds", name+".segy", "--crs-wkt=utmXX"])
         subprocess.run(["rm", name+".segy"])
