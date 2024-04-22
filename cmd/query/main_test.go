@@ -729,7 +729,7 @@ func TestMetadataErrorHTTPResponse(t *testing.T) {
 		},
 		metadataTest{
 			baseTest{
-				name:           "Metadata request with binary operator",
+				name:           "Single metadata request with binary operator",
 				method:         http.MethodPost,
 				expectedStatus: http.StatusBadRequest,
 				expectedError:  "Binary operator must be empty when a single VDS url is provided",
