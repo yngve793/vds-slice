@@ -13,7 +13,7 @@ const std::string CREDENTIALS = "";
 class DatahandleMetadataTest : public ::testing::Test {
 
     void SetUp() override {
-        expected_intersect_metadata["crs"] = "\"utmXX\"; \"utmXX\"";
+        expected_intersect_metadata["crs"] = "\"utmXX\"";
         expected_intersect_metadata["inputFileName"] = "regular_8x3_cube.segy; shift_4_8x3_cube.segy";
         expected_intersect_metadata["boundingBox"]["cdp"] = {{22.0, 48.0}, {49.0, 66.0}, {37.0, 84.0}, {10.0, 66.0}};
         expected_intersect_metadata["boundingBox"]["ij"] = {{0.0, 0.0}, {3.0, 0.0}, {3.0, 3.0}, {0.0, 3.0}};
