@@ -20,13 +20,13 @@ def create_intersecting_data(path, samples, ilines, xlines):
     annotated_to_cdp_xline_step = np.array([-2, 3])
 
     # Set annotated origin
-    annotated_origin = np.array([-3.0, -12.0])
+    annotated_origin_in_cdp = np.array([-3.0, -12.0])
 
     # Index origin in annotated coordinates
     index_origin_in_annotated = np.array([spec.ilines[0], spec.xlines[0]])
 
     # Calculate index origin in CDP
-    index_origin_in_cdp = annotated_origin + \
+    index_origin_in_cdp = annotated_origin_in_cdp + \
         (index_origin_in_annotated[0] * annotated_to_cdp_inline_step +
          index_origin_in_annotated[1] * annotated_to_cdp_xline_step)
 
@@ -36,7 +36,7 @@ def create_intersecting_data(path, samples, ilines, xlines):
         for iline_value in ilines:
             for xline_value in xlines:
 
-                cdp_coordinate = 10 * (annotated_origin +
+                cdp_coordinate = 10 * (annotated_origin_in_cdp +
                                        iline_value * annotated_to_cdp_inline_step +
                                        xline_value * annotated_to_cdp_xline_step)
                 f.header[tr] = {
