@@ -82,7 +82,3 @@ if __name__ == "__main__":
         subprocess.run(["SEGYImport", "--url", "file://.", "--vdsfile",
                        name+".vds", name+".segy", "--crs-wkt=\"utmXX\""])
         subprocess.run(["rm", name+".segy"])
-
-# Copy to cloud require a fresh sas token.
-# VDSCopy "regular_8x3_cube.vds"  "azureSAS://<account>.blob.core.windows.net/testdata/cube_intersection/regular_8x3_cube"  --compression-method=None -d "Suffix=?$SAS"
-# VDSCopy "shift_4_8x3_cube.vds"  "azureSAS://<account>.blob.core.windows.net/testdata/cube_intersection/shift_4_8x3_cube"  --compression-method=None -d "Suffix=?$SAS"
