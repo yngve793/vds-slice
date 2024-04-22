@@ -95,12 +95,12 @@ int SingleMetadataHandle::get_dimension(std::vector<std::string> const& names) c
 DoubleMetadataHandle::DoubleMetadataHandle(
     OpenVDS::VolumeDataLayout const* const layout_a,
     OpenVDS::VolumeDataLayout const* const layout_b,
-    SingleMetadataHandle const* const m_metadata_a,
-    SingleMetadataHandle const* const m_metadata_b
+    SingleMetadataHandle const* const metadata_a,
+    SingleMetadataHandle const* const metadata_b
 )
     : m_layout(DoubleVolumeDataLayout(layout_a, layout_b)),
-      m_metadata_a(m_metadata_a),
-      m_metadata_b(m_metadata_b),
+      m_metadata_a(metadata_a),
+      m_metadata_b(metadata_b),
       m_iline(Axis(&m_layout, get_dimension({std::string(OpenVDS::KnownAxisNames::Inline())}))),
       m_xline(Axis(&m_layout, get_dimension({std::string(OpenVDS::KnownAxisNames::Crossline())}))),
       m_sample(Axis(&m_layout, get_dimension({std::string(OpenVDS::KnownAxisNames::Sample()), std::string(OpenVDS::KnownAxisNames::Depth()), std::string(OpenVDS::KnownAxisNames::Time())}))) {
