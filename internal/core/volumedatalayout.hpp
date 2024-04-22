@@ -164,7 +164,6 @@ public:
 
     const char* GetMetadataString(const char* category, const char* name) const {
         return "";
-        // throw std::runtime_error("Not implemented");
     }
     OpenVDS::MetadataKeyRange GetMetadataKeys() const { throw std::runtime_error("Not implemented"); }
 
