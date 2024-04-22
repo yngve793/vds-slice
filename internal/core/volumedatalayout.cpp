@@ -29,10 +29,17 @@ DoubleVolumeDataLayout::DoubleVolumeDataLayout(
 
         if (dimension < this->GetDimensionality()) {
 
+            const char* unit_a = m_layout_a->GetDimensionUnit(dimension);
+            const char* unit_b = m_layout_b->GetDimensionUnit(dimension);
+            if (strcmp(unit_a, unit_b) != 0) {
+                throw detail::bad_request("Dimension unit mismatch for dimension: " + std::to_string(dimension));
+            }
+
             const char* name_a = m_layout_a->GetDimensionName(dimension);
             const char* name_b = m_layout_b->GetDimensionName(dimension);
-            if (strcmp(name_a, name_b) != 0)
+            if (strcmp(name_a, name_b) != 0) {
                 throw detail::bad_request("Dimension name mismatch for dimension: " + std::to_string(dimension));
+            }
 
             if (strcmp(this->GetDimensionName(dimension), "Inline") == 0)
                 m_iline_index = dimension;
@@ -53,7 +60,7 @@ DoubleVolumeDataLayout::DoubleVolumeDataLayout(
 
             m_dimensionNumSamples[dimension] = 1 + ((m_dimensionCoordinateMax[dimension] - m_dimensionCoordinateMin[dimension]) / m_dimensionStepSize[dimension]);
 
-            // Verify that the offset is an integer number of samples
+            // Verify that the offset is an integer number of steps
             float offset = (m_layout_b->GetDimensionMin(dimension) - m_layout_a->GetDimensionMin(dimension)) / m_dimensionStepSize[dimension];
             if (std::abs(std::round(offset) - offset) > 0.00001) {
                 throw detail::bad_request("Offset mismatch in axis: " + std::to_string(dimension));
@@ -99,7 +106,7 @@ int DoubleVolumeDataLayout::GetDimensionNumSamples(int dimension) const {
 }
 
 /// @brief Calculate the IJKGridDefinition for the intersection of cube A and B
-/// @return IJKGridDefinition for cube (A \cap B)
+/// @return IJKGridDefinition for cube (A ∩ B)
 OpenVDS::VDSIJKGridDefinition DoubleVolumeDataLayout::GetVDSIJKGridDefinitionFromMetadata() const {
 
     OpenVDS::DoubleVector2 meta_origin = m_layout_a->GetMetadataDoubleVector2("SurveyCoordinateSystem", "Origin");
