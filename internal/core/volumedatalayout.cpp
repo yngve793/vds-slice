@@ -67,26 +67,12 @@ DoubleVolumeDataLayout::DoubleVolumeDataLayout(
         }
     }
 
-    float vds_a_origin_x =
-        vds_a.origin.X -
-        (vds_a.iUnitStep.X / m_dimensionStepSize[m_iline_index] * m_layout_a->GetDimensionMin(m_iline_index)) -
-        (vds_a.jUnitStep.X / m_dimensionStepSize[m_xline_index] * m_layout_a->GetDimensionMin(m_xline_index));
-    float vds_a_origin_y =
-        vds_a.origin.Y -
-        (vds_a.iUnitStep.Y / m_dimensionStepSize[m_iline_index] * m_layout_a->GetDimensionMin(m_iline_index)) -
-        (vds_a.jUnitStep.Y / m_dimensionStepSize[m_xline_index] * m_layout_a->GetDimensionMin(m_xline_index));
+    OpenVDS::DoubleVector2 meta_origin_a = m_layout_a->GetMetadataDoubleVector2("SurveyCoordinateSystem", "Origin");
+    OpenVDS::DoubleVector2 meta_origin_b = m_layout_b->GetMetadataDoubleVector2("SurveyCoordinateSystem", "Origin");
 
-    float vds_b_origin_x =
-        vds_b.origin.X -
-        (vds_b.iUnitStep.X / m_dimensionStepSize[m_iline_index] * m_layout_b->GetDimensionMin(m_iline_index)) -
-        (vds_b.jUnitStep.X / m_dimensionStepSize[m_xline_index] * m_layout_b->GetDimensionMin(m_xline_index));
-    float vds_b_origin_y =
-        vds_b.origin.Y -
-        (vds_b.iUnitStep.Y / m_dimensionStepSize[m_iline_index] * m_layout_b->GetDimensionMin(m_iline_index)) -
-        (vds_b.jUnitStep.Y / m_dimensionStepSize[m_xline_index] * m_layout_b->GetDimensionMin(m_xline_index));
-
-    if (std::abs(vds_a_origin_x - vds_b_origin_x) > 0.0001 || std::abs(vds_a_origin_y - vds_b_origin_y) > 0.0001)
-        throw std::runtime_error("Mismatch in origin position");
+    if (std::abs(meta_origin_a.X - meta_origin_b.X) > 0.0001 || std::abs(meta_origin_a.Y - meta_origin_b.Y) > 0.0001) {
+        throw std::runtime_error("Mismatch in origin position (GetMetadataDoubleVector2)");
+    }
 }
 
 int DoubleVolumeDataLayout::GetDimensionality() const {
