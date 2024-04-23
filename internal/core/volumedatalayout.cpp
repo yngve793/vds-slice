@@ -71,6 +71,8 @@ DoubleVolumeDataLayout::DoubleVolumeDataLayout(
 
         } else {
             m_dimensionNumSamples[dimension] = 1;
+            m_dimensionIndexOffset_a[dimension] = 0;
+            m_dimensionIndexOffset_b[dimension] = 0;
         }
     }
 
