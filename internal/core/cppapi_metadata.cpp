@@ -144,7 +144,7 @@ void slice_metadata(
     auto const& axis = metadata.get_axis(direction);
 
     nlohmann::json meta;
-    meta["format"] = fmtstr(DataHandle::format());
+    meta["format"] = fmtstr(SingleDataHandle::format());
 
     Axis const& inline_axis = metadata.iline();
     Axis const& crossline_axis = metadata.xline();
@@ -196,7 +196,7 @@ void fence_metadata(
     nlohmann::json meta;
     Axis const& sample_axis = metadata.sample();
     meta["shape"] = nlohmann::json::array({npoints, sample_axis.nsamples()});
-    meta["format"] = fmtstr(DataHandle::format());
+    meta["format"] = fmtstr(SingleDataHandle::format());
 
     return to_response(meta, out);
 }
@@ -237,7 +237,7 @@ void attributes_metadata(
 ) {
     nlohmann::json meta;
     meta["shape"] = nlohmann::json::array({nrows, ncols});
-    meta["format"] = fmtstr(DataHandle::format());
+    meta["format"] = fmtstr(SingleDataHandle::format());
 
     return to_response(meta, out);
 }
