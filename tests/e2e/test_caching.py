@@ -11,10 +11,14 @@ from azure.storage import filedatalake
 # tests here make sense if caching is enabled on the endpoint server
 
 cached_data_paths_payloads = [
-    ("slice", payload_merge(connection_payload(vds=[VDS_URL], sas=[DUMMY_SAS]), slice_payload())),
-    ("fence", payload_merge(connection_payload(vds=[VDS_URL], sas=[DUMMY_SAS]), fence_payload())),
-    ("attributes/surface/along", payload_merge(connection_payload([SAMPLES10_URL], sas=[DUMMY_SAS]), attributes_along_surface_payload())),
-    ("attributes/surface/between", payload_merge(connection_payload([SAMPLES10_URL], sas=[DUMMY_SAS]), attributes_between_surfaces_payload())),
+    ("slice", payload_merge(connection_payload(
+        vds=[VDS_URL], sas=[DUMMY_SAS]), slice_payload())),
+    ("fence", payload_merge(connection_payload(
+        vds=[VDS_URL], sas=[DUMMY_SAS]), fence_payload())),
+    ("attributes/surface/along", payload_merge(connection_payload(
+        [SAMPLES10_URL], sas=[DUMMY_SAS]), attributes_along_surface_payload())),
+    ("attributes/surface/between", payload_merge(connection_payload(
+        [SAMPLES10_URL], sas=[DUMMY_SAS]), attributes_between_surfaces_payload())),
 ]
 
 
@@ -45,7 +49,8 @@ def make_caching_call(payload, path, sas=None):
             read=True), resource_types=blob.ResourceTypes(container=True, object=True)),
      http.HTTPStatus.OK, None),
     (generate_blob_signature(
-        STORAGE_ACCOUNT_NAME, CONTAINER, f'{VDS}/VolumeDataLayout', STORAGE_ACCOUNT_KEY,
+        STORAGE_ACCOUNT_NAME, CONTAINER, f'{
+            VDS}/VolumeDataLayout', STORAGE_ACCOUNT_KEY,
         permission=blob.BlobSasPermissions(read=True)),
      http.HTTPStatus.INTERNAL_SERVER_ERROR, "403 Server failed to authenticate the request"),
     pytest.param(

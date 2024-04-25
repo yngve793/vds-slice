@@ -33,6 +33,7 @@ def create_10_samples(path):
     ori_y = int(0 * 10)
 
     data = [
+        # autopep8: off
         # Traces linear in range [0, len(trace)]
         #  4       8     12     16     20     24     28     32     36     40
         [ -4.5,  -3.5,  -2.5,  -1.5,  -0.5,   0.5,   1.5,   2.5,   3.5,   4.5],
@@ -43,6 +44,7 @@ def create_10_samples(path):
         # Traces linear in range [1:6] and [6:len(trace)]
         [ 25.5,   4.5,   8.5,  12.5,  16.5,  20.5,  24.5,  20.5,  16.5,   8.5],
         [ 25.5,  -4.5,  -8.5, -12.5, -16.5, -20.5, -24.5, -20.5, -16.5,  -8.5],
+        # autopep8: on
     ]
 
     with segyio.create(path, spec) as f:

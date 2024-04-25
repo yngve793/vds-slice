@@ -19,7 +19,8 @@ def make_well_known_custom_axis_order(segy_filename: str, vds_filename: str) -> 
     """
     src = segyio.open(segy_filename)
     data = np.transpose(segyio.tools.cube(src), (2, 0, 1))
-    axes = [Config.Axis.xline(src), Config.Axis.inline(src), Config.Axis.samples(src)]
+    axes = [Config.Axis.xline(src), Config.Axis.inline(
+        src), Config.Axis.samples(src)]
     cdp = Config.CDP.from_segy(src)
     import_info = Config.ImportInfo.from_file(segy_filename)
     config = Config(data, axes, cdp, import_info)

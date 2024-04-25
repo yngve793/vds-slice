@@ -136,13 +136,14 @@ def request_metadata(method):
     return response_data.json()
 
 
-def generate_connection_strings(vds_input:str, binary_operator:str):
+def generate_connection_strings(vds_input: str, binary_operator: str):
     """
     vds_input must be a string, not an array.
     sas would be created based on global variables, so it is assumed that vds_input can be found under CONTAINER.
     If binary operator is provided, vds_input and generated sas will be duplicated.
     """
-    sas = [generate_container_signature(STORAGE_ACCOUNT_NAME, CONTAINER, STORAGE_ACCOUNT_KEY)]
+    sas = [generate_container_signature(
+        STORAGE_ACCOUNT_NAME, CONTAINER, STORAGE_ACCOUNT_KEY)]
     vds = [vds_input]
     if binary_operator is not None:
         vds.append(vds[0])

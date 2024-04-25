@@ -10,7 +10,8 @@ from shared_test_functions import *
 @pytest.mark.parametrize("path, payload, error_code, error", [
     (
         "slice",
-        payload_merge(connection_payload(vds=[VDS_URL], sas=[DUMMY_SAS]), slice_payload(direction="inline", lineno=4)),
+        payload_merge(connection_payload(vds=[VDS_URL], sas=[
+                      DUMMY_SAS]), slice_payload(direction="inline", lineno=4)),
         http.HTTPStatus.BAD_REQUEST,
         "Invalid lineno: 4, valid range: [1.00:5.00:2.00]"
     ),
@@ -22,13 +23,15 @@ from shared_test_functions import *
     ),
     (
         "metadata",
-        connection_payload(vds=[f'{STORAGE_ACCOUNT}/{CONTAINER}/notfound'], sas=[DUMMY_SAS]),
+        connection_payload(
+            vds=[f'{STORAGE_ACCOUNT}/{CONTAINER}/notfound'], sas=[DUMMY_SAS]),
         http.HTTPStatus.INTERNAL_SERVER_ERROR,
         "The specified blob does not exist"
     ),
     (
         "attributes/surface/along",
-        payload_merge(connection_payload(vds=[VDS_URL], sas=[DUMMY_SAS]), attributes_along_surface_payload(surface={})),
+        payload_merge(connection_payload(vds=[VDS_URL], sas=[
+                      DUMMY_SAS]), attributes_along_surface_payload(surface={})),
         http.HTTPStatus.BAD_REQUEST,
         "Error:Field validation for"
     ),
