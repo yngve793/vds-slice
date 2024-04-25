@@ -1,14 +1,14 @@
 #ifndef VDS_SLICE_DATAHANDLE_HPP
 #define VDS_SLICE_DATAHANDLE_HPP
 
-#include <functional>
 #include <OpenVDS/OpenVDS.h>
+#include <functional>
 
 #include "metadatahandle.hpp"
 #include "subcube.hpp"
 
 using voxel = float[OpenVDS::Dimensionality_Max];
-using binary_function = std::function<void(float *, const float *, std::size_t)>;
+using binary_function = std::function<void(float*, const float*, std::size_t)>;
 
 class DataHandle {
 
@@ -44,8 +44,9 @@ public:
         std::size_t const ntraces,
         enum interpolation_method const interpolation_method
     ) noexcept(false) = 0;
-};
 
+    static OpenVDS::VolumeDataFormat format() noexcept(true);
+};
 
 class SingleDataHandle : public DataHandle {
     SingleDataHandle(OpenVDS::VDSHandle handle);
@@ -53,8 +54,6 @@ class SingleDataHandle : public DataHandle {
 
 public:
     MetadataHandle const& get_metadata() const noexcept(true);
-
-    static OpenVDS::VolumeDataFormat format() noexcept(true);
 
     std::int64_t subcube_buffer_size(SubCube const& subcube) noexcept(false);
 
@@ -96,9 +95,9 @@ private:
 SingleDataHandle* make_single_datahandle(
     const char* url,
     const char* credentials
-) noexcept (false);
+) noexcept(false);
 
-class DoubleDataHandle : public DataHandle{
+class DoubleDataHandle : public DataHandle {
     DoubleDataHandle(OpenVDS::VDSHandle handle_a, OpenVDS::VDSHandle handle_b, binary_function binary_operator);
     friend DoubleDataHandle* make_double_datahandle(
         const char* url_a,
@@ -110,8 +109,6 @@ class DoubleDataHandle : public DataHandle{
 
 public:
     MetadataHandle const& get_metadata() const noexcept(true);
-
-    static OpenVDS::VolumeDataFormat format() noexcept(true);
 
     std::int64_t subcube_buffer_size(SubCube const& subcube) noexcept(false);
 
