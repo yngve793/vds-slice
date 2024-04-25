@@ -179,7 +179,7 @@ DoubleDataHandle* make_double_datahandle(
 }
 
 DoubleDataHandle::DoubleDataHandle(OpenVDS::VDSHandle handle_a, OpenVDS::VDSHandle handle_b, binary_function binary_operator)
-    : m_file_handle_a(handle_a), m_file_handle_b(handle_b), m_binary_operator(binary_operator), m_access_manager_a(OpenVDS::GetAccessManager(handle_a)), m_access_manager_b(OpenVDS::GetAccessManager(handle_b)), m_metadata_a(m_access_manager_a.GetVolumeDataLayout()), m_metadata_b(m_access_manager_b.GetVolumeDataLayout()), m_layout(DoubleVolumeDataLayout(m_access_manager_a.GetVolumeDataLayout(), m_access_manager_b.GetVolumeDataLayout())), m_metadata(DoubleMetadataHandle(&m_layout, &m_metadata_a, &m_metadata_b)) {}
+    : m_file_handle_a(handle_a), m_file_handle_b(handle_b), m_binary_operator(binary_operator), m_access_manager_a(OpenVDS::GetAccessManager(handle_a)), m_access_manager_b(OpenVDS::GetAccessManager(handle_b)), m_metadata_a(m_access_manager_a.GetVolumeDataLayout()), m_metadata_b(m_access_manager_b.GetVolumeDataLayout()), m_metadata(DoubleMetadataHandle(m_access_manager_a.GetVolumeDataLayout(), m_access_manager_b.GetVolumeDataLayout(), &m_metadata_a, &m_metadata_b)) {}
 
 MetadataHandle const& DoubleDataHandle::get_metadata() const noexcept(true) {
     return this->m_metadata;
@@ -283,17 +283,10 @@ void DoubleDataHandle::read_traces(
     std::size_t coordinate_size = OpenVDS::Dimensionality_Max * ntraces;
 
     std::vector<float> coordinates_a(coordinate_size);
+    this->m_metadata.OffsetSamplesA(coordinates, ntraces, &coordinates_a);
+
     std::vector<float> coordinates_b(coordinate_size);
-
-    memcpy(coordinates_a.data(), coordinates[0], coordinate_size * sizeof(float));
-    memcpy(coordinates_b.data(), coordinates[0], coordinate_size * sizeof(float));
-
-    for (int v = 0; v < ntraces; v++) {
-        for (int i = 0; i < this->m_layout.Dimensionality_Max; i++) {
-            coordinates_a[v * this->m_layout.Dimensionality_Max + i] += this->m_layout.GetDimensionIndexOffset_a(i);
-            coordinates_b[v * this->m_layout.Dimensionality_Max + i] += this->m_layout.GetDimensionIndexOffset_b(i);
-        }
-    }
+    this->m_metadata.OffsetSamplesB(coordinates, ntraces, &coordinates_b);
 
     std::size_t size_a = this->m_access_manager_a.GetVolumeTracesBufferSize(ntraces, sample_dimension_index);
     std::vector<float> buffer_a((std::size_t)size_a / sizeof(float));
@@ -381,17 +374,10 @@ void DoubleDataHandle::read_samples(
     std::size_t samples_size = (std::size_t)(sizeof(voxel) * nsamples / sizeof(float));
 
     std::vector<float> samples_a((std::size_t)(sizeof(voxel) * nsamples));
+    this->m_metadata.OffsetSamplesA(samples, nsamples, &samples_a);
+
     std::vector<float> samples_b((std::size_t)(sizeof(voxel) * nsamples));
-
-    memcpy(samples_a.data(), samples[0], samples_size * sizeof(float));
-    memcpy(samples_b.data(), samples[0], samples_size * sizeof(float));
-
-    for (int v = 0; v < nsamples; v++) {
-        for (int i = 0; i < this->m_layout.Dimensionality_Max; i++) {
-            samples_a[v * this->m_layout.Dimensionality_Max + i] += this->m_layout.GetDimensionIndexOffset_a(i);
-            samples_b[v * this->m_layout.Dimensionality_Max + i] += this->m_layout.GetDimensionIndexOffset_b(i);
-        }
-    }
+    this->m_metadata.OffsetSamplesB(samples, nsamples, &samples_b);
 
     auto request_a = this->m_access_manager_a.RequestVolumeSamples(
         (float*)buffer,
