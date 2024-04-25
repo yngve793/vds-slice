@@ -12,4 +12,3 @@ envsubst < /tests/performance/prometheus-template.yml > /tests/performance/prome
 prometheus --config.file=/tests/performance/prometheus.yml --web.enable-remote-write-receiver &
 
 python /tests/performance/performance.py "$1"
-
