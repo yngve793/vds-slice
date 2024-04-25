@@ -302,12 +302,12 @@ void DoubleDataHandle::read_traces(
 ) noexcept(false) {
     int const sample_dimension_index = this->get_metadata().sample().dimension();
 
-    std::size_t coordinate_size = OpenVDS::Dimensionality_Max * ntraces;
+    std::size_t coordinates_buffer_size = OpenVDS::Dimensionality_Max * ntraces;
 
-    std::vector<float> coordinates_a(coordinate_size);
+    std::vector<float> coordinates_a(coordinates_buffer_size);
     this->m_metadata.OffsetSamplesA(coordinates, ntraces, &coordinates_a);
 
-    std::vector<float> coordinates_b(coordinate_size);
+    std::vector<float> coordinates_b(coordinates_buffer_size);
     this->m_metadata.OffsetSamplesB(coordinates, ntraces, &coordinates_b);
 
     std::size_t size_a = this->m_access_manager_a.GetVolumeTracesBufferSize(ntraces, sample_dimension_index);
