@@ -9,7 +9,6 @@
 #include "axis.hpp"
 #include "boundingbox.hpp"
 #include "datahandle.hpp"
-#include "datasource.hpp"
 #include "direction.hpp"
 #include "metadatahandle.hpp"
 
@@ -134,13 +133,13 @@ nlohmann::json json_slice_geospatial(
 namespace cppapi {
 
 void slice_metadata(
-    DataSource& datasource,
+    DataHandle& datahandle,
     Direction const direction,
     int lineno,
     std::vector<Bound> const& slicebounds,
     response* out
 ) {
-    MetadataHandle const& metadata = datasource.get_metadata();
+    MetadataHandle const& metadata = datahandle.get_metadata();
     auto const& axis = metadata.get_axis(direction);
 
     nlohmann::json meta;
@@ -187,11 +186,11 @@ void slice_metadata(
 }
 
 void fence_metadata(
-    DataSource& datasource,
+    DataHandle& datahandle,
     size_t npoints,
     response* out
 ) {
-    MetadataHandle const& metadata = datasource.get_metadata();
+    MetadataHandle const& metadata = datahandle.get_metadata();
 
     nlohmann::json meta;
     Axis const& sample_axis = metadata.sample();
@@ -201,8 +200,8 @@ void fence_metadata(
     return to_response(meta, out);
 }
 
-void metadata(DataSource& datasource, response* out) {
-    MetadataHandle const& metadata = datasource.get_metadata();
+void metadata(DataHandle& datahandle, response* out) {
+    MetadataHandle const& metadata = datahandle.get_metadata();
 
     nlohmann::json meta;
 
@@ -230,7 +229,7 @@ void metadata(DataSource& datasource, response* out) {
 }
 
 void attributes_metadata(
-    DataSource& datasource,
+    DataHandle& datahandle,
     std::size_t nrows,
     std::size_t ncols,
     response* out
