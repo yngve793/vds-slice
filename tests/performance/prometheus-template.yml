@@ -20,4 +20,3 @@ remote_write:
 
   metadata_config:
     send_interval: "${K6_PROMETHEUS_RW_PUSH_INTERVAL}"
-
