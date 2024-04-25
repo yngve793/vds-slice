@@ -2,7 +2,7 @@
 
 Return traces along an arbitrary path of x,y coordinates, for example along a
 wellbore. Coordinates can be specified in various coordinate systems, and
-multiple interpolation methods are available. 
+multiple interpolation methods are available.
 
 ## Response
 On success (200) the multipart/mixed response consists of two parts, metadata
