@@ -1,8 +1,8 @@
 #ifndef VDS_SLICE_ATTRIBUTE_HPP
 #define VDS_SLICE_ATTRIBUTE_HPP
 
-#include "regularsurface.hpp"
-#include "subvolume.hpp"
+#include "regularsurface.hpp" // IWYU pragma: keep
+#include "subvolume.hpp"      // IWYU pragma: keep
 #include <memory>
 #include <stdexcept>
 

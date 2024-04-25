@@ -1,11 +1,11 @@
 #ifndef VDS_SLICE_SUBCUBE_HPP
 #define VDS_SLICE_SUBCUBE_HPP
 
-#include <OpenVDS/OpenVDS.h>
+#include <OpenVDS/OpenVDS.h> // IWYU pragma: keep
 
-#include "axis.hpp"
+#include "axis.hpp" // IWYU pragma: keep
 #include "ctypes.h"
-#include "metadatahandle.hpp"
+#include "metadatahandle.hpp" // IWYU pragma: keep
 
 struct SubCube {
     struct {

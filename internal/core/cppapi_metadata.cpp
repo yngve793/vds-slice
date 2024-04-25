@@ -11,7 +11,6 @@
 #include "datahandle.hpp"
 #include "datasource.hpp"
 #include "direction.hpp"
-#include "exceptions.hpp"
 #include "metadatahandle.hpp"
 
 namespace {

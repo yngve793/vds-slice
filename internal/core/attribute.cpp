@@ -1,14 +1,11 @@
 #include <algorithm>
 #include <cmath>
 #include <cstring>
-#include <functional>
 #include <memory>
 #include <numeric>
-#include <stdexcept>
 #include <vector>
 
 #include "attribute.hpp"
-#include "regularsurface.hpp"
 
 float Value::compute(
     ResampledSegment const& segment
