@@ -179,7 +179,7 @@ DoubleDataHandle* make_double_datahandle(
 }
 
 DoubleDataHandle::DoubleDataHandle(OpenVDS::VDSHandle handle_a, OpenVDS::VDSHandle handle_b, binary_function binary_operator)
-    : m_file_handle_a(handle_a), m_file_handle_b(handle_b), m_binary_operator(binary_operator), m_access_manager_a(OpenVDS::GetAccessManager(handle_a)), m_access_manager_b(OpenVDS::GetAccessManager(handle_b)), m_metadata_a(m_access_manager_a.GetVolumeDataLayout()), m_metadata_b(m_access_manager_b.GetVolumeDataLayout()), m_layout(DoubleVolumeDataLayout(m_access_manager_a.GetVolumeDataLayout(), m_access_manager_b.GetVolumeDataLayout())), m_metadata(DoubleMetadataHandle(&m_layout)) {}
+    : m_file_handle_a(handle_a), m_file_handle_b(handle_b), m_binary_operator(binary_operator), m_access_manager_a(OpenVDS::GetAccessManager(handle_a)), m_access_manager_b(OpenVDS::GetAccessManager(handle_b)), m_metadata_a(m_access_manager_a.GetVolumeDataLayout()), m_metadata_b(m_access_manager_b.GetVolumeDataLayout()), m_layout(DoubleVolumeDataLayout(m_access_manager_a.GetVolumeDataLayout(), m_access_manager_b.GetVolumeDataLayout())), m_metadata(DoubleMetadataHandle(&m_layout, &m_metadata_a, &m_metadata_b)) {}
 
 MetadataHandle const& DoubleDataHandle::get_metadata() const noexcept(true) {
     return this->m_metadata;
