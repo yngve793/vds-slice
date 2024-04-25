@@ -366,16 +366,14 @@ void DoubleDataHandle::extract_part_of_trace(
     int counter = 0;
     int const sample_dimension_index = this->get_metadata().sample().dimension();
     int const nsamples_in_intersection = this->get_metadata().sample().nsamples();
-    for (int i = 0; i < source_traces->size(); i++) {
-        int index_current_trace = i % source_trace_length;
 
-        if (
-            index_current_trace >= (*coordinates)[sample_dimension_index] &&
-            index_current_trace < (*coordinates)[sample_dimension_index] + nsamples_in_intersection
-        ) {
-            target_buffer[counter] = (*source_traces)[i];
-            counter++;
-        }
+    auto min_intersection_sample_index = (long)((*coordinates)[sample_dimension_index] + 0.5f);
+
+    int ntraces = source_traces->size() / source_trace_length;
+    for (int i = 0; i < ntraces; ++i) {
+        float* src_trace = source_traces->data() + i * source_trace_length;
+        float* dst_trace = target_buffer + i * nsamples_in_intersection;
+        std::memcpy(dst_trace, src_trace + min_intersection_sample_index, nsamples_in_intersection * sizeof(float));
     }
 }
 
