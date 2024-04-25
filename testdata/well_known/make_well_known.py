@@ -2,6 +2,7 @@ import segyio
 import numpy as np
 import sys
 
+
 def create_defined(path):
     """ Create file with simple constant data.
     | xlines-ilines | 1                  | 3                  | 5                  |
@@ -25,7 +26,7 @@ def create_defined(path):
 
     # We use scaling constant of -10, meaning that values will be divided by 10
     il_step_x = int(3 * 10)
-    il_step_y = int(2* 10)
+    il_step_y = int(2 * 10)
     xl_step_x = int(-2 * 10)
     xl_step_y = int(3 * 10)
     ori_x = int(2 * 10)

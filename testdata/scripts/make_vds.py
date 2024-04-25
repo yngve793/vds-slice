@@ -9,10 +9,10 @@ import typing
 class Config:
     class Axis:
         def __init__(self, size, min, max, name, units):
-            self.size  = size
-            self.min   = min
-            self.max   = max
-            self.name  = name
+            self.size = size
+            self.min = min
+            self.max = max
+            self.name = name
             self.units = units
 
         @classmethod
@@ -63,9 +63,9 @@ class Config:
 
     class CDP:
         def __init__(self, vds_origin, inline_spacing, xline_spacing):
-            self.vds_origin     = vds_origin
+            self.vds_origin = vds_origin
             self.inline_spacing = inline_spacing
-            self.xline_spacing  = xline_spacing
+            self.xline_spacing = xline_spacing
 
         @classmethod
         def from_segy(cls, segy: segyio.SegyFile):
@@ -112,7 +112,8 @@ class Config:
                 / ildiff,
             )
 
-            segy_origin = [origin_header[cdp_x] / scaler, origin_header[cdp_y] / scaler]
+            segy_origin = [origin_header[cdp_x] /
+                           scaler, origin_header[cdp_y] / scaler]
 
             # Calculating the VDS origin point from SEGY origin and inlines and xlines spacing
             ilines_untill_0 = segy.ilines[0]
@@ -120,11 +121,13 @@ class Config:
 
             vds_origin = segy_origin
             while ilines_untill_0:  # moving in inline direction toward the origin
-                vds_origin = [x - y for x, y in zip(vds_origin, ilines_spacing)]
+                vds_origin = [x - y for x,
+                              y in zip(vds_origin, ilines_spacing)]
                 ilines_untill_0 = ilines_untill_0 - 1
 
             while xlines_untill_0:  # moving in xline direction toward the origin
-                vds_origin = [x - y for x, y in zip(vds_origin, xlines_spacing)]
+                vds_origin = [x - y for x,
+                              y in zip(vds_origin, xlines_spacing)]
                 xlines_untill_0 = xlines_untill_0 - 1
 
             return cls(vds_origin, ilines_spacing, xlines_spacing)
@@ -138,10 +141,10 @@ class Config:
             input_timestamp=datetime.datetime.now().isoformat(),
             import_timestamp=datetime.datetime.now().isoformat(),
         ):
-            self.file_name        = file_name
-            self.display_name     = display_name
-            self.input_file_size  = input_file_size
-            self.input_timestamp  = input_timestamp
+            self.file_name = file_name
+            self.display_name = display_name
+            self.input_file_size = input_file_size
+            self.input_timestamp = input_timestamp
             self.import_timestamp = import_timestamp
 
         @classmethod
@@ -162,7 +165,7 @@ class Config:
         import_info: ImportInfo = ImportInfo("unknown", "UFO", "666"),
     ):
         self.axes = axes
-        self.cdp  = cdp
+        self.cdp = cdp
         self.data = data
         self.import_info = import_info
 
@@ -291,7 +294,8 @@ def create_vds(vds_filename: str, config: Config) -> None:
         page = accessor.createPage(c)
         buf = np.array(page.getWritableBuffer(), copy=False)
         (min, max) = page.getMinMax()
-        buf[:, :, :] = config.data[min[2] : max[2], min[1] : max[1], min[0] : max[0]]
+        buf[:, :, :] = config.data[min[2]: max[2],
+                                   min[1]: max[1], min[0]: max[0]]
 
         page.release()
 

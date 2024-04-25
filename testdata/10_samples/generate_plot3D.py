@@ -21,7 +21,7 @@ class Coordinate:
 
     def __str__(self, depth_value=None) -> str:
         if depth_value:
-            return f"({round(self.x, 2)}, {round(self.y, 2)}, {round(depth_value,2)})"
+            return f"({round(self.x, 2)}, {round(self.y, 2)}, {round(depth_value, 2)})"
         return f"({round(self.x, 2)}, {round(self.y, 2)})"
 
 
