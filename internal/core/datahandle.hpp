@@ -1,9 +1,6 @@
 #ifndef VDS_SLICE_DATAHANDLE_HPP
 #define VDS_SLICE_DATAHANDLE_HPP
 
-#include <memory>
-#include <string>
-
 #include <OpenVDS/OpenVDS.h>
 
 #include "metadatahandle.hpp"

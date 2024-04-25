@@ -2,7 +2,6 @@
 
 #include <stdexcept>
 
-#include <OpenVDS/KnownMetadata.h>
 #include <OpenVDS/OpenVDS.h>
 
 #include "metadatahandle.hpp"
