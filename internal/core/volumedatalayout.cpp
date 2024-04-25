@@ -156,13 +156,13 @@ float DoubleVolumeDataLayout::GetDimensionMax(int dimension) const {
 /// @brief Get the offset to (A \cap B) for cube A in given dimension
 /// @param dimension The provided dimension
 /// @return Calculated offset
-int DoubleVolumeDataLayout::GetDimensionIndexOffset_a(int dimension) const {
+uint DoubleVolumeDataLayout::GetDimensionIndexOffset_a(int dimension) const {
     return m_dimensionIndexOffset_a[dimension];
 }
 
 /// @brief Get the offset to (A \cap B) for cube B in given dimension
 /// @param dimension The provided dimension
 /// @return Calculated offset
-int DoubleVolumeDataLayout::GetDimensionIndexOffset_b(int dimension) const {
+uint DoubleVolumeDataLayout::GetDimensionIndexOffset_b(int dimension) const {
     return m_dimensionIndexOffset_b[dimension];
 }
