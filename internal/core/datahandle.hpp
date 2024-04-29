@@ -8,7 +8,6 @@
 #include "subcube.hpp"
 
 using voxel = float[OpenVDS::Dimensionality_Max];
-using binary_function = std::function<void(float*, const float*, std::size_t)>;
 
 class DataHandle {
 
@@ -98,16 +97,17 @@ SingleDataHandle* make_single_datahandle(
 ) noexcept(false);
 
 class DoubleDataHandle : public DataHandle {
-    DoubleDataHandle(OpenVDS::VDSHandle handle_a, OpenVDS::VDSHandle handle_b, binary_function binary_operator);
+
+public:
+    DoubleDataHandle(OpenVDS::VDSHandle handle_a, OpenVDS::VDSHandle handle_b, enum binary_operator binary_symbol);
     friend DoubleDataHandle* make_double_datahandle(
         const char* url_a,
         const char* credentials_a,
         const char* url_b,
         const char* credentials_b,
-        binary_function binary_operator
+        enum binary_operator binary_symbol
     );
 
-public:
     MetadataHandle const& get_metadata() const noexcept(true);
 
     std::int64_t subcube_buffer_size(SubCube const& subcube) noexcept(false);
@@ -146,7 +146,8 @@ private:
     DoubleMetadataHandle m_metadata;
     SingleMetadataHandle m_metadata_a;
     SingleMetadataHandle m_metadata_b;
-    binary_function m_binary_operator;
+    std::function<void(float*, const float*, std::size_t)> m_binary_operator;
+    enum binary_operator m_binary_symbol;
 
     static int constexpr lod_level = 0;
     static int constexpr channel = 0;
@@ -163,7 +164,7 @@ private:
 DoubleDataHandle* make_double_datahandle(
     const char* url_a, const char* credentials_a,
     const char* url_b, const char* credentials_b,
-    binary_function binary_operator
+    enum binary_operator bin_operator
 ) noexcept(false);
 
 void inplace_subtraction(
