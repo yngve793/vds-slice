@@ -63,7 +63,7 @@ type RequestedResource struct {
 
 	// When a singe blob URL and sas token pair is provided the binary_operator-key must be undefined or be the empty string("").
 	// If two pairs are provided the binary_operator-key defines how the two data sets are combined into a new virtual data set.
-	// Provided VDS A, VDS B and the binary_operator-key "subtraction" the request returns data from data set (A - B) in the intersection (A \cap B).
+	// Provided VDS A, VDS B and the binary_operator-key "subtraction" the request returns data from data set (A - B) in the intersection (A ∩ B).
 	// Valid options are: "addition", "subtraction", "multiplication", "division" and empty string ("").
 	//
 	// Note that there are some restrictions when applying a binary operation on two cubes.

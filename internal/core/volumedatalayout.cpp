@@ -153,14 +153,14 @@ float DoubleVolumeDataLayout::GetDimensionMax(int dimension) const {
     return m_dimensionCoordinateMax[dimension];
 }
 
-/// @brief Get the offset to (A \cap B) for cube A in given dimension
+/// @brief Get the offset to (A ∩ B) for cube A in given dimension
 /// @param dimension The provided dimension
 /// @return Calculated offset
 uint DoubleVolumeDataLayout::GetDimensionIndexOffset_a(int dimension) const {
     return m_dimensionIndexOffset_a[dimension];
 }
 
-/// @brief Get the offset to (A \cap B) for cube B in given dimension
+/// @brief Get the offset to (A ∩ B) for cube B in given dimension
 /// @param dimension The provided dimension
 /// @return Calculated offset
 uint DoubleVolumeDataLayout::GetDimensionIndexOffset_b(int dimension) const {
