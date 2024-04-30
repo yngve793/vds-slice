@@ -305,10 +305,10 @@ void DoubleDataHandle::read_traces(
     std::size_t coordinates_buffer_size = OpenVDS::Dimensionality_Max * ntraces;
 
     std::vector<float> coordinates_a(coordinates_buffer_size);
-    this->m_metadata.OffsetSamplesA(coordinates, ntraces, &coordinates_a);
+    this->m_metadata.offset_samples_to_match_cube_a(coordinates, ntraces, &coordinates_a);
 
     std::vector<float> coordinates_b(coordinates_buffer_size);
-    this->m_metadata.OffsetSamplesB(coordinates, ntraces, &coordinates_b);
+    this->m_metadata.offset_samples_to_match_cube_b(coordinates, ntraces, &coordinates_b);
 
     std::size_t size_a = this->m_access_manager_a.GetVolumeTracesBufferSize(ntraces, sample_dimension_index);
     std::vector<float> buffer_a((std::size_t)size_a / sizeof(float));
@@ -397,10 +397,10 @@ void DoubleDataHandle::read_samples(
     std::size_t samples_size = (std::size_t)(sizeof(voxel) * nsamples / sizeof(float));
 
     std::vector<float> samples_a((std::size_t)(sizeof(voxel) * nsamples));
-    this->m_metadata.OffsetSamplesA(samples, nsamples, &samples_a);
+    this->m_metadata.offset_samples_to_match_cube_a(samples, nsamples, &samples_a);
 
     std::vector<float> samples_b((std::size_t)(sizeof(voxel) * nsamples));
-    this->m_metadata.OffsetSamplesB(samples, nsamples, &samples_b);
+    this->m_metadata.offset_samples_to_match_cube_b(samples, nsamples, &samples_b);
 
     auto request_a = this->m_access_manager_a.RequestVolumeSamples(
         (float*)buffer,
