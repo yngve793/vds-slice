@@ -137,6 +137,7 @@ TEST_F(DatahandleFenceTest, Fence_INDEX_Single) {
 
     struct response response_data;
     const std::vector<float> coordinates{0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7};
+    const std::vector<float> check_coordinates{0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7};
 
     cppapi::fence(
         *single_datahandle,
@@ -150,7 +151,7 @@ TEST_F(DatahandleFenceTest, Fence_INDEX_Single) {
 
     int low = 0;
     int high = 32;
-    check_fence(response_data, coordinates, low, high, 1, false);
+    check_fence(response_data, check_coordinates, low, high, 1, false);
 }
 
 TEST_F(DatahandleFenceTest, Fence_INDEX_Double) {
@@ -178,6 +179,7 @@ TEST_F(DatahandleFenceTest, Fence_INDEX_Fill_Single) {
 
     struct response response_data;
     const std::vector<float> coordinates{-1, -1, 8, 8};
+    const std::vector<float> check_coordinates{-1, -1, 8, 8};
 
     cppapi::fence(
         *single_datahandle,
@@ -191,13 +193,14 @@ TEST_F(DatahandleFenceTest, Fence_INDEX_Fill_Single) {
 
     int low = 0;
     int high = 32;
-    check_fence(response_data, coordinates, low, high, 1, true);
+    check_fence(response_data, check_coordinates, low, high, 1, true);
 }
 
 TEST_F(DatahandleFenceTest, Fence_INDEX_Fill_Double) {
 
     struct response response_data;
     const std::vector<float> coordinates{-1, -1, 4, 4};
+    const std::vector<float> check_coordinates{-1, -1, 4, 4};
 
     cppapi::fence(
         *double_datahandle,
@@ -211,7 +214,7 @@ TEST_F(DatahandleFenceTest, Fence_INDEX_Fill_Double) {
 
     int low = 4;
     int high = 32;
-    check_fence(response_data, coordinates, low, high, 1, true);
+    check_fence(response_data, check_coordinates, low, high, 1, true);
 }
 
 TEST_F(DatahandleFenceTest, Fence_INDEX_out_Of_Bounds_Single) {
@@ -300,6 +303,7 @@ TEST_F(DatahandleFenceTest, Fence_ANNOTATION_Fill_Single) {
 
     struct response response_data;
     const std::vector<float> coordinates{0, 0, 27, 18};
+    const std::vector<float> check_coordinates{0, 0, 8, 8};
 
     cppapi::fence(
         *single_datahandle,
@@ -313,13 +317,14 @@ TEST_F(DatahandleFenceTest, Fence_ANNOTATION_Fill_Single) {
 
     int low = 0;
     int high = 32;
-    check_fence(response_data, coordinates, low, high, 1, true);
+    check_fence(response_data, check_coordinates, low, high, 1, true);
 }
 
 TEST_F(DatahandleFenceTest, Fence_ANNOTATION_Fill_Double) {
 
     struct response response_data;
-    const std::vector<float> coordinates{-1, -1, 4, 4};
+    const std::vector<float> coordinates{12, 8, 27, 18};
+    const std::vector<float> check_coordinates{-1, -1, 4, 4};
 
     cppapi::fence(
         *double_datahandle,
@@ -333,7 +338,7 @@ TEST_F(DatahandleFenceTest, Fence_ANNOTATION_Fill_Double) {
 
     int low = 4;
     int high = 32;
-    check_fence(response_data, coordinates, low, high, 1, true);
+    check_fence(response_data, check_coordinates, low, high, 1, true);
 }
 
 TEST_F(DatahandleFenceTest, Fence_ANNOTATION_out_Of_Bounds_Single) {
@@ -422,6 +427,7 @@ TEST_F(DatahandleFenceTest, Fence_CDP_Fill_Single) {
 
     struct response response_data;
     const std::vector<float> coordinates{-3, -12, 42, 96};
+    const std::vector<float> check_coordinates{-1, -1, 8, 8};
 
     cppapi::fence(
         *single_datahandle,
@@ -435,13 +441,14 @@ TEST_F(DatahandleFenceTest, Fence_CDP_Fill_Single) {
 
     int low = 0;
     int high = 32;
-    check_fence(response_data, coordinates, low, high, 1, true);
+    check_fence(response_data, check_coordinates, low, high, 1, true);
 }
 
 TEST_F(DatahandleFenceTest, Fence_CDP_Fill_Double) {
 
     struct response response_data;
     const std::vector<float> coordinates{17, 36, 42, 96};
+    const std::vector<float> check_coordinates{-1, -1, 8, 8};
 
     cppapi::fence(
         *double_datahandle,
@@ -455,7 +462,7 @@ TEST_F(DatahandleFenceTest, Fence_CDP_Fill_Double) {
 
     int low = 4;
     int high = 32;
-    check_fence(response_data, coordinates, low, high, 1, true);
+    check_fence(response_data, check_coordinates, low, high, 1, true);
 }
 
 TEST_F(DatahandleFenceTest, Fence_CDP_out_Of_Bounds_Single) {
