@@ -104,10 +104,11 @@ public:
         EXPECT_EQ(nr_of_values, (high[0] - low[0]) * (high[1] - low[1]) * (high[2] - low[2]));
 
         int counter = 0;
+        auto response_samples = (float*)response_data.data;
         for (int il = low[0]; il < high[0]; ++il) {
             for (int xl = low[1]; xl < high[1]; ++xl) {
                 for (int s = low[2]; s < high[2]; s++) {
-                    int value = int(*(float*)&response_data.data[counter * sizeof(float)] / factor) + 0.5f;
+                    int value = std::lround(response_samples[counter] / factor);
                     int sample = value & 0xFF;
                     int xline = value & 0xFF00;
                     int iline = value & 0xFF0000;
