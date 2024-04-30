@@ -225,29 +225,28 @@ std::int64_t DoubleDataHandle::subcube_buffer_size(
     return size;
 }
 
-/// @brief Shift coordinates the provided subcube to match the intersection with the single cube x.
-/// @param subcube Subcube contains vectors lower and upper of length 6. Lower defines start index
-/// for each of the 6 dimensions while upper defines end index for the intersection of cube_a and cube_b.
-/// @param SingleMetadataHandle Metadata for cube_x (one of the intersecting cubes)
-/// @return subcube data in coordinate system of cube_x
-SubCube DoubleDataHandle::offset_bounds(const SubCube subcube, SingleMetadataHandle metadata_cube_x) {
+/// @brief Copy and shift the coordinates in the provided subcube to describe it in cube X coordinates.
+/// @param subcube_intersect_AB Subcube is defined by (A ∩ B) for cubes A and B. Only the first three axis are currently used.
+/// @param metadata_cube_X Metadata for cube X where X ∈ {A, B}.
+/// @return Subcube (A ∩ B) defined in the coordinates of cube X.
+SubCube DoubleDataHandle::offset_bounds(const SubCube subcube_intersect_AB, SingleMetadataHandle metadata_cube_X) {
 
     // Create a copy
-    SubCube new_subcube = std::move(subcube);
+    SubCube subcube_in_X_coordinates = std::move(subcube_intersect_AB);
 
     // Calculate the number of steps to offset the subcube in the three dimensions.
-    float iline_offset = (m_metadata.iline().min() - metadata_cube_x.iline().min()) / m_metadata.iline().stepsize();
-    float xline_offset = (m_metadata.xline().min() - metadata_cube_x.xline().min()) / m_metadata.xline().stepsize();
-    float sample_offset = (m_metadata.sample().min() - metadata_cube_x.sample().min()) / m_metadata.sample().stepsize();
+    float iline_offset = (m_metadata.iline().min() - metadata_cube_X.iline().min()) / m_metadata.iline().stepsize();
+    float xline_offset = (m_metadata.xline().min() - metadata_cube_X.xline().min()) / m_metadata.xline().stepsize();
+    float sample_offset = (m_metadata.sample().min() - metadata_cube_X.sample().min()) / m_metadata.sample().stepsize();
 
-    new_subcube.bounds.lower[m_metadata.iline().dimension()] += iline_offset;
-    new_subcube.bounds.lower[m_metadata.xline().dimension()] += xline_offset;
-    new_subcube.bounds.lower[m_metadata.sample().dimension()] += sample_offset;
+    subcube_in_X_coordinates.bounds.lower[m_metadata.iline().dimension()] += iline_offset;
+    subcube_in_X_coordinates.bounds.lower[m_metadata.xline().dimension()] += xline_offset;
+    subcube_in_X_coordinates.bounds.lower[m_metadata.sample().dimension()] += sample_offset;
 
-    new_subcube.bounds.upper[m_metadata.iline().dimension()] += iline_offset;
-    new_subcube.bounds.upper[m_metadata.xline().dimension()] += xline_offset;
-    new_subcube.bounds.upper[m_metadata.sample().dimension()] += sample_offset;
-    return new_subcube;
+    subcube_in_X_coordinates.bounds.upper[m_metadata.iline().dimension()] += iline_offset;
+    subcube_in_X_coordinates.bounds.upper[m_metadata.xline().dimension()] += xline_offset;
+    subcube_in_X_coordinates.bounds.upper[m_metadata.sample().dimension()] += sample_offset;
+    return subcube_in_X_coordinates;
 }
 
 void DoubleDataHandle::read_subcube(
@@ -349,9 +348,9 @@ void DoubleDataHandle::read_traces(
         throw std::runtime_error("Failed to read from VDS.");
     }
 
-    // Function read_traces calls extract whole traces out of corresponding files.
-    //  However it could happen that data files are not fully aligned in their sample dimensions.
-    //  That creates a need to extract from each trace data that make up the intersection.
+    // Function read_traces extract whole traces out of corresponding files.
+    // However it could happen that data files are not fully aligned in their sample dimensions.
+    // That creates a need to extract from each trace data that make up the intersection.
     float* floatBuffer = (float*)buffer;
     this->extract_part_of_trace(&coordinates_a, &buffer_a, this->m_metadata_a.sample().nsamples(), floatBuffer);
 
