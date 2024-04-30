@@ -96,22 +96,22 @@ public:
     /// @brief Check result from fence request
     /// @param response_data Result from request
     /// @param coordinates Provided coordinates (index based)
-    /// @param low Low limit on axis for expected data
-    /// @param high High limit on axis for expected data
+    /// @param low Low limit on sample axis for expected data
+    /// @param high High limit on sample axis for expected data
     /// @param factor multiplicative factor
     /// @param fill_flag True if fill value is expected
-    void check_fence(struct response response_data, std::vector<float> coordinates, int low[], int high[], float factor, bool fill_flag) {
+    void check_fence(struct response response_data, std::vector<float> coordinates, int low, int high, float factor, bool fill_flag) {
         std::size_t nr_of_values = (std::size_t)(response_data.size / sizeof(float));
         std::size_t nr_of_traces = (std::size_t)(coordinates.size() / 2);
 
-        EXPECT_EQ(nr_of_values, nr_of_traces * (high[2] - low[2]));
+        EXPECT_EQ(nr_of_values, nr_of_traces * (high - low));
 
         int counter = 0;
         float* response = (float*)response_data.data;
         for (int t = 0; t < nr_of_traces; t++) {
             int ic = coordinates[2 * t];
             int xc = coordinates[(2 * t) + 1];
-            for (int s = low[2]; s < high[2]; ++s) {
+            for (int s = low; s < high; ++s) {
                 float value = response[counter];
                 if (!fill_flag) {
                     int intValue = int((value / factor) + 0.5f);
@@ -148,8 +148,8 @@ TEST_F(DatahandleFenceTest, Fence_INDEX_Single) {
         &response_data
     );
 
-    int low[3] = {0, 0, 0};
-    int high[3] = {8, 8, 32};
+    int low = 0;
+    int high = 32;
     check_fence(response_data, coordinates, low, high, 1, false);
 }
 
@@ -169,8 +169,8 @@ TEST_F(DatahandleFenceTest, Fence_INDEX_Double) {
         &response_data
     );
 
-    int low[3] = {4, 4, 4};
-    int high[3] = {8, 8, 32};
+    int low = 4;
+    int high = 32;
     check_fence(response_data, check_coordinates, low, high, 2, false);
 }
 
@@ -189,8 +189,8 @@ TEST_F(DatahandleFenceTest, Fence_INDEX_Fill_Single) {
         &response_data
     );
 
-    int low[3] = {0, 0, 0};
-    int high[3] = {2, 2, 32};
+    int low = 0;
+    int high = 32;
     check_fence(response_data, coordinates, low, high, 1, true);
 }
 
@@ -209,8 +209,8 @@ TEST_F(DatahandleFenceTest, Fence_INDEX_Fill_Double) {
         &response_data
     );
 
-    int low[3] = {0, 0, 4};
-    int high[3] = {2, 2, 32};
+    int low = 4;
+    int high = 32;
     check_fence(response_data, coordinates, low, high, 1, true);
 }
 
@@ -270,8 +270,8 @@ TEST_F(DatahandleFenceTest, Fence_ANNOTATION_Single) {
         &response_data
     );
 
-    int low[3] = {0, 0, 0};
-    int high[3] = {8, 8, 32};
+    int low = 0;
+    int high = 32;
     check_fence(response_data, check_coordinates, low, high, 1, false);
 }
 
@@ -291,8 +291,8 @@ TEST_F(DatahandleFenceTest, Fence_ANNOTATION_Double) {
         &response_data
     );
 
-    int low[3] = {4, 4, 4};
-    int high[3] = {8, 8, 32};
+    int low = 4;
+    int high = 32;
     check_fence(response_data, check_coordinates, low, high, 2, false);
 }
 
@@ -311,8 +311,8 @@ TEST_F(DatahandleFenceTest, Fence_ANNOTATION_Fill_Single) {
         &response_data
     );
 
-    int low[3] = {0, 0, 0};
-    int high[3] = {2, 2, 32};
+    int low = 0;
+    int high = 32;
     check_fence(response_data, coordinates, low, high, 1, true);
 }
 
@@ -331,8 +331,8 @@ TEST_F(DatahandleFenceTest, Fence_ANNOTATION_Fill_Double) {
         &response_data
     );
 
-    int low[3] = {0, 0, 4};
-    int high[3] = {2, 2, 32};
+    int low = 4;
+    int high = 32;
     check_fence(response_data, coordinates, low, high, 1, true);
 }
 
@@ -392,8 +392,8 @@ TEST_F(DatahandleFenceTest, Fence_CDP_Single) {
         &response_data
     );
 
-    int low[3] = {0, 0, 0};
-    int high[3] = {8, 8, 32};
+    int low = 0;
+    int high = 32;
     check_fence(response_data, check_coordinates, low, high, 1, false);
 }
 
@@ -413,8 +413,8 @@ TEST_F(DatahandleFenceTest, Fence_CDP_Double) {
         &response_data
     );
 
-    int low[3] = {4, 4, 4};
-    int high[3] = {8, 8, 32};
+    int low = 4;
+    int high = 32;
     check_fence(response_data, check_coordinates, low, high, 2, false);
 }
 
@@ -433,8 +433,8 @@ TEST_F(DatahandleFenceTest, Fence_CDP_Fill_Single) {
         &response_data
     );
 
-    int low[3] = {0, 0, 0};
-    int high[3] = {2, 2, 32};
+    int low = 0;
+    int high = 32;
     check_fence(response_data, coordinates, low, high, 1, true);
 }
 
@@ -453,8 +453,8 @@ TEST_F(DatahandleFenceTest, Fence_CDP_Fill_Double) {
         &response_data
     );
 
-    int low[3] = {0, 0, 4};
-    int high[3] = {2, 2, 32};
+    int low = 4;
+    int high = 32;
     check_fence(response_data, coordinates, low, high, 1, true);
 }
 
@@ -515,8 +515,8 @@ TEST_F(DatahandleFenceTest, Fence_INDEX_Reverse_Double) {
         &response_data
     );
 
-    int low[3] = {4, 4, 4};
-    int high[3] = {8, 8, 32};
+    int low = 4;
+    int high = 32;
     check_fence(response_data, check_coordinates, low, high, 2, false);
 }
 
@@ -555,8 +555,8 @@ TEST_F(DatahandleFenceTest, Fence_INDEX_Different_Size_Double) {
         &response_data
     );
 
-    int low[3] = {4, 4, 8};
-    int high[3] = {8, 8, 36};
+    int low = 8;
+    int high = 36;
     check_fence(response_data, check_coordinates, low, high, 2, false);
 }
 
