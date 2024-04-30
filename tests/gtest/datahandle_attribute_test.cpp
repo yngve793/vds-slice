@@ -11,6 +11,11 @@
 #include "gtest/gtest.h"
 
 namespace {
+
+/// Each value in the test files has the positional information encoded in little-endian.
+/// Byte 0: Sample position
+/// Byte 1: CrossLine position
+/// Byte 2: InLine position
 const std::string REGULAR_DATA = "file://regular_8x3_cube.vds";
 const std::string SHIFT_4_DATA = "file://shift_4_8x3_cube.vds";
 const std::string SHIFT_8_BIG_DATA = "file://big_shift_8_32x3_cube.vds";
