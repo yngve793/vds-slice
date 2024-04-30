@@ -201,6 +201,10 @@ DoubleDataHandle::DoubleDataHandle(OpenVDS::VDSHandle handle_a, OpenVDS::VDSHand
         this->m_binary_operator = &inplace_division;
     else
         throw detail::bad_request("Invalid binary_operator string");
+
+    if (this->m_metadata_a.crs().compare(this->m_metadata_b.crs()) != 0) {
+        throw detail::bad_request("Coordinate reference system (CRS) mismatch: " + this->m_metadata_a.crs() + " versus " + this->m_metadata_b.crs());
+    }
 }
 
 MetadataHandle const& DoubleDataHandle::get_metadata() const noexcept(true) {
