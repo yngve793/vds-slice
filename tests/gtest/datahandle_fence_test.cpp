@@ -102,11 +102,12 @@ public:
         EXPECT_EQ(nr_of_values, nr_of_traces * (high[2] - low[2]));
 
         int counter = 0;
+        float* response = (float*)response_data.data;
         for (int t = 0; t < nr_of_traces; t++) {
             int ic = coordinates[2 * t];
             int xc = coordinates[(2 * t) + 1];
             for (int s = low[2]; s < high[2]; ++s) {
-                float value = *(float*)&response_data.data[counter * sizeof(float)];
+                float value = response[counter];
                 if (!fill_flag) {
                     int intValue = int((value / factor) + 0.5f);
                     int sample = intValue & 0xFF;            // Bits 0-7
