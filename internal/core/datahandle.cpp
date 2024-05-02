@@ -280,13 +280,13 @@ void DoubleDataHandle::read_traces(
 ) noexcept(false) {
     int const sample_dimension_index = this->get_metadata().sample().dimension();
 
-    std::size_t coordinate_size = OpenVDS::Dimensionality_Max * ntraces;
+    std::size_t coordinates_buffer_size = OpenVDS::Dimensionality_Max * ntraces;
 
-    std::vector<float> coordinates_a(coordinate_size);
-    std::vector<float> coordinates_b(coordinate_size);
+    std::vector<float> coordinates_a(coordinates_buffer_size);
+    std::vector<float> coordinates_b(coordinates_buffer_size);
 
-    memcpy(coordinates_a.data(), coordinates[0], coordinate_size * sizeof(float));
-    memcpy(coordinates_b.data(), coordinates[0], coordinate_size * sizeof(float));
+    memcpy(coordinates_a.data(), coordinates[0], coordinates_buffer_size * sizeof(float));
+    memcpy(coordinates_b.data(), coordinates[0], coordinates_buffer_size * sizeof(float));
 
     for (int v = 0; v < ntraces; v++) {
         for (int i = 0; i < this->m_layout.Dimensionality_Max; i++) {
