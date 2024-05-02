@@ -182,7 +182,7 @@ int DoubleMetadataHandle::get_dimension(std::vector<std::string> const& names) c
     );
 }
 
-void DoubleMetadataHandle::OffsetSamplesA(voxel const* samples, std::size_t const nsamples, std::vector<float>* samples_a) noexcept(true) {
+void DoubleMetadataHandle::offset_samples_to_match_cube_a(voxel const* samples, std::size_t const nsamples, std::vector<float>* samples_a) noexcept(true) {
 
     for (int v = 0; v < nsamples; v++) {
         for (int i = 0; i < this->m_layout.Dimensionality_Max; i++) {
@@ -191,7 +191,7 @@ void DoubleMetadataHandle::OffsetSamplesA(voxel const* samples, std::size_t cons
     }
 }
 
-void DoubleMetadataHandle::OffsetSamplesB(voxel const* samples, std::size_t const nsamples, std::vector<float>* samples_b) noexcept(true) {
+void DoubleMetadataHandle::offset_samples_to_match_cube_b(voxel const* samples, std::size_t const nsamples, std::vector<float>* samples_b) noexcept(true) {
 
     for (int v = 0; v < nsamples; v++) {
         for (int i = 0; i < this->m_layout.Dimensionality_Max; i++) {
