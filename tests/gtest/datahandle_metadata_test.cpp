@@ -19,7 +19,6 @@ class DatahandleMetadataTest : public ::testing::Test {
 
     void SetUp() override {
         expected_intersect_metadata["crs"] = "utmXX";
-        expected_intersect_metadata["inputFileName"] = "regular_8x3_cube.segy; shift_4_8x3_cube.segy";
         expected_intersect_metadata["boundingBox"]["cdp"] = {{22.0, 48.0}, {49.0, 66.0}, {37.0, 84.0}, {10.0, 66.0}};
         expected_intersect_metadata["boundingBox"]["ij"] = {{0.0, 0.0}, {3.0, 0.0}, {3.0, 3.0}, {0.0, 3.0}};
         expected_intersect_metadata["boundingBox"]["ilxl"] = {{15, 10}, {24, 10}, {24, 16}, {15, 16}};
@@ -37,7 +36,15 @@ class DatahandleMetadataTest : public ::testing::Test {
             CREDENTIALS.c_str(),
             SHIFT_4_DATA.c_str(),
             CREDENTIALS.c_str(),
-            &inplace_addition
+            binary_operator::ADDITION
+        );
+
+        double_subtraction_datahandle = make_double_datahandle(
+            REGULAR_DATA.c_str(),
+            CREDENTIALS.c_str(),
+            SHIFT_4_DATA.c_str(),
+            CREDENTIALS.c_str(),
+            binary_operator::SUBTRACTION
         );
 
         double_reverse_datahandle = make_double_datahandle(
@@ -45,7 +52,7 @@ class DatahandleMetadataTest : public ::testing::Test {
             CREDENTIALS.c_str(),
             REGULAR_DATA.c_str(),
             CREDENTIALS.c_str(),
-            &inplace_addition
+            binary_operator::ADDITION
         );
 
         double_empty = make_double_datahandle(
@@ -53,7 +60,7 @@ class DatahandleMetadataTest : public ::testing::Test {
             CREDENTIALS.c_str(),
             SHIFT_8_BIG_DATA.c_str(),
             CREDENTIALS.c_str(),
-            &inplace_addition
+            binary_operator::ADDITION
         );
 
         double_different_size = make_double_datahandle(
@@ -61,13 +68,14 @@ class DatahandleMetadataTest : public ::testing::Test {
             CREDENTIALS.c_str(),
             SHIFT_8_BIG_DATA.c_str(),
             CREDENTIALS.c_str(),
-            &inplace_addition
+            binary_operator::ADDITION
         );
     }
 
     void TearDown() override {
         delete single_datahandle;
         delete double_datahandle;
+        delete double_subtraction_datahandle;
         delete double_reverse_datahandle;
         delete double_empty;
         delete double_different_size;
@@ -78,6 +86,7 @@ public:
 
     SingleDataHandle* single_datahandle;
     DoubleDataHandle* double_datahandle;
+    DoubleDataHandle* double_subtraction_datahandle;
     DoubleDataHandle* double_reverse_datahandle;
     DoubleDataHandle* double_empty;
     DoubleDataHandle* double_different_size;
@@ -112,7 +121,19 @@ TEST_F(DatahandleMetadataTest, Metadata_Double) {
     nlohmann::json metadata = nlohmann::json::parse(response_data.data, response_data.data + response_data.size);
 
     EXPECT_EQ(metadata["crs"], this->expected_intersect_metadata["crs"]);
-    EXPECT_EQ(metadata["inputFileName"], expected_intersect_metadata["inputFileName"]);
+    EXPECT_EQ(metadata["inputFileName"], "regular_8x3_cube.segy + shift_4_8x3_cube.segy");
+    EXPECT_EQ(metadata["boundingBox"], expected_intersect_metadata["boundingBox"]);
+    EXPECT_EQ(metadata["axis"], expected_intersect_metadata["axis"]);
+}
+
+TEST_F(DatahandleMetadataTest, Metadata_Subtraction_Double) {
+
+    struct response response_data;
+    cppapi::metadata(*double_subtraction_datahandle, &response_data);
+    nlohmann::json metadata = nlohmann::json::parse(response_data.data, response_data.data + response_data.size);
+
+    EXPECT_EQ(metadata["crs"], this->expected_intersect_metadata["crs"]);
+    EXPECT_EQ(metadata["inputFileName"], "regular_8x3_cube.segy - shift_4_8x3_cube.segy");
     EXPECT_EQ(metadata["boundingBox"], expected_intersect_metadata["boundingBox"]);
     EXPECT_EQ(metadata["axis"], expected_intersect_metadata["axis"]);
 }
@@ -124,7 +145,7 @@ TEST_F(DatahandleMetadataTest, Metadata_Reverse_Double) {
     nlohmann::json metadata = nlohmann::json::parse(response_data.data, response_data.data + response_data.size);
 
     EXPECT_EQ(metadata["crs"], this->expected_intersect_metadata["crs"]);
-    EXPECT_EQ(metadata["inputFileName"], "shift_4_8x3_cube.segy; regular_8x3_cube.segy");
+    EXPECT_EQ(metadata["inputFileName"], "shift_4_8x3_cube.segy + regular_8x3_cube.segy");
     EXPECT_EQ(metadata["boundingBox"], expected_intersect_metadata["boundingBox"]);
     EXPECT_EQ(metadata["axis"], expected_intersect_metadata["axis"]);
 }
@@ -136,7 +157,7 @@ TEST_F(DatahandleMetadataTest, Metadata_Empty_Double) {
     nlohmann::json metadata = nlohmann::json::parse(response_data.data, response_data.data + response_data.size);
 
     nlohmann::json empty_metadata;
-    empty_metadata["inputFileName"] = "regular_8x3_cube.segy; big_shift_8_32x3_cube.segy";
+    empty_metadata["inputFileName"] = "regular_8x3_cube.segy + big_shift_8_32x3_cube.segy";
     empty_metadata["boundingBox"]["cdp"] = {{42.0, 96.0}, {33.0, 90.0}, {37.0, 84.0}, {46.0, 90.0}};
     empty_metadata["boundingBox"]["ij"] = {{0.0, 0.0}, {-1.0, 0.0}, {-1.0, -1.0}, {0.0, -1.0}};
     empty_metadata["boundingBox"]["ilxl"] = {{27, 18}, {24, 18}, {24, 16}, {27, 16}};
@@ -157,7 +178,7 @@ TEST_F(DatahandleMetadataTest, Metadata_Different_Size_Double) {
     nlohmann::json metadata = nlohmann::json::parse(response_data.data, response_data.data + response_data.size);
 
     nlohmann::json different_size_metadata;
-    different_size_metadata["inputFileName"] = "shift_4_8x3_cube.segy; big_shift_8_32x3_cube.segy";
+    different_size_metadata["inputFileName"] = "shift_4_8x3_cube.segy + big_shift_8_32x3_cube.segy";
     different_size_metadata["boundingBox"]["cdp"] = {{42.0, 96.0}, {69.0, 114.0}, {57.0, 132.0}, {30.0, 114.0}};
     different_size_metadata["boundingBox"]["ij"] = {{0.0, 0.0}, {3.0, 0.0}, {3.0, 3.0}, {0.0, 3.0}};
     different_size_metadata["boundingBox"]["ilxl"] = {{27, 18}, {36, 18}, {36, 24}, {27, 24}};

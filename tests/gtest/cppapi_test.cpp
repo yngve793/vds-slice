@@ -812,7 +812,7 @@ protected:
             CREDENTIALS.c_str(),
             SAMPLES_10_x2.c_str(),
             CREDENTIALS.c_str(),
-            &inplace_subtraction
+            binary_operator::SUBTRACTION
         );
     }
 
@@ -887,7 +887,7 @@ protected:
             CREDENTIALS.c_str(),
             SAMPLES_10_x2.c_str(),
             CREDENTIALS.c_str(),
-            &inplace_subtraction
+            binary_operator::SUBTRACTION
         );
     }
 

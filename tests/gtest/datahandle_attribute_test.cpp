@@ -57,7 +57,7 @@ class DatahandleAttributeTest : public ::testing::Test {
             CREDENTIALS.c_str(),
             SHIFT_4_DATA.c_str(),
             CREDENTIALS.c_str(),
-            &inplace_addition
+            binary_operator::ADDITION
         );
 
         double_reverse_datahandle = make_double_datahandle(
@@ -65,7 +65,7 @@ class DatahandleAttributeTest : public ::testing::Test {
             CREDENTIALS.c_str(),
             REGULAR_DATA.c_str(),
             CREDENTIALS.c_str(),
-            &inplace_addition
+            binary_operator::ADDITION
         );
 
         double_empty = make_double_datahandle(
@@ -73,7 +73,7 @@ class DatahandleAttributeTest : public ::testing::Test {
             CREDENTIALS.c_str(),
             SHIFT_8_BIG_DATA.c_str(),
             CREDENTIALS.c_str(),
-            &inplace_addition
+            binary_operator::ADDITION
         );
 
         double_different_size = make_double_datahandle(
@@ -81,7 +81,7 @@ class DatahandleAttributeTest : public ::testing::Test {
             CREDENTIALS.c_str(),
             SHIFT_8_BIG_DATA.c_str(),
             CREDENTIALS.c_str(),
-            &inplace_addition
+            binary_operator::ADDITION
         );
     }
 
