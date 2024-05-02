@@ -331,33 +331,31 @@ void DoubleDataHandle::read_traces(
     }
 
     float* floatBuffer = (float*)buffer;
-    this->extract_part_of_trace(coordinates_a, buffer_a, this->m_metadata_a.sample().nsamples(), floatBuffer);
+    this->extract_part_of_trace(&coordinates_a, &buffer_a, this->m_metadata_a.sample().nsamples(), floatBuffer);
 
     std::vector<float> res_buffer_b(this->get_metadata().sample().nsamples() * ntraces);
-    this->extract_part_of_trace(coordinates_b, buffer_b, this->m_metadata_b.sample().nsamples(), res_buffer_b.data());
+    this->extract_part_of_trace(&coordinates_b, &buffer_b, this->m_metadata_b.sample().nsamples(), res_buffer_b.data());
 
     m_binary_operator((float*)buffer, (float* const)res_buffer_b.data(), (std::size_t)size / sizeof(float));
 }
 
 void DoubleDataHandle::extract_part_of_trace(
-    std::vector<float> coordinates,
-    std::vector<float> source_traces,
+    std::vector<float>* coordinates,
+    std::vector<float>* source_traces,
     int source_trace_length,
     float* target_buffer
 ) {
     int counter = 0;
-    int const dimension_sample = this->get_metadata().sample().dimension();
+    int const sample_dimension_index = this->get_metadata().sample().dimension();
     int const nsamples_in_intersection = this->get_metadata().sample().nsamples();
-    for (int i = 0; i < source_traces.size(); i++) {
-        int index_current_trace = i % source_trace_length;
 
-        if (
-            index_current_trace >= coordinates[dimension_sample] &&
-            index_current_trace < coordinates[dimension_sample] + nsamples_in_intersection
-        ) {
-            target_buffer[counter] = source_traces[i];
-            counter++;
-        }
+    auto min_intersection_sample_index = (long)((*coordinates)[sample_dimension_index] + 0.5f);
+
+    int ntraces = source_traces->size() / source_trace_length;
+    for (int i = 0; i < ntraces; ++i) {
+        float* src_trace = source_traces->data() + i * source_trace_length;
+        float* dst_trace = target_buffer + i * nsamples_in_intersection;
+        std::memcpy(dst_trace, src_trace + min_intersection_sample_index, nsamples_in_intersection * sizeof(float));
     }
 }
 
