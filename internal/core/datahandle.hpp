@@ -143,7 +143,6 @@ private:
     OpenVDS::ScopedVDSHandle m_file_handle_b;
     OpenVDS::VolumeDataAccessManager m_access_manager_a;
     OpenVDS::VolumeDataAccessManager m_access_manager_b;
-    DoubleVolumeDataLayout m_layout;
     DoubleMetadataHandle m_metadata;
     SingleMetadataHandle m_metadata_a;
     SingleMetadataHandle m_metadata_b;
