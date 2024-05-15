@@ -1,0 +1,4 @@
+[submodule "internal/core/pffft"]
+	path = internal/core/pffft
+	url = https://github.com/marton78/pffft.git
+	branch = master
