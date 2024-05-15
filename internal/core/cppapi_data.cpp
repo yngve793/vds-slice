@@ -356,6 +356,10 @@ void attributes(
             case SD:       { append(attrs,   Sd(dst, size)        );   break; }
             case SUMPOS:   { append(attrs,   SumPos(dst, size)    );   break; }
             case SUMNEG:   { append(attrs,   SumNeg(dst, size)    );   break; }
+            case PHASE:    { append(attrs,   Phase(dst, size)     );   break; }
+            case ENVELOPE: { append(attrs,   Envelope(dst, size)  );   break; }
+            case HILBERT:  { append(attrs,   Hilbert(dst, size)   );   break; }
+            
 
             default:
                 throw std::runtime_error("Attribute not implemented");

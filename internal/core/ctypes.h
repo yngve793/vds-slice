@@ -58,7 +58,10 @@ enum attribute {
     VAR,
     SD,
     SUMPOS,
-    SUMNEG
+    SUMNEG,
+    PHASE,
+    ENVELOPE,
+    HILBERT
 };
 
 struct Bound {

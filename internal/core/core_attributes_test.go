@@ -317,25 +317,31 @@ func TestAttribute(t *testing.T) {
 		"sd",
 		"sumpos",
 		"sumneg",
+		"phase",
+		"envelope",
+		"hilbert",
 	}
 	expected := [][]float32{
-		{-0.5, 0.5, -8.5, 6.5, fillValue, -16.5, fillValue, fillValue},                        // samplevalue
-		{-2.5, -1.5, -12.5, 2.5, fillValue, -24.5, fillValue, fillValue},                      // min
-		{12, 28, 12, 12, fillValue, 28, fillValue, fillValue},                                 // min_at
-		{1.5, 2.5, -4.5, 10.5, fillValue, -8.5, fillValue, fillValue},                         // max
-		{28, 12, 28, 28, fillValue, 12, fillValue, fillValue},                                 // max_at
-		{2.5, 2.5, 12.5, 10.5, fillValue, 24.5, fillValue, fillValue},                         // maxabs
-		{12, 12, 12, 28, fillValue, 28, fillValue, fillValue},                                 // maxabs_at
-		{-0.5, 0.5, -8.5, 6.5, fillValue, -16.5, fillValue, fillValue},                        // mean
-		{1.3, 1.3, 8.5, 6.5, fillValue, 16.5, fillValue, fillValue},                           // meanabs
-		{1, 1.5, 0, 6.5, fillValue, 0, fillValue, fillValue},                                  // meanpos
-		{-1.5, -1, -8.5, 0, fillValue, -16.5, fillValue, fillValue},                           // meanneg
-		{-0.5, 0.5, -8.5, 6.5, fillValue, -16.5, fillValue, fillValue},                        // median
-		{1.5, 1.5, 8.958237, 7.0887237, fillValue, 17.442764, fillValue, fillValue},           // rms
-		{2, 2, 8, 8, fillValue, 32, fillValue, fillValue},                                     // var
-		{1.4142135, 1.4142135, 2.828427, 2.828427, fillValue, 5.656854, fillValue, fillValue}, // sd
-		{2, 4.5, 0, 32.5, fillValue, 0, fillValue, fillValue},                                 // sumpos
-		{-4.5, -2, -42.5, 0, fillValue, -82.5, fillValue, fillValue},                          // sumneg
+		{-0.5, 0.5, -8.5, 6.5, fillValue, -16.5, fillValue, fillValue},                              // samplevalue
+		{-2.5, -1.5, -12.5, 2.5, fillValue, -24.5, fillValue, fillValue},                            // min
+		{12, 28, 12, 12, fillValue, 28, fillValue, fillValue},                                       // min_at
+		{1.5, 2.5, -4.5, 10.5, fillValue, -8.5, fillValue, fillValue},                               // max
+		{28, 12, 28, 28, fillValue, 12, fillValue, fillValue},                                       // max_at
+		{2.5, 2.5, 12.5, 10.5, fillValue, 24.5, fillValue, fillValue},                               // maxabs
+		{12, 12, 12, 28, fillValue, 28, fillValue, fillValue},                                       // maxabs_at
+		{-0.5, 0.5, -8.5, 6.5, fillValue, -16.5, fillValue, fillValue},                              // mean
+		{1.3, 1.3, 8.5, 6.5, fillValue, 16.5, fillValue, fillValue},                                 // meanabs
+		{1, 1.5, 0, 6.5, fillValue, 0, fillValue, fillValue},                                        // meanpos
+		{-1.5, -1, -8.5, 0, fillValue, -16.5, fillValue, fillValue},                                 // meanneg
+		{-0.5, 0.5, -8.5, 6.5, fillValue, -16.5, fillValue, fillValue},                              // median
+		{1.5, 1.5, 8.958237, 7.0887237, fillValue, 17.442764, fillValue, fillValue},                 // rms
+		{2, 2, 8, 8, fillValue, 32, fillValue, fillValue},                                           // var
+		{1.4142135, 1.4142135, 2.828427, 2.828427, fillValue, 5.656854, fillValue, fillValue},       // sd
+		{2, 4.5, 0, 32.5, fillValue, 0, fillValue, fillValue},                                       // sumpos
+		{-4.5, -2, -42.5, 0, fillValue, -82.5, fillValue, fillValue},                                // sumneg
+		{-2.2266114, 0.91498125, -2.9898643, -0.19734804, fillValue, 2.98534, fillValue, fillValue}, // phase
+		{0.81993365, 0.81993365, 8.598788, 6.6286626, fillValue, 16.703493, fillValue, fillValue},   // envelope
+		{-0.6498394, 0.6498394, -1.2996788, -1.2996788, fillValue, 2.5993576, fillValue, fillValue}  // hilbert
 	}
 
 	values := [][]float32{

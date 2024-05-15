@@ -289,6 +289,12 @@ func GetAttributeType(attribute string) (int, error) {
 		return C.SUMPOS, nil
 	case "sumneg":
 		return C.SUMNEG, nil
+	case "phase":
+		return C.PHASE, nil
+	case "envelope":
+		return C.ENVELOPE, nil
+	case "hilbert":
+		return C.HILBERT, nil
 	case "":
 		fallthrough
 	default:
