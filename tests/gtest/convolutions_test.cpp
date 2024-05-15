@@ -374,4 +374,41 @@ TEST_F(ConvolutionsTest, convolution_hilbert_test) {
     }
 }
 
+/// @brief The hilbert_transform function handles odd and even length input differently
+TEST_F(ConvolutionsTest, Hilbert_test_odd) {
+
+    std::vector<std::complex<double>> s(99, 0.0f);
+    for (int i = 0; i < s.size(); i++){
+        s[i] = std::sin(i*2*M_PI*5/(s.size()+1));
+    }
+
+    std::vector<std::complex<double>> res(s.size(), 0.0f);
+    hilbert_transform(s, res);
+
+    // As the length of the array is of odd length it does not match up with integer rotations
+    // Due to this we only check that the value is close to the even value. 
+    // End points are also excluded as no window (like: Hanning window) is applied. 
+    for (int i = 5; i< s.size()-10; i++){
+        EXPECT_NEAR(std::real(s[i-5]), std::imag(res[i]), 0.02);
+    }
+}
+
+/// @brief The hilbert_transform function handles odd and even length input differently
+TEST_F(ConvolutionsTest, Hilbert_test_even) {
+
+    std::vector<std::complex<double>> s(100, 0.0f);
+    for (int i = 0; i < s.size(); i++){
+        s[i] = std::sin(i*2*M_PI*5/s.size());
+    }
+
+    std::vector<std::complex<double>> res(s.size(), 0.0f);
+    hilbert_transform(s, res);
+
+    for (int i = 5; i< s.size(); i++){
+        EXPECT_NEAR(std::real(s[i-5]), std::imag(res[i]), 2e-12);
+    }
+}
+
+
+
 } // namespace

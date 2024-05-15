@@ -7,6 +7,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 add_executable(cppcoretests
+  attribute_hilbert_test.cpp
   cppapi_test.cpp
   convolutions_test.cpp
   datasource_test.cpp
