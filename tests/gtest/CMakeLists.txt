@@ -7,6 +7,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 add_executable(cppcoretests
+  attribute_hilbert_test.cpp
   cppapi_test.cpp
   convolutions_test.cpp
   datahandle_attribute_test.cpp
@@ -38,6 +39,9 @@ configure_file(../../testdata/cube_intersection/shift_7_inLine_8x2_cube.vds . CO
 configure_file(../../testdata/cube_intersection/shift_7_xLine_8x2_cube.vds . COPYONLY)
 configure_file(../../testdata/cube_intersection/shift_31_Sample_8x2_cube.vds . COPYONLY)
 configure_file(../../testdata/cube_intersection/shift_8_32x3_cube.vds . COPYONLY)
+
+configure_file(../../testdata/penobscot/penobscot_xl1155_x2.vds . COPYONLY)
+configure_file(../../testdata/penobscot/penobscot_expected.json . COPYONLY)
 
 include(GoogleTest)
 gtest_discover_tests(cppcoretests)
