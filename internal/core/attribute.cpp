@@ -9,6 +9,7 @@
 
 #include "attribute.hpp"
 #include "regularsurface.hpp"
+#include "convolutions.hpp"
 
 float Value::compute(
     ResampledSegment const & segment
@@ -214,6 +215,55 @@ float SumNeg::compute(
          if (x < 0) { sum += x; }
     });
     return sum;
+}
+
+float Phase::compute(
+    ResampledSegment const& segment
+) noexcept(false) {
+
+    std::vector<std::complex<double>> data(segment.size());
+    int i = 0;
+
+    std::for_each(segment.begin(), segment.end(), [&](double value) {
+        data[i] = value;
+        i += 1;
+    });
+
+    std::vector<std::complex<double>> result(data.size());
+    hilbert_transform(data, result);
+    return std::arg(result[segment.reference_index()]);
+}
+
+float Envelope::compute(
+    ResampledSegment const& segment
+) noexcept(false) {
+
+    std::vector<std::complex<double>> data(segment.size());
+    int i = 0;
+    std::for_each(segment.begin(), segment.end(), [&](double value) {
+        data[i] = value;
+        i += 1;
+    });
+
+    std::vector<std::complex<double>> result(data.size());
+    hilbert_transform(data, result);
+    return std::abs(result[segment.reference_index()]);
+}
+
+float Hilbert::compute(
+    ResampledSegment const& segment
+) noexcept(false) {
+
+    std::vector<std::complex<double>> data(segment.size());
+    int i = 0;
+    std::for_each(segment.begin(), segment.end(), [&](double value) {
+        data[i] = value;
+        i += 1;
+    });
+
+    std::vector<std::complex<double>> result(data.size());
+    hilbert_transform(data, result);
+    return std::imag(result[segment.reference_index()]);
 }
 
 void calc_attributes(
