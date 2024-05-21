@@ -19,6 +19,7 @@ add_library(cppcore
   subcube.cpp
   subvolume.cpp
   volumedatalayout.cpp
+  convolutions.cpp
 )
 
 target_include_directories(cppcore
