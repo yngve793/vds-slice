@@ -1,5 +1,10 @@
 find_package(openvds CONFIG REQUIRED)
 
+find_library(PFFFT_RELEASE_LIBRARY libpffft.a
+    PATHS ${CMAKE_PREFIX_PATH}
+    PATH_SUFFIXES "lib"
+    NO_DEFAULT_PATH)
+
 add_library(cppcore
   attribute.cpp
   axis.cpp
@@ -23,6 +28,8 @@ target_include_directories(cppcore
 target_link_libraries(cppcore
   PUBLIC openvds::openvds
 )
+
+target_link_libraries(cppcore PRIVATE ${PFFFT_RELEASE_LIBRARY})
 
 find_package(Boost REQUIRED)
 target_include_directories(cppcore

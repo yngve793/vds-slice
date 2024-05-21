@@ -11,6 +11,26 @@ RUN apk --no-cache add \
     util-linux-dev \
     perl
 
+WORKDIR /
+RUN git clone https://github.com/marton78/pffft.git
+WORKDIR /pffft
+RUN git checkout e0bf595c98ded55cc457a371c1b29c8cab552628
+
+RUN cmake -S . \
+    -B build \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DPFFFT_USE_TYPE_FLOAT=OFF \
+    -DPFFFT_USE_TYPE_DOUBLE=ON \
+    -DINSTALL_PFFFT=ON \
+    -DINSTALL_PFDSP=ON \
+    -DINSTALL_PFFASTCONV=ON \
+    -DPFFFT_USE_SIMD=OFF \
+    -DPFFFT_USE_SCALAR_VECT=OFF \
+    -DPFFFT_USE_BENCH_POCKET=OFF \
+    -DPFFFT_USE_BENCH_GREEN=OFF \
+    -DPFFFT_USE_BENCH_KISS=OFF
+RUN cmake --build build   --config Release  --target install --verbose
+
 ARG OPENVDS_VERSION=3.4.1
 WORKDIR /
 RUN git clone --depth 1 --branch ${OPENVDS_VERSION} https://community.opengroup.org/osdu/platform/domain-data-mgmt-services/seismic/open-vds.git

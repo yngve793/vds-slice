@@ -1,7 +1,7 @@
 package core
 
 /*
-#cgo LDFLAGS: -lopenvds
+#cgo LDFLAGS: -lopenvds -lpffft
 #cgo CXXFLAGS: -std=c++17
 #include <capi.h>
 #include <ctypes.h>
