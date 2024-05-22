@@ -80,7 +80,7 @@ interface is more prone to change than `go` one.
 To run the tests one has to build `C++` project outside of `go build`. The
 following builds the project in directory `build` and runs the tests:
 ```
-cmake -S . -B build -DCMAKE_PREFIX_PATH=/path/to/openvds
+cmake -S . -B build -DCMAKE_PREFIX_PATH=/path/to/openvds:/path/to/pffft
 cmake --build build
 ctest --test-dir build --output-on-failure
 ```
