@@ -8,6 +8,7 @@ FetchContent_MakeAvailable(googletest)
 
 add_executable(cppcoretests
   coordinate_transformer_test.cpp
+  attribute_hilbert_test.cpp
   cppapi_test.cpp
   datahandle_attribute_test.cpp
   datahandle_fence_test.cpp
@@ -54,6 +55,8 @@ configure_file(../../testdata/cube_intersection/unaligned_shift_cube.vds . COPYO
 
 configure_file(../../testdata/invalid_data/negative_stepsize.vds . COPYONLY)
 
+configure_file(../../testdata/penobscot/penobscot_xl1155_x2.vds . COPYONLY)
+configure_file(../../testdata/penobscot/penobscot_expected.json . COPYONLY)
 configure_file(../../testdata/transform/transform_expected.json . COPYONLY)
 
 include(GoogleTest)
