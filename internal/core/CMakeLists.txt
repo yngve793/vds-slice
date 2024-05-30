@@ -14,6 +14,7 @@ add_library(cppcore
   regularsurface.cpp
   subcube.cpp
   subvolume.cpp
+  transforms.cpp
   volumedatalayout.cpp
 )
 

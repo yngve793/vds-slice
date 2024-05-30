@@ -15,6 +15,7 @@ add_executable(cppcoretests
   datahandle_test.cpp
   regularsurface_test.cpp
   subvolume_test.cpp
+  transform_test.cpp
 )
 
 target_link_libraries(cppcoretests
@@ -37,6 +38,8 @@ configure_file(../../testdata/cube_intersection/shift_7_inLine_8x2_cube.vds . CO
 configure_file(../../testdata/cube_intersection/shift_7_xLine_8x2_cube.vds . COPYONLY)
 configure_file(../../testdata/cube_intersection/shift_31_Sample_8x2_cube.vds . COPYONLY)
 configure_file(../../testdata/cube_intersection/shift_8_32x3_cube.vds . COPYONLY)
+
+configure_file(../../testdata/transform/transform_expected.json . COPYONLY)
 
 include(GoogleTest)
 gtest_discover_tests(cppcoretests)
