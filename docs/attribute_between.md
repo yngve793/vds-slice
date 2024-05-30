@@ -40,7 +40,6 @@ sd          | Standard deviation
 sumpos      | Sum of positive samples
 sumneg      | Sum of negative samples
 
-
 ## Response
 On success (200) the multipart/mixed response consists of n parts. The first
 part is a json document with metadata about the attributes. Each of the next n -
