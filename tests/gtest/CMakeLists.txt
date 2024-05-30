@@ -17,6 +17,7 @@ add_executable(cppcoretests
   regularsurface_test.cpp
   subvolume_test.cpp
   test_utils.cpp
+  transform_test.cpp
 )
 
 target_link_libraries(cppcoretests
@@ -52,6 +53,8 @@ configure_file(../../testdata/cube_intersection/unaligned_stepsize_cube.vds . CO
 configure_file(../../testdata/cube_intersection/unaligned_shift_cube.vds . COPYONLY)
 
 configure_file(../../testdata/invalid_data/negative_stepsize.vds . COPYONLY)
+
+configure_file(../../testdata/transform/transform_expected.json . COPYONLY)
 
 include(GoogleTest)
 gtest_discover_tests(cppcoretests)

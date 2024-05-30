@@ -15,6 +15,7 @@ add_library(cppcore
   regularsurface.cpp
   subcube.cpp
   subvolume.cpp
+  transforms.cpp
 )
 
 target_include_directories(cppcore
