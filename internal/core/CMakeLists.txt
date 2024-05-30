@@ -1,4 +1,5 @@
 find_package(openvds CONFIG REQUIRED)
+find_package(FFTW3 CONFIG REQUIRED)
 
 add_library(cppcore
   attribute.cpp
@@ -22,6 +23,10 @@ target_include_directories(cppcore
 
 target_link_libraries(cppcore
   PUBLIC openvds::openvds
+)
+
+target_link_libraries(cppcore
+  PUBLIC FFTW3::fftw3
 )
 
 find_package(Boost REQUIRED)

@@ -2,14 +2,31 @@ ARG OPENVDS_IMAGE=openvds
 ARG VDSSLICE_BASEIMAGE=golang:1.22-alpine
 FROM ${VDSSLICE_BASEIMAGE} as openvds
 RUN apk --no-cache add \
-    git \
+    boost-dev \
+    cmake \
+    curl \
+    eigen-dev \
     g++ \
     gcc \
+    git \
     make \
-    cmake \
-    boost-dev \
-    util-linux-dev \
-    perl
+    perl \
+    util-linux-dev
+
+WORKDIR /
+RUN mkdir fftw3
+RUN curl https://www.fftw.org/fftw-3.3.10.tar.gz -o fftw3/fftw-3.3.10.tar.gz
+WORKDIR /fftw3
+RUN tar -xvzf fftw-3.3.10.tar.gz
+WORKDIR /fftw3/fftw-3.3.10
+
+RUN cmake -S . \
+    -B build \
+    -DBUILD_SHARED_LIBS=ON \
+    -DBUILD_TESTS=OFF \
+    -DCMAKE_BUILD_TYPE=Release
+
+RUN cmake --build build --config Release --target install --verbose
 
 ARG OPENVDS_VERSION=3.4.1
 WORKDIR /
