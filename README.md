@@ -46,13 +46,14 @@ ONESEISMIC_API_STORAGE_ACCOUNTS="https://<account>.blob.core.windows.net" $ONESE
 
 Run `$ONESEISMIC_API_INSTALL_DIR/query --help` to print available server options.
 
-Note that for server to build and run properly `openvds` library should be
+Note that for server to build and run properly `openvds` and `fftw3` libraries should be
 reachable. For example:
 ```
 PATH_TO_OPENVDS_LIBRARY=<location where openvds is installed>
-export CGO_CPPFLAGS="-isystem $PATH_TO_OPENVDS_LIBRARY/include"
-export CGO_LDFLAGS="-L$PATH_TO_OPENVDS_LIBRARY/lib"
-export LD_LIBRARY_PATH=$PATH_TO_OPENVDS_LIBRARY/lib:$LD_LIBRARY_PATH
+PATH_TO_FFTW3_LIBRARY=<location where fftw3 is installed>
+export CGO_CPPFLAGS="-isystem $PATH_TO_OPENVDS_LIBRARY/include -isystem $PATH_TO_FFTW3_LIBRARY/include"
+export CGO_LDFLAGS="-L$PATH_TO_OPENVDS_LIBRARY/lib -L$PATH_TO_FFTW3_LIBRARY/lib"
+export LD_LIBRARY_PATH=$PATH_TO_OPENVDS_LIBRARY/lib:$PATH_TO_FFTW3_LIBRARY/lib:$LD_LIBRARY_PATH
 ```
 
 ## Testing
@@ -80,7 +81,7 @@ interface is more prone to change than `go` one.
 To run the tests one has to build `C++` project outside of `go build`. The
 following builds the project in directory `build` and runs the tests:
 ```
-cmake -S . -B build -DCMAKE_PREFIX_PATH=/path/to/openvds
+cmake -S . -B build -DCMAKE_PREFIX_PATH=/path/to/openvds:/path/to/fftw3
 cmake --build build
 ctest --test-dir build --output-on-failure
 ```
