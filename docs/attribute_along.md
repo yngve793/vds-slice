@@ -40,7 +40,9 @@ sumneg      | Sum of negative samples
 phase       | Instantaneous phase in radian at surface position
 envelope    | Instantaneous envelope magnitude at surface position
 hilbert     | Hilbert transform imaginary value at surface position
-
+frequency   | Instantaneous Frequency time derivate of the (unwrapped) instantaneous phase
+bandwidth   | Instantaneous Bandwidth absolute value of the time derivative of the envelope
+sweetness   | envelope / sqrt(instantaneous frequency)
 
 ## Response
 On success (200) the multipart/mixed response consists of n parts. The first
