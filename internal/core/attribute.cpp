@@ -218,6 +218,16 @@ float SumNeg::compute(
     return sum;
 }
 
+std::vector<double> read_segment(ResampledSegment const& segment) noexcept(false) {
+    std::vector<double> data(segment.size());
+    int i = 0;
+    std::for_each(segment.begin(), segment.end(), [&](double value) {
+        data[i] = value;
+        i += 1;
+    });
+    return data;
+}
+
 float Phase::compute(
     ResampledSegment const& segment
 ) noexcept(false) {
@@ -266,6 +276,66 @@ float Hilbert::compute(
     hilbert_transform(data, result);
     return std::imag(result[segment.reference_index()]);
 }
+
+float Frequency::compute(
+    ResampledSegment const& segment
+) noexcept(false) {
+
+    std::vector<std::complex<double>> data(segment.size());
+    int i = 0;
+
+    std::for_each(segment.begin(), segment.end(), [&](double value) {
+        data[i] = value;
+        i += 1;
+    });
+
+    std::vector<double> phase_result(data.size());
+    phase(data, phase_result);
+
+
+    std::vector<double> unwrapped_phase_result(phase_result.size());
+
+    std::vector<double> result(data.size());
+    instantaneous_frequency(data, result);
+
+    return result[segment.reference_index()];
+
+}
+
+float Bandwidth::compute(
+    ResampledSegment const& segment
+) noexcept(false) {
+
+    std::vector<std::complex<double>> data(segment.size());
+    int i = 0;
+    std::for_each(segment.begin(), segment.end(), [&](double value) {
+        data[i] = value;
+        i += 1;
+    });
+
+    std::vector<double> result(data.size());
+    instantaneous_bandwidth(data, result);
+
+    return result[segment.reference_index()];
+}
+
+float Sweetness::compute(
+    ResampledSegment const& segment
+) noexcept(false) {
+
+    std::vector<std::complex<double>> data(segment.size());
+    int i = 0;
+    std::for_each(segment.begin(), segment.end(), [&](double value) {
+        data[i] = value;
+        i += 1;
+    });
+
+    std::vector<double> result(data.size());
+    instantaneous_sweetness(data, result);
+
+    return result[segment.reference_index()];
+}
+
 
 void calc_attributes(
     SurfaceBoundedSubVolume const& src_subvolume,

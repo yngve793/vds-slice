@@ -209,8 +209,7 @@ TEST_F(transformTest, Unwrap_test) {
         if (value != 0) {
             std::cout << i << " " << value << std::endl;
         }
-        // std::cout << i << " " << output_unwrap[i] << " " <<  expected_output_unwrap[i] << " " << value << std::endl;
-        EXPECT_NEAR(output_unwrap[i], expected_output_unwrap[i], 2e-15) << "Unexpected real value at index " << i;
+        EXPECT_NEAR(output_unwrap[i], expected_output_unwrap[i], 2e-15) << "Unexpected phase value at index " << i;
     }
 }
 

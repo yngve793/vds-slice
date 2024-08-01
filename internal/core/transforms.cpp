@@ -42,6 +42,72 @@ void hilbert_transform(std::vector<std::complex<double>>& in, std::vector<std::c
     ifft(out, out);
 }
 
+void phase(std::vector<std::complex<double>>& in_data, std::vector<double>& out_data) {
+
+    std::vector<std::complex<double>> hilbert_data(in_data.size());
+    hilbert_transform(in_data, hilbert_data);
+
+    for (int i = 0; i < hilbert_data.size(); i++) {
+        out_data[i] = std::arg(hilbert_data[i]);
+    }
+}
+
+void envelope(std::vector<std::complex<double>>& in_data, std::vector<double>& out_data) {
+
+    std::vector<std::complex<double>> hilbert_data(in_data.size());
+    hilbert_transform(in_data, hilbert_data);
+
+    for (int i = 0; i < hilbert_data.size(); i++) {
+        out_data[i] = std::abs(hilbert_data[i]);
+    }
+}
+
+void time_derivative(std::vector<double>& in_data, std::vector<double>& out_data) {
+
+    for (int i = 1; i < in_data.size(); i++) {
+        out_data[i] = in_data[i] - in_data[i - 1];
+    }
+}
+
+void instantaneous_frequency(std::vector<std::complex<double>>& in_data, std::vector<double>& out) {
+
+    std::vector<double> phase_data(in_data.size());
+    phase(in_data, phase_data);
+
+    unwrap(phase_data, phase_data);
+
+    time_derivative(phase_data, out);
+
+    for (double& d : out) {
+        d /= 2 * M_PI;
+    }
+}
+
+void instantaneous_bandwidth(std::vector<std::complex<double>>& in_data, std::vector<double>& out_data) {
+
+    std::vector<double> envelope_data(in_data.size());
+    envelope(in_data, envelope_data);
+
+    time_derivative(envelope_data, out_data);
+
+    for (double& d : out_data) {
+        d = std::abs(d);
+    }
+}
+
+void instantaneous_sweetness(std::vector<std::complex<double>>& in_data, std::vector<double>& out_data) {
+
+    std::vector<double> envelope_data(in_data.size());
+    envelope(in_data, envelope_data);
+
+    std::vector<double> frequency_data(in_data.size());
+    instantaneous_frequency(in_data, frequency_data);
+
+    for (int i = 0; i < in_data.size(); i++) {
+        out_data[i] = envelope_data[i] / std::sqrt(frequency_data[i]);
+    }
+}
+
 void unwrap(std::vector<double>& in, std::vector<double>& out) {
 
     int n = in.size();
@@ -62,7 +128,7 @@ void unwrap(std::vector<double>& in, std::vector<double>& out) {
     std::vector<double> difference_mod(n - 1);
     double two_pi = (double)(2 * M_PI);
     auto test = std::fmod(difference[13] + M_PI, 2 * M_PI);
-    std::cout << test << std::endl;
+    // std::cout << test << std::endl;
     for (int i = 0; i < difference_mod.size(); i++) {
         auto t = std::fmod(difference[i] + M_PI, 2 * M_PI);
         if (t < 0) {
