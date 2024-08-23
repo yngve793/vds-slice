@@ -44,5 +44,12 @@ configure_file(../../testdata/penobscot/penobscot_xl1155_x2.vds . COPYONLY)
 configure_file(../../testdata/penobscot/penobscot_expected.json . COPYONLY)
 configure_file(../../testdata/transform/transform_expected.json . COPYONLY)
 
+configure_file(../../testdata/hilbert/data/ST0202ZDC12-PZ-PSDM-KIRCH-FULL-T.MIG_FIN.POST_STACK.3D.JS-017534\ [BW].json . COPYONLY)
+configure_file(../../testdata/hilbert/data/ST0202ZDC12-PZ-PSDM-KIRCH-FULL-T.MIG_FIN.POST_STACK.3D.JS-017534\ [Env].json . COPYONLY)
+configure_file(../../testdata/hilbert/data/ST0202ZDC12-PZ-PSDM-KIRCH-FULL-T.MIG_FIN.POST_STACK.3D.JS-017534\ [Freq].json . COPYONLY)
+configure_file(../../testdata/hilbert/data/ST0202ZDC12-PZ-PSDM-KIRCH-FULL-T.MIG_FIN.POST_STACK.3D.JS-017534\ [Phase].json . COPYONLY)
+configure_file(../../testdata/hilbert/data/ST0202ZDC12-PZ-PSDM-KIRCH-FULL-T.MIG_FIN.POST_STACK.3D.JS-017534\ [Sweet].json . COPYONLY)
+configure_file(../../testdata/hilbert/data/ST0202ZDC12-PZ-PSDM-KIRCH-FULL-T.MIG_FIN.POST_STACK.3D.JS-017534.json . COPYONLY)
+
 include(GoogleTest)
 gtest_discover_tests(cppcoretests)
