@@ -13,7 +13,7 @@
 namespace {
 
 const std::string TRANSFORM_EXPECTED = "transform_expected.json";
-
+const std::string PETREL_EXPECTED = "petrel_attribute_data.json";
 class transformTest : public ::testing::Test {
 
     void SetUp() override {
@@ -34,6 +34,15 @@ class transformTest : public ::testing::Test {
         for (int i = 0; i < input_data_144.size(); i++) {
             input_cdata_144[i].real(input_data_144[i]);
         }
+
+        std::ifstream f_p(PETREL_EXPECTED.c_str());
+        petrel_expected = nlohmann::json::parse(f_p);
+        // std::vector<double> petrel_bw = petrel_expected["BW"].template get<std::vector<double>>();
+        // std::vector<double> petrel_env = petrel_expected["Env"].template get<std::vector<double>>();
+        // std::vector<double> petrel_freq = petrel_expected["Freq"].template get<std::vector<double>>();
+        std::vector<double> petrel_phase = petrel_expected["Phase"].template get<std::vector<double>>();
+        // std::vector<double> petrel_sweet = petrel_expected["Sweet"].template get<std::vector<double>>();
+        std::vector<double> petrel_raw = petrel_expected["raw"].template get<std::vector<double>>();
     }
 
     void TearDown() override {
@@ -41,6 +50,7 @@ class transformTest : public ::testing::Test {
 
 public:
     nlohmann::json transform_expected;
+    nlohmann::json petrel_expected;
     std::vector<std::complex<double>> input_cdata_143;
     std::vector<std::complex<double>> input_cdata_144;
 
@@ -212,5 +222,26 @@ TEST_F(transformTest, Unwrap_test) {
         EXPECT_NEAR(output_unwrap[i], expected_output_unwrap[i], 2e-15) << "Unexpected phase value at index " << i;
     }
 }
+
+TEST_F(transformTest, transform_envelope_test) {
+
+    std::vector<double> petrel_env = petrel_expected["Env"].template get<std::vector<double>>();
+    std::vector<double> petrel_raw = petrel_expected["raw"].template get<std::vector<double>>();
+
+    std::vector<std::complex<double>> in_data(petrel_raw.size());
+    std::vector<double> res_data(petrel_raw.size());
+
+    for (int i = 0; i < petrel_raw.size(); i++) {
+        in_data[i].real(petrel_raw[i]);
+    }
+
+    envelope(in_data, res_data);
+
+    for (int i = 0; i < res_data.size(); i++) {
+        std::cout << i << " " << res_data[i] << " " << petrel_env[i] << std::endl;
+        // EXPECT_NEAR(petrel_env[i], res_data[i]) << "Unexpected real value at index " << i;
+    }
+}
+
 
 } // namespace
