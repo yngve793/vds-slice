@@ -16,12 +16,13 @@ on:
 
   jobs:
     greet:
-      name: "Test"
+      name: "Test run"
 
       runs-on:
         - ubuntu-latest
 
       steps:
+        -name: Send greetings
         run: |
           echo "Hello ${{ github.event.inputs.name}}"
           echo "H2 ${{ github.event.inputs.city}}"
