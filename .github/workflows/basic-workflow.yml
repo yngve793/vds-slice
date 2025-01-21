@@ -1,0 +1,34 @@
+name: Basic Workflow
+
+on:
+  workflow_dispatch:
+
+    inputs:
+      name:
+        description: "Person to great"
+        default: "World"
+        required: true
+
+      city:
+        description: "Favorite city"
+
+        default: "Bergen"
+
+  jobs:
+    greet:
+      name: "Test"
+
+      runs-on:
+        - ubuntu-latest
+
+      steps:
+        run: |
+          echo "Hello ${{ github.event.inputs.name}}"
+          echo "H2 ${{ github.event.inputs.city}}"
+          
+
+      
+
+      
+
+      
