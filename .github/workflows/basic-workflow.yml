@@ -1,35 +1,22 @@
-name: Basic Workflow
+name: Python package
 
-on:
-  workflow_dispatch:
+on: [push]
 
-    inputs:
-      name:
-        description: "Person to great"
-        default: "World"
-        required: true
+jobs:
+  build:
 
-      city:
-        description: "Favorite city"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["pypy3.10", "3.9", "3.10", "3.11", "3.12", "3.13"]
 
-        default: "Bergen"
-
-  jobs:
-    greet:
-      name: "Test run"
-
-      runs-on:
-        - ubuntu-latest
-
-      steps:
-        -name: Send greetings
-        run: |
-          echo "Hello ${{ github.event.inputs.name}}"
-          echo "H2 ${{ github.event.inputs.city}}"
-          
-
-      
-
-      
-
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      # You can test your matrix by printing the current Python version
+      - name: Display Python version
+        run: python -c "import sys; print(sys.version)"
       
