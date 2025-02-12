@@ -8,16 +8,15 @@
 
 #include "transforms.hpp"
 
+Eigen::FFT<double> eigen_fft;
 void fft(std::vector<std::complex<double>>& in, std::vector<std::complex<double>>& out) {
 
-    Eigen::FFT<double> fft;
-    fft.fwd(out, in);
+    eigen_fft.fwd(out, in);
 }
 
 void ifft(std::vector<std::complex<double>>& in, std::vector<std::complex<double>>& out) {
 
-    Eigen::FFT<double> fft;
-    fft.inv(out, in);
+    eigen_fft.inv(out, in);
 }
 
 void hilbert_transform(std::vector<std::complex<double>>& in, std::vector<std::complex<double>>& out) {
