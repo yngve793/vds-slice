@@ -3,7 +3,7 @@ import openvds
 
 file_name = "ST0202ZDC12-PZ-PSDM-KIRCH-FULL-T.MIG_FIN.POST_STACK.3D.JS-017534"
 url = "azureSAS://vdsbenchmark.blob.core.windows.net/volve/" + file_name + "/RLE_64"
-connection = "Suffix=?sv=2023-01-03&st=2024-08-23T07%3A22%3A40Z&se=2024-08-24T07%3A22%3A40Z&sr=c&sp=rl&sig=ywp0q%2FCvlQYjjctNsE5nHJiY%2FLmwVXaY0KUhTex7Zx0%3D"
+connection = "Suffix=?sv=2021-10-04&ss=btqf&srt=sco&st=2024-10-21T07%3A43%3A26Z&se=2024-10-22T07%3A43%3A26Z&sp=rl&sig=E2IFe8VRQkY%2FIgEbClLqqwptR3xnHIvIOM4plyXIIDE%3D"
 data_row = 150
 
 vds = openvds.open(url, connection)

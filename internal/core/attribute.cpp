@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <vector>
 #include <complex>
-
+#include <iostream>
 #include "attribute.hpp"
 #include "regularsurface.hpp"
 #include "transforms.hpp"
@@ -232,6 +232,7 @@ float Phase::compute(
     ResampledSegment const& segment
 ) noexcept(false) {
 
+    // std::cout << "Computing Phase "  <<  &segment << std::endl;
     std::vector<std::complex<double>> data(segment.size());
     int i = 0;
 
@@ -249,8 +250,11 @@ float Envelope::compute(
     ResampledSegment const& segment
 ) noexcept(false) {
 
+    std::cout << "Computing envelope "  <<  &segment << std::endl;
+
     std::vector<std::complex<double>> data(segment.size());
     int i = 0;
+
     std::for_each(segment.begin(), segment.end(), [&](double value) {
         data[i] = value;
         i += 1;
@@ -258,7 +262,17 @@ float Envelope::compute(
 
     std::vector<std::complex<double>> result(data.size());
     hilbert_transform(data, result);
-    return std::abs(result[segment.reference_index()]);
+    return std::arg(result[segment.reference_index()]);
+    // std::vector<std::complex<double>> data(segment.size());
+    // int i = 0;
+    // std::for_each(segment.begin(), segment.end(), [&](double value) {
+    //     data[i] = value;
+    //     i += 1;
+    // });
+
+    // std::vector<std::complex<double>> result(data.size());
+    // hilbert_transform(data, result);
+    // return std::abs(result[segment.reference_index()]);
 }
 
 float Hilbert::compute(

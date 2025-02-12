@@ -54,6 +54,8 @@ void phase(std::vector<std::complex<double>>& in_data, std::vector<double>& out_
 
 void envelope(std::vector<std::complex<double>>& in_data, std::vector<double>& out_data) {
 
+    std::cout << "Start envelope" << std::endl;
+
     std::vector<std::complex<double>> hilbert_data(in_data.size());
     hilbert_transform(in_data, hilbert_data);
 
