@@ -1,6 +1,6 @@
 # this must be openvds image in debug mode
 ARG OPENVDS_IMAGE=openvdsdebug
-FROM ${OPENVDS_IMAGE} as openvds
+FROM ${OPENVDS_IMAGE} AS openvds
 
 FROM python:3.11-alpine
 
