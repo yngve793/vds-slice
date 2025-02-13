@@ -1,12 +1,13 @@
 ARG OPENVDS_IMAGE=openvds
 ARG ONESEISMIC_BASEIMAGE=docker.io/library/golang:1.22-alpine
-FROM ${ONESEISMIC_BASEIMAGE} as openvds
+FROM ${ONESEISMIC_BASEIMAGE} AS openvds
 RUN apk --no-cache add \
     boost-dev \
     boost-dev \
     cmake \
     cmake \
     curl \
+    eigen \
     eigen-dev \
     g++ \
     gcc \
@@ -66,6 +67,23 @@ RUN cmake -S . \
 
 RUN cmake --build build --config ${BUILD_TYPE} --target install -j 8 --verbose
 
+WORKDIR /fftw3_build
+ARG FFTW_VERSION=3.3.10
+ARG FFTW_MD5=8ccbf6a5ea78a16dbc3e1306e234cc5c
+
+RUN curl -o fftw.tar.gz http://www.fftw.org/fftw-${FFTW_VERSION}.tar.gz
+RUN echo "${FFTW_MD5}  fftw.tar.gz" > fftw.tar.gz.md5
+RUN md5sum -c fftw.tar.gz.md5
+RUN tar -xzvf fftw.tar.gz
+WORKDIR /fftw3_build/fftw-${FFTW_VERSION}
+RUN mkdir build
+WORKDIR /fftw3_build/fftw-${FFTW_VERSION}/build
+# RUN ./configure
+RUN cmake .. -DCMAKE_INSTALL_PREFIX=/fftw3_install
+RUN make
+RUN make install
+RUN rm -rf fftw.tar.gz fftw.tar.gz.md5 fftw-${FFTW_VERSION}
+
 
 FROM $OPENVDS_IMAGE as openvds_snyk_monitor
 WORKDIR /
@@ -81,16 +99,16 @@ WORKDIR /src
 COPY go.mod go.sum ./
 RUN go mod download && go mod verify
 COPY . .
-ARG CGO_CPPFLAGS="-I/open-vds/Dist/OpenVDS/include"
-ARG CGO_LDFLAGS="-L/open-vds/Dist/OpenVDS/lib"
+ARG CGO_CPPFLAGS="-I/open-vds/Dist/OpenVDS/include -I/fftw3/include"
+ARG CGO_LDFLAGS="-L/open-vds/Dist/OpenVDS/lib -L/fftw3/lib"
 RUN go build -a ./...
 RUN GOBIN=/tools go install github.com/swaggo/swag/cmd/swag@v1.16.3
 RUN /tools/swag init --dir cmd/query,api/handlers,api/middleware,internal/core -g main.go --md docs
 
 
 FROM builder as tester
-ARG CGO_CPPFLAGS="-I/open-vds/Dist/OpenVDS/include"
-ARG CGO_LDFLAGS="-L/open-vds/Dist/OpenVDS/lib"
+ARG CGO_CPPFLAGS="-I/open-vds/Dist/OpenVDS/include -I/fftw3/include"
+ARG CGO_LDFLAGS="-L/open-vds/Dist/OpenVDS/lib -L/fftw3/lib"
 ARG LD_LIBRARY_PATH=/open-vds/Dist/OpenVDS/lib:$LD_LIBRARY_PATH
 
 ENV CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH:/open-vds/Dist/OpenVDS
@@ -103,8 +121,8 @@ RUN go test -race ./...
 
 
 FROM builder as static_analyzer
-ARG CGO_CPPFLAGS="-I/open-vds/Dist/OpenVDS/include"
-ARG CGO_LDFLAGS="-L/open-vds/Dist/OpenVDS/lib"
+ARG CGO_CPPFLAGS="-I/open-vds/Dist/OpenVDS/include -I/fftw3/include"
+ARG CGO_LDFLAGS="-L/open-vds/Dist/OpenVDS/lib -L/fftw3/lib"
 ARG STATICCHECK_VERSION="2023.1.7"
 ARG LD_LIBRARY_PATH=/open-vds/Dist/OpenVDS/lib:$LD_LIBRARY_PATH
 RUN apk --no-cache add curl
@@ -116,9 +134,9 @@ RUN ./staticcheck/staticcheck ./...
 
 
 FROM builder as installer
-ARG CGO_CPPFLAGS="-I/open-vds/Dist/OpenVDS/include"
-ARG CGO_LDFLAGS="-L/open-vds/Dist/OpenVDS/lib"
-ARG LD_LIBRARY_PATH=/open-vds/Dist/OpenVDS/lib:$LD_LIBRARY_PATH
+ARG CGO_CPPFLAGS="-I/open-vds/Dist/OpenVDS/include -I/fftw3/include"
+ARG CGO_LDFLAGS="-L/open-vds/Dist/OpenVDS/lib -L/fftw3/lib"
+ARG LD_LIBRARY_PATH=/open-vds/Dist/OpenVDS/lib
 RUN GOBIN=/server go install -a ./...
 
 FROM ${ONESEISMIC_BASEIMAGE} as runner
@@ -129,12 +147,13 @@ WORKDIR /server
 COPY --from=installer /open-vds/Dist/OpenVDS/lib/* /open-vds/
 COPY --from=installer /server /server
 COPY --from=installer /src/docs/index.html /server/docs/
+COPY --from=installer /fftw3/* /fftw3/
 
 RUN addgroup -S -g 1001 radix-non-root-group
 RUN adduser -S -u 1001 -G radix-non-root-group radix-non-root-user
 USER 1001
 
-ENV LD_LIBRARY_PATH=/open-vds:$LD_LIBRARY_PATH
+ENV LD_LIBRARY_PATH=/open-vds:/fftw3
 ENV OPENVDS_AZURESDKFORCPP=1
 ENV LD_PRELOAD=/usr/lib/libjemalloc.so
 ENTRYPOINT [ "/server/query" ]
