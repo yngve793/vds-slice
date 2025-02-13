@@ -62,7 +62,10 @@ enum attribute {
     SUMNEG,
     PHASE,
     ENVELOPE,
-    HILBERT
+    HILBERT,
+    FREQUENCY,
+    BANDWIDTH,
+    SWEETNESS
 };
 
 struct Bound {
