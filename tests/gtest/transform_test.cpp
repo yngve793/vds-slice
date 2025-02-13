@@ -191,4 +191,20 @@ TEST_F(transformTest, Hilbert_unit_test_even) {
     }
 }
 
+/// @brief The hilbert_transform function handles odd and even length input differently
+TEST_F(transformTest, Unwrap_test) {
+
+    std::vector<double> input_unwrap = transform_expected["input_unwrap"].template get<std::vector<double>>();
+    std::vector<double> expected_output_unwrap = transform_expected["output_unwrap"].template get<std::vector<double>>();
+
+    std::vector<double> output_unwrap(input_unwrap.size());
+    unwrap(input_unwrap, output_unwrap);
+
+    EXPECT_EQ(input_unwrap.size(), output_unwrap.size());
+
+    for (int i = 0; i < output_unwrap.size(); i++) {
+        EXPECT_NEAR(output_unwrap[i], expected_output_unwrap[i], 2e-15) << "Unexpected real value at index " << i;
+    }
+}
+
 } // namespace

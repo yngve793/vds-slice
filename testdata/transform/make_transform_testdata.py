@@ -44,6 +44,20 @@ if __name__ == "__main__":
     expected["hilbert_result_real_144"] = np.real(hilbert_result).tolist()
     expected["hilbert_result_imag_144"] = np.imag(hilbert_result).tolist()
 
+    # Generate unwrap test data
+    duration = 1.0
+    fs = 400.0
+    n = int(fs * duration)
+    t = np.arange(n) * duration / fs
+    f = 2  # Hz
+    omega = 2 * np.pi * f  # Angular frequency
+    np.random.seed(0)
+    noise = np.random.random_sample(n)  # Generate random noise
+    signal = np.sin(t * omega) * 20 + (noise * 5)  # Create the signal
+    unwrap_signal = np.unwrap(signal)
+    expected["input_unwrap"] = signal.tolist()
+    expected["output_unwrap"] = unwrap_signal.tolist()
+
     json.dump(
         expected,
         codecs.open("transform_expected.json", 'w', encoding='utf-8'),
@@ -69,3 +83,15 @@ if __name__ == "__main__":
     axs[2].set_xlabel("Hilbert transform")
 
     plt.savefig("transform_test_signal.png")
+
+    # Create unwrap signal figure
+    fig, axs = plt.subplots(2)
+    fig.suptitle("Signal = 12Hz(sin) + 19Hz(cos)")
+
+    axs[0].plot(signal)
+    axs[0].set_ylabel("Magnitude")
+
+    axs[1].plot(unwrap_signal, "blue")
+    axs[1].set_ylabel("Magnitude")
+
+    plt.savefig("unwrap_test_signal.png")

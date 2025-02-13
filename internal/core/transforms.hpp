@@ -9,5 +9,6 @@
 void fft(std::vector<std::complex<double>>& in_data, std::vector<std::complex<double>>& out_data);
 void hilbert_transform(std::vector<std::complex<double>>& in_data, std::vector<std::complex<double>>& out_data);
 void ifft(std::vector<std::complex<double>>& in_data, std::vector<std::complex<double>>& out_data);
+void unwrap(std::vector<double>& in_data, std::vector<double>& out_data);
 
 #endif /* TRANSFORMS_HPP */
